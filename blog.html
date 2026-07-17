@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Technology blog — HTCommander</title>
+  <meta name="description" content="Field notes and deep dives on the technology behind HTCommander — the DART modem, Benshi firmware updates, DSP experiments and protocol reverse-engineering." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#screens">Screens</a>
+        <a href="features.html">Deep dive</a>
+        <a href="get-started.html">Get started</a>
+        <a href="blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="get-started.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= PAGE HERO ================= -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Technology blog</span>
+      <h1>Field notes from the bench</h1>
+      <p>Deep dives on the engineering behind HTCommander — real-world findings, protocol reverse-engineering and DSP experiments. The honest ledger of what works, what doesn't, and what we still don't know.</p>
+    </div>
+  </section>
+
+  <!-- ================= DART SERIES ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">The DART modem</h2>
+      <p class="group-sub">Building and tuning an adaptive OFDM modem for sending data over ordinary FM voice radios. Best read in order.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-over-the-air-findings.md" target="_blank" rel="noopener">
+          <span class="kicker">Part 1</span>
+          <h3>Pushing data through FM voice radios</h3>
+          <p>The first over-the-air test on two UV-Pro radios — which modes work, which fail, and the first evidence the ceiling lives in the audio path.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-sbc-bitpool.md" target="_blank" rel="noopener">
+          <span class="kicker">Part 2</span>
+          <h3>Does SBC bitpool matter?</h3>
+          <p>The Bluetooth SBC codec adds a small noise floor under the signal. We measure how much — and why raising the bitpool never moves the ceiling.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-sbc-allocation.md" target="_blank" rel="noopener">
+          <span class="kicker">Part 3</span>
+          <h3>Inside SBC: loudness vs. SNR bit allocation</h3>
+          <p>How SBC spends its bits across subbands, and why switching data frames from loudness to SNR allocation is a free quality gain.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-phase-noise-and-pilots.md" target="_blank" rel="noopener">
+          <span class="kicker">Part 4</span>
+          <h3>Chasing a ghost: proving the real limiter</h3>
+          <p>A phase-noise model and phase-drift meter turn "it's probably phase noise" into a measurement — then pilot-aided tracking fixes it.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-code-shortening.md" target="_blank" rel="noopener">
+          <span class="kicker">Part 5</span>
+          <h3>The bits you already know: code shortening</h3>
+          <p>Short frames are mostly known zero-padding. Telling the decoder those bits are known buys 5+ dB of margin — for free.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-inter-symbol-interference.md" target="_blank" rel="noopener">
+          <span class="kicker">Part 6</span>
+          <h3>Is 125 microseconds enough?</h3>
+          <p>A multipath echo channel tests whether DART's deliberately-short cyclic prefix is big enough — and finds the classic ISI knee.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-scrambling.md" target="_blank" rel="noopener">
+          <span class="kicker">Part 7</span>
+          <h3>Whitening the signal: why a modem scrambles data</h3>
+          <p>Why repetitive data wrecks spectrum, PAPR and phase tracking — and the LDPC-friendly PN15 whitener DART adopts to fix it.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FIRMWARE SERIES ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Firmware updates</h2>
+      <p class="group-sub">Figuring out the radio's firmware-update path — from the cloud check to the two-phase Bluetooth flash.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/benshi-firmware-update.md" target="_blank" rel="noopener">
+          <span class="kicker">Firmware</span>
+          <h3>How a Benshi radio updates its firmware</h3>
+          <p>A walk through the update path — from the cloud check and patch-based download to the device-paced, two-phase GAIA transfer over Bluetooth.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/benshi-firmware-server.md" target="_blank" rel="noopener">
+          <span class="kicker">Firmware</span>
+          <h3>Where does the firmware come from?</h3>
+          <p>A field report on the online side — the gRPC check, the patch-based download, and the DID puzzle we still can't crack.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MORE ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">More field notes</h2>
+      <p class="group-sub">Assorted deep dives from around the project.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/audio-isolate-threading.md" target="_blank" rel="noopener">
+          <span class="kicker">Engineering</span>
+          <h3>Audio isolate threading</h3>
+          <p>Keeping the audio path smooth by moving DSP work off the UI thread and into an isolate.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/channel-share-string.md" target="_blank" rel="noopener">
+          <span class="kicker">Feature</span>
+          <h3>The channel share string</h3>
+          <p>A compact, copy-pasteable encoding for sharing a channel configuration with another operator.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/home-assistant-mqtt.md" target="_blank" rel="noopener">
+          <span class="kicker">Integration</span>
+          <h3>Home Assistant over MQTT</h3>
+          <p>Bridging radio events into Home Assistant through MQTT for automation and dashboards.</p>
+          <span class="post__more">Read on GitHub →</span>
+        </a>
+      </div>
+
+      <div class="center mt-56">
+        <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/README.md" target="_blank" rel="noopener">See the full blog index on GitHub →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#screens">Screens</a></li>
+            <li><a href="get-started.html">Get started</a></li>
+            <li><a href="features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
