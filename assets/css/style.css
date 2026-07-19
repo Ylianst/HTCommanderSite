@@ -56,16 +56,16 @@ body {
   overflow-x: hidden;
 }
 
-/* Ambient background glow */
+/* Ambient background glow — light-blue glow from the top on a black backdrop */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(900px 500px at 78% -8%, rgba(56, 189, 248, 0.12), transparent 60%),
-    radial-gradient(760px 460px at 8% 4%, rgba(34, 211, 168, 0.10), transparent 60%),
-    var(--bg);
+    radial-gradient(1100px 560px at 50% -14%, rgba(56, 189, 248, 0.20), transparent 62%),
+    radial-gradient(640px 340px at 50% -8%, rgba(125, 211, 252, 0.12), transparent 60%),
+    #05070b;
 }
 
 img { max-width: 100%; display: block; }
