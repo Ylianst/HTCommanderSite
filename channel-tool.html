@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Channel string tool — HTCommander</title>
+  <meta name="description" content="Encode a radio channel into an HTCommander channel-share string, or decode a string back into its frequency, offset, tones and flags — right in your browser." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    .ct-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+    @media (max-width: 860px) { .ct-grid { grid-template-columns: 1fr; } }
+    .ct-panel {
+      background: linear-gradient(180deg, var(--surface), var(--bg-2));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .ct-panel h2 { font-size: 1.35rem; margin-bottom: 6px; }
+    .ct-panel > p.ct-sub { font-size: 0.95rem; color: var(--text-dim); margin-bottom: 22px; }
+    .ct-field { margin-bottom: 16px; }
+    .ct-field label { display: block; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); margin-bottom: 6px; }
+    .ct-field input, .ct-field select, .ct-io textarea {
+      width: 100%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      padding: 11px 13px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .ct-field input:focus, .ct-field select:focus, .ct-io textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .ct-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .ct-checks { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 8px 0 4px; }
+    .ct-check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-dim); }
+    .ct-check input { width: auto; accent-color: var(--accent); }
+    .ct-io textarea { min-height: 96px; resize: vertical; font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.9rem; word-break: break-all; }
+    .ct-out {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 0.95rem;
+      color: var(--accent-2);
+      word-break: break-all;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+    .ct-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .ct-msg { font-size: 0.85rem; margin-top: 10px; min-height: 18px; }
+    .ct-msg.ok { color: var(--accent-2); }
+    .ct-msg.err { color: #f87171; }
+    .ct-decoded { margin-top: 18px; display: none; }
+    .ct-decoded table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .ct-decoded td { padding: 7px 6px; border-bottom: 1px solid var(--border); color: var(--text-dim); vertical-align: top; }
+    .ct-decoded td:first-child { color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.76rem; white-space: nowrap; width: 42%; }
+    .ct-decoded td strong { color: var(--text); font-weight: 600; }
+    .hint { font-size: 0.78rem; color: var(--text-faint); margin-top: 5px; }
+    .ct-examples { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#screens">Screens</a>
+        <a href="features.html">Deep dive</a>
+        <a href="get-started.html">Get started</a>
+        <a href="blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= PAGE HERO ================= -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Channel-share string</span>
+      <h1>Encode &amp; decode a channel</h1>
+      <p>Turn a radio channel — frequency, offset, tones and flags — into one short HTCommander channel-share string, or paste a string to read it back. Everything runs locally in your browser.</p>
+    </div>
+  </section>
+
+  <!-- ================= TOOL ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <div class="ct-grid">
+
+        <!-- ENCODE -->
+        <div class="ct-panel">
+          <h2>Encode a channel</h2>
+          <p class="ct-sub">Fill in the channel details to build a string.</p>
+
+          <div class="ct-field">
+            <label for="enc-name">Channel name</label>
+            <input id="enc-name" type="text" maxlength="10" value="Calling" placeholder="e.g. Calling" />
+            <div class="hint">Up to 10 characters. Spaces and symbols are percent-encoded.</div>
+          </div>
+
+          <div class="ct-row">
+            <div class="ct-field">
+              <label for="enc-rx">Receive freq (MHz)</label>
+              <input id="enc-rx" type="text" inputmode="decimal" value="146.52" placeholder="146.52" />
+            </div>
+            <div class="ct-field">
+              <label for="enc-offset">Offset (MHz)</label>
+              <input id="enc-offset" type="text" value="0" placeholder="0, +0.6, -5, =147.315" />
+            </div>
+          </div>
+
+          <div class="ct-row">
+            <div class="ct-field">
+              <label for="enc-txtone">TX tone</label>
+              <select id="enc-txtone"></select>
+            </div>
+            <div class="ct-field">
+              <label for="enc-rxtone">RX tone</label>
+              <select id="enc-rxtone"></select>
+            </div>
+          </div>
+
+          <div class="ct-field">
+            <label>Power</label>
+            <select id="enc-power">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high" selected>High</option>
+            </select>
+          </div>
+
+          <div class="ct-field">
+            <label>Flags</label>
+            <div class="ct-checks">
+              <label class="ct-check"><input id="f-wide" type="checkbox" checked /> Wide (25 kHz)</label>
+              <label class="ct-check"><input id="f-rxam" type="checkbox" /> RX AM</label>
+              <label class="ct-check"><input id="f-txam" type="checkbox" /> TX AM</label>
+              <label class="ct-check"><input id="f-mute" type="checkbox" /> Mute</label>
+              <label class="ct-check"><input id="f-deemph" type="checkbox" /> De-emphasis bypass</label>
+              <label class="ct-check"><input id="f-txdis" type="checkbox" /> TX disabled</label>
+              <label class="ct-check"><input id="f-scan" type="checkbox" /> Scan</label>
+              <label class="ct-check"><input id="f-talkaround" type="checkbox" /> Talk-around</label>
+            </div>
+          </div>
+
+          <div class="ct-out" id="enc-out">HTC:1:Calling:146.52:0:::G1*4A</div>
+          <div class="ct-actions">
+            <button class="btn btn--primary btn--sm" id="enc-copy">Copy string</button>
+            <button class="btn btn--ghost btn--sm" id="enc-send">Send to decoder →</button>
+          </div>
+          <div class="ct-msg" id="enc-msg"></div>
+        </div>
+
+        <!-- DECODE -->
+        <div class="ct-panel">
+          <h2>Decode a string</h2>
+          <p class="ct-sub">Paste text containing an <code>HTC:</code> token.</p>
+
+          <div class="ct-io ct-field">
+            <label for="dec-in">Channel string or message</label>
+            <textarea id="dec-in" placeholder="try this one HTC:1:Calling:146.52:0:::G1*4A 73!">HTC:1:Calling:146.52:0:::G1*4A</textarea>
+          </div>
+
+          <div class="ct-actions" style="margin-top:2px">
+            <button class="btn btn--primary btn--sm" id="dec-btn">Decode</button>
+            <button class="btn btn--ghost btn--sm" id="dec-load">Load into encoder ←</button>
+          </div>
+          <div class="ct-msg" id="dec-msg"></div>
+
+          <div class="ct-decoded" id="dec-decoded">
+            <table>
+              <tbody id="dec-table"></tbody>
+            </table>
+          </div>
+
+          <div class="ct-field" style="margin-top:22px">
+            <label>Examples</label>
+            <div class="ct-examples">
+              <button class="btn btn--ghost btn--sm ct-ex" data-s="HTC:1:Calling:146.52:0:::G1*4A">2 m calling</button>
+              <button class="btn btn--ghost btn--sm ct-ex" data-s="HTC:1:W1AW:449.925:-5:100:100:G0*62">70 cm TSQL</button>
+              <button class="btn btn--ghost btn--sm ct-ex" data-s="HTC:1:GMRS-19:462.65:+5:141.3:141.3:G0*0E">GMRS repeater</button>
+              <button class="btn btn--ghost btn--sm ct-ex" data-s="HTC:1:Air%20Guard:121.5:0:::16*72">Airband</button>
+              <button class="btn btn--ghost btn--sm ct-ex" data-s="HTC:1:Packet:144.39:0:::GS*4D">Packet</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p style="text-align:center;margin-top:40px;color:var(--text-faint);font-size:0.9rem">
+        Read the full format specification in the
+        <a href="blog.html">technology blog</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#screens">Screens</a></li>
+            <li><a href="get-started.html">Get started</a></li>
+            <li><a href="features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script>
+  (function () {
+    "use strict";
+
+    // ---- Crockford Base32 (no I L O U) ----
+    var B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+    function b32char(v) { return B32.charAt(v & 31); }
+    function b32val(c) {
+      var i = B32.indexOf(c.toUpperCase());
+      return i < 0 ? -1 : i;
+    }
+
+    // ---- checksum: XOR of all chars before '*', two-digit uppercase hex ----
+    function checksum(s) {
+      var x = 0;
+      for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); }
+      var h = x.toString(16).toUpperCase();
+      return h.length < 2 ? "0" + h : h;
+    }
+
+    // ---- percent-encode name (unreserved: A-Z a-z 0-9 - _ .) ----
+    function encName(name) {
+      var out = "";
+      for (var i = 0; i < name.length; i++) {
+        var c = name.charAt(i);
+        if (/[A-Za-z0-9\-_.]/.test(c)) { out += c; }
+        else {
+          var bytes = unescape(encodeURIComponent(c));
+          for (var j = 0; j < bytes.length; j++) {
+            var hh = bytes.charCodeAt(j).toString(16).toUpperCase();
+            out += "%" + (hh.length < 2 ? "0" + hh : hh);
+          }
+        }
+      }
+      return out;
+    }
+    function decName(s) {
+      try { return decodeURIComponent(s); } catch (e) { return s; }
+    }
+
+    // ---- frequency: trim trailing zeros ----
+    function fmtFreq(str) {
+      var n = Number(str);
+      if (!isFinite(n)) return null;
+      var f = n.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+      return f;
+    }
+
+    // ---- flag bit masks ----
+    var FLAG = {
+      wide: 0x001, rxam: 0x002, txam: 0x004, mute: 0x008, deemph: 0x010,
+      txdis: 0x020, scan: 0x040, talkaround: 0x080, medpower: 0x100, highpower: 0x200
+    };
+
+    function encodeFlags(f) {
+      var v = 0;
+      if (f.wide) v |= FLAG.wide;
+      if (f.rxam) v |= FLAG.rxam;
+      if (f.txam) v |= FLAG.txam;
+      if (f.mute) v |= FLAG.mute;
+      if (f.deemph) v |= FLAG.deemph;
+      if (f.txdis) v |= FLAG.txdis;
+      if (f.scan) v |= FLAG.scan;
+      if (f.talkaround) v |= FLAG.talkaround;
+      if (f.power === "medium") v |= FLAG.medpower;
+      if (f.power === "high") v |= FLAG.highpower;
+      // 10 bits -> high 5, low 5
+      return b32char((v >> 5) & 31) + b32char(v & 31);
+    }
+
+    function decodeFlags(str) {
+      if (str.length !== 2) return null;
+      var hi = b32val(str.charAt(0)), lo = b32val(str.charAt(1));
+      if (hi < 0 || lo < 0) return null;
+      var v = (hi << 5) | lo;
+      var power = (v & FLAG.highpower) ? "High" : (v & FLAG.medpower) ? "Medium" : "Low";
+      return {
+        v: v,
+        wide: !!(v & FLAG.wide),
+        rxam: !!(v & FLAG.rxam),
+        txam: !!(v & FLAG.txam),
+        mute: !!(v & FLAG.mute),
+        deemph: !!(v & FLAG.deemph),
+        txdis: !!(v & FLAG.txdis),
+        scan: !!(v & FLAG.scan),
+        talkaround: !!(v & FLAG.talkaround),
+        power: power
+      };
+    }
+
+    // ---- tone validation/normalization ----
+    function normTone(t) {
+      t = t.trim();
+      if (t === "") return "";
+      var up = t.toUpperCase();
+      if (/^D\d{1,3}$/.test(up)) {
+        return "D" + up.slice(1).padStart(3, "0");
+      }
+      var n = Number(t);
+      if (isFinite(n) && n > 0) {
+        return (n % 1 === 0) ? String(n) : String(n);
+      }
+      return null;
+    }
+
+    // ---- standard tone lists ----
+    var CTCSS = [
+      "67.0","69.3","71.9","74.4","77.0","79.7","82.5","85.4",
+      "88.5","91.5","94.8","97.4","100.0","103.5","107.2","110.9",
+      "114.8","118.8","123.0","127.3","131.8","136.5","141.3","146.2",
+      "151.4","156.7","159.8","162.2","165.5","167.9","173.8","177.3",
+      "179.9","186.2","189.9","192.8","196.6","199.5","203.5","206.5",
+      "210.7","213.8","218.1","221.3","225.7","229.1","233.6","237.1",
+      "241.8","245.5","250.3","254.1"
+    ];
+    var DCS = [
+      "DCS-023N/047I","DCS-025N/244I","DCS-026N/464I","DCS-031N/627I","DCS-032N/051I","DCS-036N/172I",
+      "DCS-043N/445I","DCS-047N/023I","DCS-051N/032I","DCS-053N/452I","DCS-054N/413I","DCS-065N/271I",
+      "DCS-071N/306I","DCS-072N/245I","DCS-073N/506I","DCS-074N/174I","DCS-114N/712I","DCS-115N/152I",
+      "DCS-116N/754I","DCS-122N/225I","DCS-125N/365I","DCS-131N/364I","DCS-132N/546I","DCS-134N/223I",
+      "DCS-143N/412I","DCS-145N/274I","DCS-152N/115I","DCS-155N/731I","DCS-156N/265I","DCS-162N/503I",
+      "DCS-165N/251I","DCS-172N/036I","DCS-174N/074I","DCS-205N/263I","DCS-212N/356I","DCS-223N/134I",
+      "DCS-225N/122I","DCS-226N/411I","DCS-243N/351I","DCS-244N/025I","DCS-245N/072I","DCS-246N/523I",
+      "DCS-251N/165I","DCS-252N/462I","DCS-255N/446I","DCS-261N/732I","DCS-263N/205I","DCS-265N/156I",
+      "DCS-266N/454I","DCS-271N/065I","DCS-274N/145I","DCS-306N/071I","DCS-311N/664I","DCS-315N/423I",
+      "DCS-325N/526I","DCS-331N/465I","DCS-332N/455I","DCS-343N/532I","DCS-346N/612I","DCS-351N/243I",
+      "DCS-356N/212I","DCS-364N/131I","DCS-365N/125I","DCS-371N/734I","DCS-411N/226I","DCS-412N/143I",
+      "DCS-413N/054I","DCS-423N/315I","DCS-431N/723I","DCS-432N/516I","DCS-445N/043I","DCS-446N/255I",
+      "DCS-452N/053I","DCS-454N/266I","DCS-455N/332I","DCS-462N/252I","DCS-464N/026I","DCS-465N/331I",
+      "DCS-466N/662I","DCS-503N/162I","DCS-506N/073I","DCS-516N/432I","DCS-523N/246I","DCS-526N/325I",
+      "DCS-532N/343I","DCS-546N/132I","DCS-565N/703I","DCS-606N/631I","DCS-612N/346I","DCS-624N/632I",
+      "DCS-627N/031I","DCS-631N/606I","DCS-632N/624I","DCS-654N/743I","DCS-662N/466I","DCS-664N/311I",
+      "DCS-703N/565I","DCS-712N/114I","DCS-723N/431I","DCS-731N/155I","DCS-732N/261I","DCS-734N/371I",
+      "DCS-743N/654I","DCS-754N/116I"
+    ];
+
+    function populateToneSelect(sel) {
+      var opt = document.createElement("option");
+      opt.value = ""; opt.textContent = "None";
+      sel.appendChild(opt);
+
+      var gC = document.createElement("optgroup");
+      gC.label = "CTCSS (Hz)";
+      CTCSS.forEach(function (hz) {
+        var o = document.createElement("option");
+        o.value = normTone(hz);
+        o.textContent = hz + " Hz";
+        gC.appendChild(o);
+      });
+      sel.appendChild(gC);
+
+      var gD = document.createElement("optgroup");
+      gD.label = "DCS";
+      DCS.forEach(function (label) {
+        var o = document.createElement("option");
+        o.value = "D" + label.substring(4, 7); // wire form uses the numeric N code
+        o.textContent = label;
+        gD.appendChild(o);
+      });
+      sel.appendChild(gD);
+    }
+
+    // set a tone select to a value, inserting an option if it isn't a standard tone
+    function setToneSelect(sel, value) {
+      value = value || "";
+      var found = false;
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === value) { found = true; break; }
+      }
+      if (!found) {
+        var o = document.createElement("option");
+        o.value = value;
+        o.textContent = /^D\d{3}$/.test(value) ? "DCS-" + value.slice(1) + "N" : value + " Hz";
+        sel.appendChild(o);
+      }
+      sel.value = value;
+    }
+
+    // ---- offset validation ----
+    function normOffset(o) {
+      o = o.trim();
+      if (o === "") return "0";
+      if (o.charAt(0) === "=") {
+        var f = fmtFreq(o.slice(1));
+        return f === null ? null : "=" + f;
+      }
+      var n = Number(o);
+      if (!isFinite(n)) return null;
+      var body = fmtFreq(Math.abs(n).toString());
+      if (n === 0) return "0";
+      return (n > 0 ? "+" : "-") + body;
+    }
+
+    // =========================================================
+    // ENCODE
+    // =========================================================
+    var $ = function (id) { return document.getElementById(id); };
+
+    function buildString() {
+      var name = $("enc-name").value;
+      var rx = fmtFreq($("enc-rx").value);
+      var offset = normOffset($("enc-offset").value);
+      var txtone = normTone($("enc-txtone").value);
+      var rxtone = normTone($("enc-rxtone").value);
+
+      if (rx === null) return { err: "Receive frequency is not a valid number." };
+      if (offset === null) return { err: "Offset is not valid. Use 0, +0.6, -5 or =147.315." };
+      if (txtone === null) return { err: "TX tone is not valid. Use a CTCSS number (88.5) or DCS code (D023)." };
+      if (rxtone === null) return { err: "RX tone is not valid. Use a CTCSS number (88.5) or DCS code (D023)." };
+
+      var flags = encodeFlags({
+        wide: $("f-wide").checked, rxam: $("f-rxam").checked, txam: $("f-txam").checked,
+        mute: $("f-mute").checked, deemph: $("f-deemph").checked, txdis: $("f-txdis").checked,
+        scan: $("f-scan").checked, talkaround: $("f-talkaround").checked,
+        power: $("enc-power").value
+      });
+
+      var body = "HTC:1:" + encName(name) + ":" + rx + ":" + offset + ":" + txtone + ":" + rxtone + ":" + flags;
+      return { str: body + "*" + checksum(body) };
+    }
+
+    function refreshEncode() {
+      var r = buildString();
+      var out = $("enc-out"), msg = $("enc-msg");
+      if (r.err) {
+        out.textContent = "—";
+        msg.className = "ct-msg err";
+        msg.textContent = r.err;
+      } else {
+        out.textContent = r.str;
+        msg.className = "ct-msg";
+        msg.textContent = "";
+      }
+    }
+
+    [ "enc-name","enc-rx","enc-offset","enc-txtone","enc-rxtone","enc-power",
+      "f-wide","f-rxam","f-txam","f-mute","f-deemph","f-txdis","f-scan","f-talkaround"
+    ].forEach(function (id) {
+      var el = $(id);
+      el.addEventListener("input", refreshEncode);
+      el.addEventListener("change", refreshEncode);
+    });
+
+    $("enc-copy").addEventListener("click", function () {
+      var r = buildString();
+      var msg = $("enc-msg");
+      if (r.err) { msg.className = "ct-msg err"; msg.textContent = r.err; return; }
+      navigator.clipboard && navigator.clipboard.writeText(r.str).then(function () {
+        msg.className = "ct-msg ok"; msg.textContent = "Copied to clipboard.";
+      }, function () {
+        msg.className = "ct-msg err"; msg.textContent = "Could not copy — select the string manually.";
+      });
+    });
+
+    $("enc-send").addEventListener("click", function () {
+      var r = buildString();
+      if (r.err) return;
+      $("dec-in").value = r.str;
+      runDecode();
+    });
+
+    // =========================================================
+    // DECODE
+    // =========================================================
+    function extractToken(text) {
+      // HTC:<version>: ... *HH
+      var m = /HTC:\d+:.*?\*[0-9A-Fa-f]{2}/.exec(text);
+      return m ? m[0] : null;
+    }
+
+    function decodeToken(token) {
+      var star = token.lastIndexOf("*");
+      if (star < 0) return { err: "No checksum found." };
+      var body = token.slice(0, star);
+      var ck = token.slice(star + 1).toUpperCase();
+      if (checksum(body) !== ck) {
+        return { err: "Checksum mismatch — the string is truncated or altered." };
+      }
+      var parts = body.split(":");
+      // HTC : ver : name : rx : offset : txtone : rxtone : flags
+      if (parts.length !== 8 || parts[0] !== "HTC") {
+        return { err: "Malformed channel string." };
+      }
+      var flags = decodeFlags(parts[7]);
+      if (!flags) return { err: "Invalid flag field." };
+      return {
+        version: parts[1],
+        name: decName(parts[2]),
+        rx: parts[3],
+        offset: parts[4],
+        txtone: parts[5],
+        rxtone: parts[6],
+        flagsRaw: parts[7],
+        flags: flags
+      };
+    }
+
+    function toneLabel(t) {
+      if (t === "") return "None";
+      if (/^D\d{3}$/.test(t)) {
+        var code = t.slice(1);
+        for (var i = 0; i < DCS.length; i++) {
+          if (DCS[i].substring(4, 7) === code) return DCS[i];
+        }
+        return "DCS-" + code + "N";
+      }
+      return t + " Hz CTCSS";
+    }
+    function offsetLabel(o) {
+      if (o === "0") return "Simplex";
+      if (o.charAt(0) === "=") return "Split — TX " + o.slice(1) + " MHz";
+      return o + " MHz";
+    }
+
+    function renderDecoded(d) {
+      var flagList = [];
+      flagList.push(d.flags.wide ? "Wide (25 kHz)" : "Narrow (12.5 kHz)");
+      flagList.push("RX " + (d.flags.rxam ? "AM" : "FM"));
+      flagList.push("TX " + (d.flags.txam ? "AM" : "FM"));
+      if (d.flags.mute) flagList.push("Mute");
+      if (d.flags.deemph) flagList.push("De-emphasis bypass");
+      if (d.flags.txdis) flagList.push("TX disabled");
+      if (d.flags.scan) flagList.push("Scan");
+      if (d.flags.talkaround) flagList.push("Talk-around");
+      flagList.push(d.flags.power + " power");
+
+      var rows = [
+        ["Name", d.name],
+        ["Version", d.version],
+        ["Receive", d.rx + " MHz"],
+        ["Offset", offsetLabel(d.offset)],
+        ["TX tone", toneLabel(d.txtone)],
+        ["RX tone", toneLabel(d.rxtone)],
+        ["Flags (0x" + d.flags.v.toString(16).toUpperCase() + " · " + d.flagsRaw + ")", flagList.join(", ")]
+      ];
+      var tbody = $("dec-table");
+      tbody.innerHTML = "";
+      rows.forEach(function (r) {
+        var tr = document.createElement("tr");
+        var td1 = document.createElement("td"); td1.textContent = r[0];
+        var td2 = document.createElement("td");
+        var strong = document.createElement("strong"); strong.textContent = r[1];
+        td2.appendChild(strong);
+        tr.appendChild(td1); tr.appendChild(td2);
+        tbody.appendChild(tr);
+      });
+      $("dec-decoded").style.display = "block";
+    }
+
+    function runDecode() {
+      var msg = $("dec-msg");
+      var text = $("dec-in").value;
+      var token = extractToken(text);
+      if (!token) {
+        $("dec-decoded").style.display = "none";
+        msg.className = "ct-msg err";
+        msg.textContent = "No HTC channel string found in the text.";
+        return null;
+      }
+      var d = decodeToken(token);
+      if (d.err) {
+        $("dec-decoded").style.display = "none";
+        msg.className = "ct-msg err";
+        msg.textContent = d.err;
+        return null;
+      }
+      msg.className = "ct-msg ok";
+      msg.textContent = "Valid channel: " + token;
+      renderDecoded(d);
+      return d;
+    }
+
+    $("dec-btn").addEventListener("click", runDecode);
+    $("dec-in").addEventListener("input", function () {
+      $("dec-msg").textContent = "";
+    });
+
+    $("dec-load").addEventListener("click", function () {
+      var d = runDecode();
+      if (!d) return;
+      $("enc-name").value = d.name;
+      $("enc-rx").value = d.rx;
+      $("enc-offset").value = d.offset;
+      setToneSelect($("enc-txtone"), d.txtone);
+      setToneSelect($("enc-rxtone"), d.rxtone);
+      $("f-wide").checked = d.flags.wide;
+      $("f-rxam").checked = d.flags.rxam;
+      $("f-txam").checked = d.flags.txam;
+      $("f-mute").checked = d.flags.mute;
+      $("f-deemph").checked = d.flags.deemph;
+      $("f-txdis").checked = d.flags.txdis;
+      $("f-scan").checked = d.flags.scan;
+      $("f-talkaround").checked = d.flags.talkaround;
+      $("enc-power").value = d.flags.power.toLowerCase();
+      refreshEncode();
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll(".ct-ex"), function (btn) {
+      btn.addEventListener("click", function () {
+        $("dec-in").value = btn.getAttribute("data-s");
+        runDecode();
+      });
+    });
+
+    // initial render
+    populateToneSelect($("enc-txtone"));
+    populateToneSelect($("enc-rxtone"));
+    refreshEncode();
+    runDecode();
+  })();
+  </script>
+</body>
+</html>
