@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whitening the Signal: Why a Modem Scrambles Its Own Data — HTCommander</title>
+  <meta name="description" content="Seventh in our series on running data over FM voice radios. So far we've chased phase noise, argued with the SBC codec, and shortened codes. This time we tackle a quieter problem — what happens when the data you're sending is *boring*, and why every serious modem deliberately scrambles its own bits before putting them on the air." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">DART Modem</span>
+      <h1>Whitening the Signal: Why a Modem Scrambles Its Own Data</h1>
+      <p>Seventh in our series on running data over FM voice radios. So far we&#39;ve chased phase noise, argued with the SBC codec, and shortened codes. This time we tackle a quieter problem — what happens when the data you&#39;re sending is <em>boring</em>, and why every serious modem deliberately scrambles its own bits before putting them on the air.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The problem with sending zeros</h2>
+<p>Radios don&#39;t like patterns. Send a long run of the same byte — a file full of
+zeros, a padded frame, an idle keep-alive — and a naïve modem faithfully turns it
+into a long run of the same symbol. That sounds harmless. It isn&#39;t.</p>
+<p>For a QAM modem like DART, a repetitive bit stream causes four separate
+headaches at once:</p>
+<ul>
+<li><strong>Spectral lines.</strong> A periodic symbol pattern concentrates energy at a few
+frequencies instead of spreading it across the band. Those spikes eat into your
+peak power budget and can even splatter outside the intended passband.</li>
+<li><strong>PAPR blows up.</strong> Our whole waveform choice — DFT-spread OFDM — exists to keep
+the peak-to-average power ratio low so the radio&#39;s limiter doesn&#39;t crush us. A
+pathological repeating pattern can undo that and hand back a high crest factor.</li>
+<li><strong>The constellation collapses.</strong> If the coded bits barely change, the QAM
+symbols pile onto a handful of constellation points. Now the decision-directed
+channel refinement and the pilot-based phase tracker — the very machinery we
+built in <a href="dart-phase-noise-and-pilots.md">Part 4</a> — are trying to estimate the
+channel from a signal that never exercises most of the constellation.</li>
+<li><strong>Recovery loops starve.</strong> Timing and carrier recovery live on <em>transitions</em>. A
+DC-like stream gives them nothing to lock to.</li>
+</ul>
+<p>The fix is almost paradoxical: to make the data robust, you first make it look
+like <strong>random noise</strong>. That&#39;s scrambling — also called <em>energy dispersal</em> or
+<em>whitening</em>. You XOR the data against a known pseudo-random bit sequence before
+transmit, and XOR it back at the receiver. The channel sees a nice flat,
+noise-like spectrum regardless of what the user actually sent; the receiver
+undoes the scramble and gets the real bytes back.</p>
+<h2>&quot;But doesn&#39;t LDPC already randomize things?&quot;</h2>
+<p>This was our first instinct too — DART already runs every payload through an LDPC
+encoder and a block interleaver. Surely that scrambles the bits enough?</p>
+<p>No, and the reason is worth stating clearly because it decides <em>where</em> the
+scrambler has to go. LDPC is <strong>linear</strong>: the all-zero input encodes to the
+all-zero codeword. Feed the encoder a block of zeros and you get a block of
+zeros out the other side — parity and all. The interleaver just shuffles those
+zeros into different zeros. So an all-zero payload sails straight through FEC and
+interleaving and still maps to the same constellation point over and over.</p>
+<p>That single fact rules out the tempting option of scrambling the <em>user</em> bytes
+before the encoder. To actually whiten the <strong>transmitted symbols</strong>, the scrambler
+has to sit <strong>after</strong> LDPC and interleaving — right before the constellation
+mapper. Whiten the coded bits, and even an all-zero payload produces a
+full-entropy symbol stream.</p>
+<h2>The two families of scrambler</h2>
+<p>There are two classic ways to build one, and the choice matters a lot for a
+FEC-protected link.</p>
+<h3>Multiplicative (self-synchronizing) — the G3RUH approach</h3>
+<p>If you&#39;ve done 9600-baud packet radio, you&#39;ve already met this one. The <strong>G3RUH</strong>
+scrambler — standard on 9600-baud AX.25, and already implemented elsewhere in
+HTCommander for exactly that mode — uses the polynomial:</p>
+<pre><code>x^17 + x^12 + 1
+</code></pre>
+<p>It&#39;s <em>multiplicative</em> (or <em>self-synchronizing</em>): the transmitted bit is fed back
+into the shift register. The beautiful property is that the receiver&#39;s
+descrambler needs no frame sync at all — it locks itself automatically after a
+handful of bits, no matter where it started listening. That&#39;s perfect for a
+continuous, unframed bit stream like classic 9600 FSK, which has no preamble to
+anchor to.</p>
+<p>But it has a nasty side effect: <strong>error multiplication</strong>. Because each received
+bit is fed back through the taps, a <em>single</em> channel bit error produces several
+descrambled errors — one for each feedback tap, so three errors per bit for
+<code>x^17 + x^12 + 1</code>. On raw 9600 that&#39;s a minor annoyance. In front of a <strong>soft
+LDPC decoder</strong> it&#39;s a disaster: it corrupts the log-likelihood ratios and turns
+one weak bit into a small burst of wrong ones, precisely the input FEC is worst
+at. Self-synchronizing scramblers and modern soft FEC are a bad marriage.</p>
+<h3>Additive (frame-synchronous) — reset every frame</h3>
+<p>The other family is <em>additive</em> (or <em>frame-synchronous</em>). Here the pseudo-random
+sequence is generated independently — a plain LFSR, <strong>reset to a fixed seed at the
+start of every frame</strong> — and simply XORed onto the data. There&#39;s no feedback from
+the channel, so:</p>
+<ul>
+<li><strong>No error multiplication.</strong> One channel error stays exactly one error. FEC
+sees the clean, additive-noise picture it was designed for.</li>
+<li><strong>Soft-decision friendly.</strong> Descrambling a <em>hard</em> bit is an XOR; descrambling a
+<em>soft</em> LLR is even simpler — where the scramble bit is 1 you just <strong>flip the
+sign</strong> of the LLR. It&#39;s completely lossless for the decoder.</li>
+</ul>
+<p>The one thing it needs is frame synchronization — the receiver has to know where
+the frame starts so it can reset its LFSR to the same seed. DART already has
+that: the Zadoff-Chu / chirp preamble exists precisely to nail down frame timing.
+The cost we&#39;d pay for a self-synchronizing scrambler is a cost we&#39;ve already paid.</p>
+<p>Here&#39;s the trade laid out:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Multiplicative (G3RUH)</th>
+<th>Additive (frame-sync)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sync</td>
+<td>Self-synchronizing (free)</td>
+<td>Needs frame sync</td>
+</tr>
+<tr>
+<td>Error behavior</td>
+<td><strong>Multiplies</strong> errors ×(taps+1)</td>
+<td><strong>1 error → 1 error</strong></td>
+</tr>
+<tr>
+<td>Soft FEC (LDPC)</td>
+<td>Corrupts LLRs</td>
+<td>Clean LLR sign-flip</td>
+</tr>
+<tr>
+<td>Best fit</td>
+<td>Continuous unframed streams (9600 AX.25)</td>
+<td>Framed, FEC&#39;d packets (DART)</td>
+</tr>
+</tbody></table>
+</div>
+<p>For a framed, LDPC-protected, QAM packet modem the answer isn&#39;t close. Additive
+wins.</p>
+<h2>Picking the polynomial</h2>
+<p>An additive scrambler is only as good as its sequence length. If the LFSR&#39;s
+period is shorter than the frame, the &quot;random&quot; pattern repeats within a single
+packet — and a repeating pattern is exactly the periodic structure we were trying
+to destroy. So the period has to comfortably exceed the longest frame&#39;s coded-bit
+count.</p>
+<p>A DART payload can reach ~1 kB, which after FEC is on the order of 16,000 coded
+bits. That immediately disqualifies the popular short generators:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Polynomial</th>
+<th>Name</th>
+<th align="right">Period</th>
+<th>Verdict for DART</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>x^7 + x^4 + 1</code></td>
+<td>PN7</td>
+<td align="right">127</td>
+<td>Repeats ~130×/frame ✗</td>
+</tr>
+<tr>
+<td><code>x^9 + x^5 + 1</code></td>
+<td>PN9 (BLE, 802.11)</td>
+<td align="right">511</td>
+<td>Repeats ~30×/frame ✗</td>
+</tr>
+<tr>
+<td><code>x^15 + x^14 + 1</code></td>
+<td>PN15 (DVB)</td>
+<td align="right">32,767</td>
+<td><strong>No repeat within a frame ✓</strong></td>
+</tr>
+<tr>
+<td><code>x^23 + x^18 + 1</code></td>
+<td>PN23 (DVB-S)</td>
+<td align="right">8,388,607</td>
+<td>Overkill headroom ✓</td>
+</tr>
+</tbody></table>
+</div>
+<p><strong>PN15</strong> (<code>x^15 + x^14 + 1</code>, period 32,767) clears the largest frame with room to
+spare and is a well-worn choice — it&#39;s the DVB energy-dispersal generator. That&#39;s
+what DART will adopt. PN23 is the fallback if frames ever grow past PN15&#39;s
+headroom.</p>
+<h2>The plan for DART</h2>
+<p>Concretely, the scrambler slots into the existing chain at exactly one point on
+each side, and nothing else moves.</p>
+<p><strong>Transmit</strong> — after interleaving, before the symbol mapper:</p>
+<pre><code>payload → CRC-32 → LDPC encode → interleave → [SCRAMBLE] → map → SC-FDMA → PCM
+</code></pre>
+<p><strong>Receive</strong> — after soft demapping, before deinterleaving:</p>
+<pre><code>PCM → demod → soft-demap (LLRs) → [DESCRAMBLE] → deinterleave → LDPC → CRC
+</code></pre>
+<p>The mechanics:</p>
+<ul>
+<li>A <strong>PN15 LFSR</strong>, reset to a fixed constant seed at the start of each frame&#39;s
+payload, produces a bit for every coded bit.</li>
+<li><strong>TX:</strong> XOR that PN sequence onto the interleaved coded bits — the last thing
+that happens in the bit domain before symbols are formed.</li>
+<li><strong>RX:</strong> descrambling is a <strong>conditional sign-flip</strong> on the soft LLRs (<code>llr = -llr</code> wherever the PN bit is 1), applied before deinterleave. No hard decisions,
+no loss of soft information going into the LDPC decoder.</li>
+<li>The same generator covers both the OFDM modes (0–5) and the Mode F fallback —
+they share the interleave/deinterleave stage, so they share the scrambler for
+free.</li>
+</ul>
+<p>Because it&#39;s additive and frame-reset, it&#39;s invisible to everything downstream: a
+bit error is still one bit error, the LDPC decoder sees exactly the channel it was
+designed for, and the constellation, PAPR, and phase-tracking machinery all get a
+uniformly-exercised, noise-like symbol stream to work with — even when the user is
+sending a megabyte of zeros.</p>
+<h2>What we expect to see</h2>
+<p>Two measurements will tell us it worked, both using tools we already built:</p>
+<ul>
+<li><strong>PAPR on a worst-case payload.</strong> Encode an all-zero frame and compare the crest
+factor with and without scrambling. Without it, all-zeros is close to the
+worst pattern the modulator can produce; with it, the PAPR should collapse back
+to the same value as random data.</li>
+<li><strong>No decode regression.</strong> Loopback across all modes, clean and through the SBC
+codec with noise, has to stay green — scrambling must be a pure whitening pass
+that the receiver perfectly undoes, costing nothing in sensitivity.</li>
+</ul>
+<p>That&#39;s the bar: a flatter spectrum and tamer peaks on pathological data, zero cost
+on everything else. We&#39;ll report the numbers once it&#39;s wired in.</p>
+<hr>
+<p><em>Modem: DART adaptive OFDM (SC-FDMA) + LDPC in HTCommander. The G3RUH
+(<code>x^17 + x^12 + 1</code>) scrambler referenced here is the same one HTCommander already
+uses for 9600-baud AX.25. Seventh in a series.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-scrambling.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

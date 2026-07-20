@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Audio Off the Main Thread: Moving the Radio Pipeline to Its Own Isolate — HTCommander</title>
+  <meta name="description" content="A design note that started life **before** we wrote any code — the plan and the reasoning behind it — now updated with what we found actually building it. HTCommander decodes Bluetooth audio, plays it, demodulates data, and decodes SSTV images, and until recently it did all of that on the same thread that paints the user interface. This is the story of why that's a problem, why the honest fix is a dedicated audio isolate, and the one hard lesson that reshaped the design." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">App Architecture</span>
+      <h1>Getting Audio Off the Main Thread: Moving the Radio Pipeline to Its Own Isolate</h1>
+      <p>A design note that started life <strong>before</strong> we wrote any code — the plan and the reasoning behind it — now updated with what we found actually building it. HTCommander decodes Bluetooth audio, plays it, demodulates data, and decodes SSTV images, and until recently it did all of that on the same thread that paints the user interface. This is the story of why that&#39;s a problem, why the honest fix is a dedicated audio isolate, and the one hard lesson that reshaped the design.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<blockquote>
+<p><strong>Update (build notes).</strong> Phase 1 has landed: SBC decode, WAV recording and the
+transmit pacing loop now run in a dedicated background isolate. Along the way we
+hit a wall that changed the architecture — <strong>you cannot play audio from a
+background isolate</strong> — and the reasons are worth a section of their own (see
+<em>“The hard lesson”</em> below). The plan sections are kept as originally written;
+the findings correct them where reality disagreed.</p>
+</blockquote>
+<hr>
+<h2>The symptom: audio that stutters when the UI is busy</h2>
+<p>The bug report is easy to reproduce. Open HTCommander, start receiving audio, then
+drag the window, resize a panel, or scroll a long list. The audio hitches. Not the
+radio, not the Bluetooth link — the <em>playback</em> itself breaks up, precisely while
+the interface is doing something expensive.</p>
+<p>That timing is the whole clue. If audio glitches exactly when the UI is busy, then
+audio and the UI are competing for the same resource. In a Flutter app, that
+resource is the <strong>main isolate</strong> — the single thread that runs your Dart code and
+drives the widget rebuild/layout/paint cycle. Whatever else is running there has
+to wait its turn.</p>
+<p>And right now, <em>everything</em> audio runs there.</p>
+<h2>Where the time actually goes</h2>
+<p>Follow an incoming audio frame through the app and every stop is on the main
+isolate:</p>
+<pre><code>Bluetooth RFCOMM bytes
+  → EventChannel delivers them to the main isolate
+    → frame extraction / unescaping
+      → SBC decode  (pure-Dart codec, real CPU)
+        → volume scaling → feed the speaker
+          → dispatch &quot;AudioDataAvailable&quot; on the DataBroker
+             → software modem demodulation  (per-sample AFSK / PSK / DART)
+             → SSTV monitor  (tone detection, image decode)
+             → WAV recording, metering, waveform UI
+</code></pre>
+<p>Two things about that pipeline make it fragile.</p>
+<p><strong>First, the DataBroker dispatch is synchronous.</strong> HTCommander&#39;s <code>DataBroker</code> is a
+publish/subscribe hub, and when audio publishes an <code>AudioDataAvailable</code> event the
+broker calls every subscriber <em>inline, in a plain loop, on the calling thread</em>.
+So the software modem&#39;s demodulator and the SSTV decoder don&#39;t run &quot;later&quot; or
+&quot;in the background&quot; — they run <strong>inside</strong> the audio frame handler, one after
+another, before control returns. A single 80 ms audio frame can trigger tens of
+thousands of per-sample demodulator iterations right there in the hot path.</p>
+<p><strong>Second, none of it yields to the UI.</strong> The frame handler is one long
+synchronous call. While it runs, the main isolate cannot rebuild a widget or paint
+a pixel — and while the UI is mid-paint, that same handler cannot run to feed the
+next block of audio to the speaker. They take turns, and whoever is mid-task makes
+the other wait. That mutual blocking <em>is</em> the stutter.</p>
+<p>There&#39;s a telling comment buried in the DSP port, in <code>audio_buffer.dart</code>:</p>
+<blockquote>
+<p><em>the original C# used lock objects for thread safety. The Dart port is single
+threaded (per isolate), so the locks are omitted.</em></p>
+</blockquote>
+<p>The demodulator was originally written to run on its own thread. When it was
+ported to Dart, the locks were dropped — correctly, because there was only one
+thread now. But that also quietly moved a genuinely multi-threaded DSP workload
+onto the UI thread. We never gave it a thread of its own back. This plan is about
+returning it.</p>
+<h2>Why &quot;just make it async&quot; isn&#39;t enough</h2>
+<p>The tempting quick fix is to sprinkle <code>async</code>/<code>await</code> around and hope the work
+interleaves with the UI. It won&#39;t help, and it&#39;s worth being precise about why.</p>
+<p><code>async</code> in Dart does <strong>not</strong> create a new thread. An <code>await</code> only yields at
+suspension points; the CPU-bound loop between two awaits still runs to completion
+on the same isolate, still blocking paint. You can chop a demodulator into smaller
+async chunks, but that just trades one long stall for many small ones and adds
+scheduling jitter — bad for a real-time audio stream that wants steady, on-time
+delivery. Audio doesn&#39;t want to be <em>fair</em>; it wants to be <em>uninterrupted</em>.</p>
+<p>The only way to run Dart code truly in parallel with the UI is a second
+<strong>isolate</strong> — Dart&#39;s model of an independent worker with its own memory and event
+loop, communicating by message passing. That&#39;s the real fix.</p>
+<h2>The plan: a dedicated audio isolate</h2>
+<p>We&#39;re going to move the whole receive pipeline into one long-lived background
+isolate and leave the main isolate to do what it&#39;s good at — driving the UI.</p>
+<pre><code> MAIN ISOLATE (UI)                         AUDIO ISOLATE (DSP + playback)
+ ─────────────────                         ──────────────────────────────
+ EventChannel receives BT bytes  ──raw──▶  frame extract / unescape
+ forwards them (zero-copy)                 SBC decode
+                                           feed the speaker  (real-time)
+ re-dispatches to DataBroker  ◀─batched──  software modem demod  → data frames
+ (recording, STT, waveform UI)             SSTV decode           → images
+ control (mode, mute, volume) ──events──▶  (consumed in-isolate, no round trip)
+</code></pre>
+<p>The division of labour follows one rule: <strong>the real-time path lives in the
+isolate; the UI gets updates when it can take them.</strong> Concretely:</p>
+<ul>
+<li><strong>The audio isolate owns the clock-sensitive work</strong> — SBC decode and, crucially,
+feeding the speaker. Playback is now driven by a thread that never has to stop
+to paint a frame, so it stays on time no matter what the UI is doing.</li>
+<li><strong>The modem and SSTV decoders move in too</strong>, and they consume the decoded PCM
+<em>right there</em> in the isolate. No broker round-trip, no synchronous fan-out on
+the UI thread. When they produce something meaningful — a decoded AX.25 frame, a
+finished SSTV image — that result is sent to the main isolate as a message.</li>
+<li><strong>The DataBroker dispatch becomes non-real-time.</strong> The isolate batches full,
+lossless PCM (say every 100–200 ms) and ships it back to the main isolate, which
+publishes <code>AudioDataAvailable</code> for the things that genuinely live on the UI side:
+the waveform display, the WAV recorder, and speech-to-text. None of those need
+sample-immediate delivery; they need <em>complete, in-order</em> audio, which batching
+preserves.</li>
+</ul>
+<p>That last point is exactly the trade the problem allows. Playback and
+demodulation must be prompt. The broker fan-out — the recording, the scope, the
+transcription — does not. So we make the prompt part prompt, and let the rest
+arrive in tidy batches a fraction of a second later.</p>
+<h2>The hard lesson: you can&#39;t play audio from a background isolate</h2>
+<p>Most of the pipeline is pure Dart — the SBC decoder, the modem, the SSTV
+decoder — and pure Dart moves between isolates without ceremony. The catch is the
+speaker.</p>
+<p>Playback goes through a <strong>platform channel</strong> to native code (a small PCM player
+plugin on Windows, macOS, and Linux; <code>flutter_pcm_sound</code> on Android). The original
+plan leaned on a Flutter 3.7 feature: capture a <code>RootIsolateToken</code> on the main
+isolate, hand it to the worker, call
+<code>BackgroundIsolateBinaryMessenger.ensureInitialized(token)</code>, and then invoke the
+player&#39;s <code>MethodChannel</code> straight from the worker. We built exactly that — and the
+app crashed the instant it opened the audio device:</p>
+<pre><code>Unsupported operation: Background isolates do not support setMessageHandler().
+Messages from the host platform always go to the root isolate.
+</code></pre>
+<p>Here&#39;s the asymmetry we&#39;d missed. A background isolate can <strong>send</strong> to the
+platform — <code>invokeMethod</code> calls are proxied to the platform thread just fine. What
+it <em>cannot</em> do is <strong>receive</strong>: no <code>EventChannel</code> streams, no <code>setMethodCallHandler</code>,
+no native-to-Dart callbacks. As the error says plainly, messages <em>from</em> the host
+platform always go to the root isolate, full stop.</p>
+<p>And our PCM player needs to receive. It exposes a <strong>drain callback</strong> — the native
+side tells Dart “the buffer has fallen below the threshold, send more” — over an
+<code>EventChannel</code>. That callback is how we apply back-pressure and decide when to drop
+a chunk to catch up. It is native-to-Dart, so it simply cannot be wired up from a
+background isolate. (The same is true of <code>flutter_pcm_sound</code> on Android, whose feed
+callback rides a method channel the same way.) The player, in other words, is
+inherently a root-isolate citizen.</p>
+<p>So we took the fallback the plan had already reserved, and it turned out to be the
+better design anyway: <strong>the player stays on the root isolate; the isolate does the
+CPU work and hands finished PCM back for the host to feed.</strong></p>
+<pre><code> MAIN ISOLATE (UI + plugins)               AUDIO ISOLATE (pure-Dart DSP)
+ ─────────────────────────                 ────────────────────────────
+ EventChannel receives BT bytes  ──raw──▶  frame extract / unescape
+ forwards them (zero-copy)                 SBC decode  (real CPU)
+ feed the speaker  ◀───PCM───────────────  volume-scale + record
+ relay to Bluetooth  ◀──framed TX────────  transmit SBC encode + pacing
+ re-dispatch to DataBroker  ◀──events────  (modem + SSTV land here in Phase 2)
+ control (mode, mute, volume) ──cmds────▶
+</code></pre>
+<p>The crucial realisation is that <strong>feeding the device is cheap</strong> — it&#39;s a single
+<code>invokeMethod</code> that hands a buffer to native code, which has its own audio thread
+and its own ring buffer (about 125 ms of it). What was expensive, and what actually
+caused the stutter, was the <em>SBC decode and demodulation</em> sitting in front of that
+feed. Move those off the UI isolate and the main isolate has almost nothing left to
+do per frame — so even mid-paint it can service the feed promptly and the ring
+buffer never underruns. We get the win without the player ever leaving the root
+isolate. As a bonus, the isolate now makes <strong>zero platform-channel calls at all</strong>,
+which sidesteps the whole class of background-messaging problems.</p>
+<p>Two platforms opt out entirely by design: <strong>iOS and web have no audio channel in
+HTCommander</strong>, so there&#39;s nothing to move; the isolate is simply never spawned
+there.</p>
+<h2>Doing it in phases (so we can stop and check)</h2>
+<p>We&#39;re deliberately not landing this as one giant commit. The pipeline has real
+consequences — a broken modem means dropped packets, a broken playback means dead
+audio — so the plan is staged to be verifiable at each step:</p>
+<ol>
+<li><strong>Infrastructure + SBC decode + transmit — DONE.</strong> We stood up the isolate, the
+message protocol, and the zero-copy byte transfer, and moved SBC decode/encode,
+WAV recording and the transmit pacing loop into it. This is where we learned the
+playback lesson above and settled the final split (DSP in the isolate, player on
+the host). The primary symptom — playback that hitches under UI load — is
+addressed, because the heavy decode no longer shares the UI thread.</li>
+<li><strong>Move the software modem and SSTV — next.</strong> The bigger refactor, because the
+modem is deeply wired into the broker for its settings and its transmit path
+(including the carrier-sense that keeps it from transmitting over someone else).
+Moving the whole modem in — receive, transmit, and channel-busy detection
+together — keeps that logic self-consistent, with a thin proxy on the main
+isolate bridging the control events both directions. These are pure Dart, so
+unlike the player they move into the isolate cleanly.</li>
+<li><strong>Clean up and profile.</strong> Remove the now-dead in-line paths and confirm on a
+DevTools timeline that the audio work really has left the UI thread.</li>
+</ol>
+<p>Staging it this way meant the first tangible win — audio that doesn&#39;t hitch —
+arrived early and independently, and it&#39;s also where the architecture got its one
+big correction before we built anything on top of it.</p>
+<h2>What &quot;done&quot; looks like</h2>
+<p>We&#39;ll know it worked when:</p>
+<ul>
+<li>Dragging, resizing, and scrolling the UI no longer disturbs playback, and a
+DevTools timeline shows the audio work off the UI thread.</li>
+<li>AFSK1200, PSK2400, and DART still decode over the air, and the existing modem
+streaming test still passes — the DSP is pure Dart and shouldn&#39;t change, only
+<em>where</em> it runs.</li>
+<li>SSTV still auto-detects and saves images; recorded WAV files are gap-free and
+in order; speech-to-text still transcribes.</li>
+<li>Transmit still keys up, still senses a busy channel before transmitting, and the
+peer still receives our frames.</li>
+<li>iOS and web behave exactly as before.</li>
+</ul>
+<p>That&#39;s the bar: the same radio, the same decoders, the same recordings — just no
+longer fighting the paint loop for a thread. We&#39;ll report how the real timeline
+looks once the first phase is in.</p>
+<hr>
+<p><em>Architecture: Flutter/Dart. The receive/transmit DSP — SBC decode/encode, WAV
+recording and the transmit pacing loop — now runs in a dedicated background
+isolate; the software modem and SSTV follow in Phase 2. The PCM player stays on the
+root isolate because background isolates can send to the platform but cannot
+receive from it (no <code>EventChannel</code>/callback delivery), so the isolate hands decoded
+PCM back to the host to feed. The isolate makes no platform-channel calls at all.
+Windows / macOS / Linux / Android only; iOS and web have no audio channel and keep
+the current path.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/audio-isolate-threading.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

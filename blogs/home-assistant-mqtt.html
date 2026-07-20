@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Radio, on the Dashboard: Home Assistant Integration over MQTT — HTCommander</title>
+  <meta name="description" content="How HTCommander turns a Benshi handheld into a first-class Home Assistant device — battery, GPS, volume, squelch, scan, channels, and incoming APRS messages — using nothing but an MQTT broker and Home Assistant's own auto-discovery. And how to set it up in a couple of minutes." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Home Automation &amp; Integrations</span>
+      <h1>Your Radio, on the Dashboard: Home Assistant Integration over MQTT</h1>
+      <p>How HTCommander turns a Benshi handheld into a first-class Home Assistant device — battery, GPS, volume, squelch, scan, channels, and incoming APRS messages — using nothing but an MQTT broker and Home Assistant&#39;s own auto-discovery. And how to set it up in a couple of minutes.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The idea</h2>
+<p>Home Assistant is the hub a lot of people already run for everything else in
+their shack and their house — lights, sensors, automations, dashboards. A radio
+sitting on the desk is just another device worth watching: <em>What&#39;s the battery
+at? Is GPS locked? Which channel is it on? Did an APRS message just come in for
+me?</em> And, when you want it, worth <strong>controlling</strong>: nudge the volume, change the
+squelch, flip on scan, switch channels — from a dashboard, a phone, or an
+automation.</p>
+<p>HTCommander already talks to the radio over Bluetooth and already has a tidy
+internal event bus. Home Assistant already speaks MQTT and knows how to
+auto-create devices from it. So the integration is mostly a <strong>bridge</strong>: take the
+radio state HTCommander already has, publish it to MQTT in the shape Home
+Assistant expects, and turn inbound MQTT commands back into radio actions.</p>
+<p>This post explains how that bridge works and how to turn it on.</p>
+<blockquote>
+<p><strong>Desktop only.</strong> The Home Assistant bridge runs on the desktop builds of
+HTCommander — <strong>Windows, Linux, and macOS</strong>. It is intentionally left out of
+the iOS and Android builds, which don&#39;t run a background MQTT client.</p>
+</blockquote>
+<hr>
+<h2>What you get in Home Assistant</h2>
+<p>Once it&#39;s connected, <strong>each radio you have connected in HTCommander shows up as
+its own device</strong> in Home Assistant. Connect two radios and you get two devices,
+each with its own entities. The entities map straight onto the things you&#39;d
+otherwise reach for in the app:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>Home Assistant type</th>
+<th>Direction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Battery</td>
+<td>Sensor (<code>%</code>)</td>
+<td>Monitor</td>
+</tr>
+<tr>
+<td>Firmware version</td>
+<td>Sensor</td>
+<td>Monitor</td>
+</tr>
+<tr>
+<td>GPS position (lat / lon / altitude / lock)</td>
+<td>Sensors</td>
+<td>Monitor</td>
+</tr>
+<tr>
+<td>Incoming APRS message</td>
+<td>Sensors</td>
+<td>Monitor</td>
+</tr>
+<tr>
+<td>Volume</td>
+<td>Number (0–15)</td>
+<td><strong>Control</strong></td>
+</tr>
+<tr>
+<td>Squelch</td>
+<td>Number (0–15)</td>
+<td><strong>Control</strong></td>
+</tr>
+<tr>
+<td>Scan</td>
+<td>Switch</td>
+<td><strong>Control</strong></td>
+</tr>
+<tr>
+<td>Dual Watch</td>
+<td>Switch</td>
+<td><strong>Control</strong></td>
+</tr>
+<tr>
+<td>GPS</td>
+<td>Switch</td>
+<td><strong>Control</strong></td>
+</tr>
+<tr>
+<td>VFO A / VFO B channel</td>
+<td>Select</td>
+<td><strong>Control</strong></td>
+</tr>
+<tr>
+<td>Region</td>
+<td>Select</td>
+<td><strong>Control</strong></td>
+</tr>
+</tbody></table>
+</div>
+<p>Monitor entities update live as the radio reports new state. Control entities
+send the change back down to the radio the moment you flip them in Home
+Assistant — the same code paths the HTCommander UI uses.</p>
+<p>When a radio disconnects from HTCommander, its Home Assistant entities go
+<strong>unavailable</strong> (greyed out) rather than reporting stale values; they come back
+when the radio reconnects.</p>
+<hr>
+<h2>How it works</h2>
+<h3>MQTT in one paragraph</h3>
+<p>MQTT is a lightweight publish/subscribe protocol. Clients connect to a central
+<strong>broker</strong> (Home Assistant users almost always run the <em>Mosquitto</em> add-on) and
+either <strong>publish</strong> messages to a <em>topic</em> (a slash-separated string like
+<code>htcommander/uv-pro-ab12/battery</code>) or <strong>subscribe</strong> to topics to receive them.
+HTCommander is one such client; Home Assistant is another. They never talk to
+each other directly — the broker sits in the middle.</p>
+<pre class="mermaid">flowchart LR
+  Radio[&quot;Benshi radio\n(Bluetooth)&quot;] &lt;--&gt; HTC[&quot;HTCommander\n(desktop)&quot;]
+  HTC &lt;--&gt;|MQTT| Broker[&quot;MQTT broker\n(Mosquitto)&quot;]
+  Broker &lt;--&gt;|MQTT| HA[&quot;Home Assistant&quot;]
+  HA --&gt; Dash[&quot;Dashboards &amp;\nAutomations&quot;]
+</pre>
+<h3>Auto-discovery: no YAML required</h3>
+<p>The classic pain of MQTT integrations is hand-writing entity definitions in
+Home Assistant&#39;s <code>configuration.yaml</code>. Home Assistant solved this with <strong>MQTT
+Discovery</strong>: a device announces itself by publishing a small JSON <em>config</em>
+message to a well-known <code>homeassistant/.../config</code> topic, and Home Assistant
+creates the entity automatically.</p>
+<p>HTCommander does exactly that. For each connected radio it publishes one
+discovery message per entity. A battery sensor, for example, looks like this:</p>
+<pre><code class="language-jsonc">// topic: homeassistant/sensor/htcommander_ab12_battery/config
+{
+  &quot;name&quot;: &quot;Battery&quot;,
+  &quot;state_topic&quot;: &quot;htcommander/uv-pro-ab12/battery&quot;,
+  &quot;unique_id&quot;: &quot;htcommander_ab12_battery&quot;,
+  &quot;device&quot;: {
+    &quot;identifiers&quot;: [&quot;htcommander_ab12&quot;],
+    &quot;name&quot;: &quot;UV-Pro (AB:12)&quot;,
+    &quot;manufacturer&quot;: &quot;Benshi&quot;,
+    &quot;model&quot;: &quot;UV-Pro&quot;
+  },
+  &quot;unit_of_measurement&quot;: &quot;%&quot;,
+  &quot;value_template&quot;: &quot;{{ value_json.battery }}&quot;,
+  &quot;icon&quot;: &quot;mdi:battery&quot;
+}
+</code></pre>
+<p>The shared <code>device</code> block is what groups every entity under a single card in
+Home Assistant. The <code>unique_id</code> and the device <code>identifiers</code> are derived from the
+<strong>radio&#39;s Bluetooth address</strong>, so a given radio always maps to the same Home
+Assistant device — even across restarts — and two radios never collide.</p>
+<p>Discovery messages are published <strong>retained</strong>, so Home Assistant remembers your
+radios after a reboot of either side.</p>
+<h3>State: from the radio to the dashboard</h3>
+<p>Internally, HTCommander is built around a small pub/sub event bus called the
+<strong>DataBroker</strong>. Every part of the app — the radio driver, the UI, the web
+server — talks through it instead of calling each other
+directly. When the radio reports a new battery level, GPS fix, volume, or
+channel, that update is dispatched on the DataBroker as a named event.</p>
+<p>The Home Assistant bridge is just another DataBroker subscriber. It listens for
+the state events it cares about and republishes them to the matching MQTT state
+topic:</p>
+<pre class="mermaid">sequenceDiagram
+  participant R as Radio
+  participant B as DataBroker
+  participant H as HA Bridge
+  participant M as MQTT Broker
+  participant HA as Home Assistant
+  R-&gt;&gt;B: BatteryAsPercentage = 74
+  B-&gt;&gt;H: event: BatteryAsPercentage
+  H-&gt;&gt;M: publish htcommander/uv-pro-ab12/battery {&quot;battery&quot;:74}
+  M-&gt;&gt;HA: Battery sensor = 74%
+</pre>
+<p>The payloads are small JSON objects (<code>{&quot;battery&quot;: 74}</code>) and the discovery
+config&#39;s <code>value_template</code> pulls the field out — a convention borrowed directly
+from the reference implementation, and one that keeps related values grouped on
+one topic (e.g. all GPS fields on a single <code>gps_position</code> topic).</p>
+<h3>Control: from the dashboard to the radio</h3>
+<p>Control entities carry an extra <strong>command topic</strong>. When you move the Volume
+slider in Home Assistant, it publishes to <code>.../volume/set</code>; HTCommander is
+subscribed to that topic, and on receipt it dispatches the very same DataBroker
+command the app&#39;s own UI would send — which the radio driver turns into a
+Bluetooth command to the handheld.</p>
+<pre class="mermaid">sequenceDiagram
+  participant HA as Home Assistant
+  participant M as MQTT Broker
+  participant H as HA Bridge
+  participant B as DataBroker
+  participant R as Radio
+  HA-&gt;&gt;M: publish .../volume/set {&quot;volume&quot;:9}
+  M-&gt;&gt;H: message on volume/set
+  H-&gt;&gt;B: dispatch SetVolumeLevel = 9
+  B-&gt;&gt;R: set volume to 9
+  R--&gt;&gt;B: Volume = 9 (confirmed)
+  B--&gt;&gt;HA: state topic updated
+</pre>
+<p>Because control flows back through the same DataBroker events the UI uses, Home
+Assistant and the HTCommander window stay in sync automatically: change the
+volume in the app and the dashboard follows; change it on the dashboard and the
+app follows.</p>
+<h3>Staying off mobile</h3>
+<p>The bridge relies on a background MQTT client that opens a plain TCP socket
+(<code>dart:io</code>). That&#39;s fine on desktop but undesirable on phones, so the MQTT
+client is wired behind a small platform facade — the real socket-backed
+implementation on desktop, an inert stub elsewhere — and the bridge itself is
+only ever started on Windows, Linux, and macOS. The mobile builds compile
+cleanly and simply never carry the feature. It&#39;s the same pattern HTCommander
+already uses for its desktop-only Web server.</p>
+<hr>
+<h2>Setting it up</h2>
+<h3>1. Have an MQTT broker</h3>
+<p>If you already run Home Assistant, the easiest path is the <strong>Mosquitto broker</strong>
+add-on:</p>
+<ol>
+<li>In Home Assistant, go to <strong>Settings → Add-ons → Add-on Store</strong>.</li>
+<li>Install <strong>Mosquitto broker</strong> and start it.</li>
+<li>Create a Home Assistant user for the radio (e.g. under <strong>Settings → People</strong>,
+or a dedicated MQTT user), and note its <strong>username and password</strong> — that&#39;s
+what HTCommander will log in with.</li>
+<li>Make sure the <strong>MQTT integration</strong> is added in Home Assistant (<strong>Settings →
+Devices &amp; Services → Add Integration → MQTT</strong>). This is what listens for the
+auto-discovery messages.</li>
+</ol>
+<p>The broker listens on TCP port <strong>1883</strong> by default.</p>
+<blockquote>
+<p>No Home Assistant yet? Any MQTT broker works for testing — a local Mosquitto
+install, or a public test broker — but auto-discovery only produces devices
+when Home Assistant&#39;s MQTT integration is watching the same broker.</p>
+</blockquote>
+<h3>2. Point HTCommander at the broker</h3>
+<ol>
+<li>Open HTCommander on a desktop machine.</li>
+<li>Open <strong>Settings</strong> and select the <strong>Servers</strong> tab.</li>
+<li>In the <strong>Home Assistant</strong> section:<ul>
+<li>Tick <strong>Enable Home Assistant</strong>.</li>
+<li><strong>MQTT URL</strong> — your broker, e.g. <code>mqtt://homeassistant.local:1883</code>
+(or the broker machine&#39;s IP, e.g. <code>mqtt://192.168.1.50:1883</code>).</li>
+<li><strong>Username</strong> and <strong>Password</strong> — the MQTT credentials from step 1.</li>
+</ul>
+</li>
+<li>Click <strong>Test</strong> to confirm HTCommander can reach the broker and log in. A green
+message means you&#39;re good; a red one tells you what failed (bad address,
+refused connection, wrong credentials).</li>
+<li>Save.</li>
+</ol>
+<h3>3. Watch the devices appear</h3>
+<p>Connect a radio in HTCommander as usual. Within a few seconds Home Assistant
+creates a device for it:</p>
+<ul>
+<li><strong>Settings → Devices &amp; Services → MQTT</strong> will list a new device named after the
+radio (e.g. <em>UV-Pro (AB:12)</em>).</li>
+<li>Open it to see all the entities — battery, GPS, volume, squelch, scan, channel
+selects, and the rest — ready to drop onto a dashboard or wire into an
+automation.</li>
+</ul>
+<p>Connect a second radio and a second device appears alongside it.</p>
+<hr>
+<h2>A couple of things you can do with it</h2>
+<ul>
+<li><strong>A dashboard card</strong> showing battery, current channel, and GPS lock for every
+radio in the shack at a glance.</li>
+<li><strong>A low-battery automation</strong> — notify your phone when any radio drops below
+20%.</li>
+<li><strong>APRS-triggered automations</strong> — flash a light or send a notification when an
+APRS message addressed to your station arrives.</li>
+<li><strong>Scheduled scan</strong> — turn on scan in the evening and off in the morning.</li>
+</ul>
+<hr>
+<h2>Status &amp; caveats</h2>
+<ul>
+<li>The bridge is <strong>desktop-only</strong> (Windows / Linux / macOS) by design.</li>
+<li>Credentials are stored with the rest of HTCommander&#39;s settings; treat the
+machine running it as trusted, and prefer a dedicated, least-privilege MQTT
+user.</li>
+<li>MQTT here is <strong>unencrypted</strong> by default (plain 1883). On a home LAN that&#39;s the
+norm; if you&#39;re crossing untrusted networks, front the broker with TLS.</li>
+<li>The entity set mirrors what the radio exposes today. As HTCommander learns to
+read or control more of the radio, new entities can be added to the bridge
+without any change on the Home Assistant side — that&#39;s the whole point of
+auto-discovery.</li>
+</ul>
+<hr>
+<p><em>This post describes the Home Assistant integration as it&#39;s being built. The
+NodeJS proof-of-concept it grew out of lives in
+<a href="../../reference/HtStation"><code>reference/HtStation</code></a>; the HTCommander version folds
+the same discovery-and-bridge idea into the app&#39;s DataBroker and multi-radio
+model.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/home-assistant-mqtt.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

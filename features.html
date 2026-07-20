@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Features — HTCommander</title>
-  <meta name="description" content="Every HTCommander feature explained: channel programming, APRS, Winlink email, packet terminal, BBS, torrent file transfer, packet capture, GPS, Bluetooth audio, SSTV, speech-to-text and AGWPE." />
+  <meta name="description" content="Every HTCommander feature explained: channel programming, APRS messaging & maps, Winlink email, packet terminal & BBS, torrent file transfer, a high-performance software modem, packet capture, SSTV, GPS & ADS-B airplane tracking, FM broadcast, Bluetooth audio, offline speech-to-text, multi-language and light/dark themes." />
   <meta name="theme-color" content="#07090d" />
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -27,7 +27,7 @@
       </nav>
       <div class="nav__cta">
         <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
-        <a class="btn btn--primary btn--sm" href="get-started.html">Download</a>
+        <a class="btn btn--primary btn--sm" href="get-started.html#downloads">Download</a>
         <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
@@ -40,160 +40,262 @@
     <div class="container">
       <span class="eyebrow">Deep dive</span>
       <h1>Every feature, up close</h1>
-      <p>HTCommander packs a full station's worth of tools into one app. Here's what's available on each platform — and where to read the technical detail.</p>
+      <p>HTCommander packs a full station's worth of tools into one app — channel programming, messaging and mapping, email and file transfer, a software-defined modem, audio and voice, and more. Here's what each one does, with links to the technical detail.</p>
     </div>
   </section>
 
-  <!-- ================= GROUP 1: EVERY PLATFORM ================= -->
+  <!-- ================= GROUP 1: PROGRAM YOUR RADIO ================= -->
   <section class="section--tight">
     <div class="container">
-      <h2 class="group-title">On every platform</h2>
-      <p class="group-sub">Windows · macOS · Linux · iOS · Android · Web</p>
+      <h2 class="group-title">Program your radio</h2>
+      <p class="group-sub">Channels · memories · sharing</p>
 
       <div class="feature-row">
         <div>
           <span class="badge">Channels</span>
-          <h3>Channel programming</h3>
-          <p>Configure, import, export and drag &amp; drop channels to create the perfect configuration for how you operate — then push it to the radio in seconds.</p>
+          <h3>Channel editing</h3>
+          <p>Dial in every channel by hand — name, receive and transmit frequencies, mode, bandwidth, power level and CTCSS/DCS tones — with a clean editor that mirrors exactly what the radio expects.</p>
           <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Channels.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/windows/contacts.png" alt="Channel programming in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/ChannelEditing.png" alt="Channel editing in HTCommander" loading="lazy" /></div>
       </div>
 
       <div class="feature-row">
         <div>
+          <span class="badge">Programming</span>
+          <h3>Batch channel programming</h3>
+          <p>Import channel lists from a file, then drag &amp; drop entries straight into the radio's channel slots. Rearrange, copy and push a full memory bank to your handheld in seconds instead of keying each one on the radio.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Channels.md" target="_blank" rel="noopener">Read the docs →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/BatchChannelProgramming.png" alt="Batch channel programming in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Sharing</span>
+          <h3>Share channels over the air</h3>
+          <p>Send a channel to anyone on frequency as a tappable message in the chat. They just tap to load it into their own radio — perfect for getting a whole group onto the same simplex or repeater channel.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Channels.md" target="_blank" rel="noopener">Read the docs →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/ChannelSharing.png" alt="Sharing a channel in the HTCommander chat" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 2: MESSAGING & MAPPING ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Messaging &amp; mapping</h2>
+      <p class="group-sub">APRS · maps · contacts</p>
+
+      <div class="feature-row">
+        <div>
           <span class="badge">APRS</span>
-          <h3>APRS messaging, SMS, weather &amp; auth</h3>
-          <p>Receive and send APRS messages, set APRS routes, text ordinary phones over SMS, request weather reports, send authenticated messages and inspect the detail behind each packet.</p>
+          <h3>APRS messaging &amp; packet details</h3>
+          <p>Receive and send APRS messages, set custom routes, text ordinary phones over SMS and request weather reports. Click any packet to open a full decode of the AX.25 path, position, grid square and comment.</p>
           <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/windows/aprs.png" alt="APRS in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/Aprs.png" alt="APRS messaging and packet details in HTCommander" loading="lazy" /></div>
       </div>
 
       <div class="feature-row">
         <div>
           <span class="badge">Map</span>
           <h3>Live APRS map</h3>
-          <p>With OpenStreetMap support you can see all the APRS stations around you at a glance, follow position history and drill into any station.</p>
+          <p>OpenStreetMap support plots every APRS station around you at a glance. Follow position history, tap a pin for a station's callsign and last-heard time, and re-center on your own GPS location with one click.</p>
           <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Map.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/macos/map.png" alt="APRS map in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/AprsMap.png" alt="Live APRS map in HTCommander" loading="lazy" /></div>
       </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Address book</span>
+          <h3>Shared address book</h3>
+          <p>Keep your APRS, Winlink and terminal contacts in one shared address book. Store each station's callsign, name, type, APRS route and message-authentication settings so the right details are always a click away.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/AddressBook.md" target="_blank" rel="noopener">Read the docs →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/Contacts.png" alt="Address book of contacts in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 3: EMAIL, TERMINAL & FILE TRANSFER ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Email, terminal &amp; file transfer</h2>
+      <p class="group-sub">Winlink · packet · torrent</p>
 
       <div class="feature-row">
         <div>
           <span class="badge">Winlink</span>
           <h3>Winlink email</h3>
-          <p>Send and receive email across the global Winlink network, including attachments, directly through your radio link.</p>
+          <p>Send and receive real email across the global Winlink network — attachments included — over packet radio or straight over the Internet. A familiar inbox, outbox and compose window make it feel like any mail client.</p>
           <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Mail.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/macos/mails.png" alt="Winlink email in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/Winlink.png" alt="Winlink email in HTCommander" loading="lazy" /></div>
       </div>
 
       <div class="feature-row">
         <div>
           <span class="badge">Terminal</span>
-          <h3>Packet terminal &amp; address book</h3>
-          <p>Communicate in packet mode with other stations, users and BBSes. Keep your APRS, Winlink and terminal contacts in a shared address book for quick access.</p>
+          <h3>Packet terminal &amp; BBS</h3>
+          <p>Connect to other stations, users and BBS systems in classic packet mode. HTCommander also includes a built-in BBS that doubles as a Winlink gateway, so nearby stations can reach the wider network through you.</p>
           <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/terminal.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/android/terminal.png" alt="Packet terminal in HTCommander" loading="lazy" /></div>
-      </div>
-
-      <div class="feature-row">
-        <div>
-          <span class="badge">BBS</span>
-          <h3>Built-in BBS &amp; Winlink gateway</h3>
-          <p>Run a very basic bulletin board that also acts as a Winlink gateway, so nearby stations can reach the wider network through you.</p>
-          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/BBS.md" target="_blank" rel="noopener">Read the docs →</a>
-        </div>
-        <div class="feature-row__media"><img src="assets/img/android/winlink.png" alt="BBS in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/PacketTerminal.png" alt="Packet terminal connected to a BBS in HTCommander" loading="lazy" /></div>
       </div>
 
       <div class="feature-row">
         <div>
           <span class="badge">Torrent</span>
           <h3>Torrent file exchange</h3>
-          <p>Many-to-many file exchange over 1200-baud FM-AFSK, letting an entire net share a file efficiently instead of one link at a time.</p>
+          <p>Share a file with an entire net at once. This many-to-many torrent system over 1200-baud FM-AFSK tracks every block, compresses data on the fly and lets late-joiners catch up — instead of tying up the channel one link at a time.</p>
           <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Torrent.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/ipad/torrent.jpeg" alt="Torrent file exchange in HTCommander" loading="lazy" /></div>
-      </div>
-
-      <div class="feature-row">
-        <div>
-          <span class="badge">Capture &amp; GPS</span>
-          <h3>Packet capture &amp; GPS</h3>
-          <p>Capture and decode packets with the built-in analyzer to see what's on the air, and use your radio's built-in GPS when your firmware supports it.</p>
-          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Capture.md" target="_blank" rel="noopener">Read the docs →</a>
-        </div>
-        <div class="feature-row__media"><img src="assets/img/windows/packets.png" alt="Packet capture in HTCommander" loading="lazy" /></div>
-      </div>
-
-      <div class="feature-row">
-        <div>
-          <span class="badge">BSS</span>
-          <h3>BSS short-message protocol</h3>
-          <p>Support for the proprietary short binary message protocol from Baofeng / BTech, so you can exchange the compact messages those radios expect.</p>
-          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/BSS-Protocol.md" target="_blank" rel="noopener">Read the docs →</a>
-        </div>
-        <div class="feature-row__media"><img src="assets/img/android/comms-details.png" alt="BSS messaging in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/FileTransferTorrent.png" alt="Torrent file exchange in HTCommander" loading="lazy" /></div>
       </div>
     </div>
   </section>
 
-  <!-- ================= GROUP 2: DESKTOP + ANDROID ================= -->
+  <!-- ================= GROUP 4: DATA MODES & DSP ================= -->
   <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
-      <h2 class="group-title">Desktop &amp; Android</h2>
-      <p class="group-sub">Windows · macOS · Linux · Android</p>
+      <h2 class="group-title">Data modes &amp; DSP</h2>
+      <p class="group-sub">Software modem · capture · SSTV</p>
 
       <div class="feature-row">
         <div>
-          <span class="badge">Audio</span>
-          <h3>Bluetooth audio</h3>
-          <p>Use the audio link to listen and transmit with your computer's speakers, microphone or a headset — no extra cabling.</p>
-          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Bluetooth.md" target="_blank" rel="noopener">Read the docs →</a>
+          <span class="badge">Modem</span>
+          <h3>High-performance software modem</h3>
+          <p>DART is a next-generation, fully software-defined modem that runs entirely on your computer. It adapts its modulation from BPSK up to 16QAM with LDPC error correction, shows a live constellation and SNR readout, and pushes far more data through an FM channel than classic AFSK.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/NextGenModem.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/windows/audio.png" alt="Bluetooth audio in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/HighPerformanceSoftwareModem.png" alt="High-performance DART software modem in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Capture</span>
+          <h3>Packet capture &amp; decode</h3>
+          <p>Watch every AX.25 frame on the air and open a full decode showing the encoding, LDPC corrections, raw bytes and hex. The built-in analyzer is ideal for troubleshooting your setup or learning how packet radio really works.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Capture.md" target="_blank" rel="noopener">Read the docs →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/PacketCapture.png" alt="Packet capture and decode in HTCommander" loading="lazy" /></div>
       </div>
 
       <div class="feature-row">
         <div>
           <span class="badge">SSTV</span>
           <h3>SSTV send &amp; receive</h3>
-          <p>Send and receive images over SSTV. Reception is auto-detected, and you can drag &amp; drop an image to transmit it.</p>
+          <p>Send and receive slow-scan television images. Incoming transmissions are auto-detected and decoded inline in the chat, and sending is as easy as dragging an image onto the window.</p>
           <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/SSTV.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/macos/audio.png" alt="SSTV in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/SstvSupport.png" alt="SSTV images received in HTCommander" loading="lazy" /></div>
       </div>
     </div>
   </section>
 
-  <!-- ================= GROUP 3: DESKTOP ONLY ================= -->
+  <!-- ================= GROUP 5: AUDIO & VOICE ================= -->
   <section class="section--tight">
     <div class="container">
-      <h2 class="group-title">Desktop only</h2>
-      <p class="group-sub">Windows · macOS · Linux</p>
+      <h2 class="group-title">Audio &amp; voice</h2>
+      <p class="group-sub">Windows · macOS · Linux · Android</p>
 
       <div class="feature-row">
         <div>
-          <span class="badge">Voice</span>
-          <h3>Speech-to-text &amp; text-to-speech</h3>
-          <p>Convert incoming speech to text and turn typed messages into speech on air, hands-free.</p>
-          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Voice.md" target="_blank" rel="noopener">Read the docs →</a>
+          <span class="badge">Audio</span>
+          <h3>Bluetooth audio controls</h3>
+          <p>Fine-tune your whole audio chain from one place: pick input and output devices, set radio volume and squelch, adjust microphone gain and watch a live spectrograph of what you're transmitting — no extra cabling.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Bluetooth.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/macos/comms.png" alt="Speech to text in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/AudioControls.png" alt="Bluetooth audio controls in HTCommander" loading="lazy" /></div>
       </div>
 
       <div class="feature-row">
         <div>
-          <span class="badge">AGWPE</span>
-          <h3>AGWPE protocol bridge</h3>
-          <p>Route other applications' traffic over the radio using the AGWPE protocol, connecting your favorite packet software to your handheld.</p>
-          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Agwpe.md" target="_blank" rel="noopener">Read the docs →</a>
+          <span class="badge">Voice</span>
+          <h3>Offline speech-to-text</h3>
+          <p>Transcribe incoming radio audio to text in real time — great for catching a busy net or a NOAA weather bulletin. It runs fully offline on your device, never writes audio to disk, and recognizes several languages automatically. Typed messages can also be spoken on air.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Voice.md" target="_blank" rel="noopener">Read the docs →</a>
         </div>
-        <div class="feature-row__media"><img src="assets/img/windows/winlink-traffic.png" alt="AGWPE bridge in HTCommander" loading="lazy" /></div>
+        <div class="feature-row__media"><img src="assets/features/SpeechToText.png" alt="Offline speech-to-text in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 6: LOCATION & LISTENING ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Location &amp; listening</h2>
+      <p class="group-sub">GPS · ADS-B · FM broadcast</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">GPS</span>
+          <h3>GPS positioning</h3>
+          <p>Use the radio's built-in GPS, or plug in a USB GPS/GLONASS dongle for precise positioning. Share your location so the radio beacons it automatically, and re-center the map on yourself with a single click.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/GPS.md" target="_blank" rel="noopener">Read the docs →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/SerialGps.png" alt="GPS positioning with a serial GPS dongle in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">ADS-B</span>
+          <h3>Live airplane tracking</h3>
+          <p>Feed ADS-B data from a dump1090 receiver and watch aircraft move across the same map as your APRS stations — a fun, informative overlay that turns your station into a live sky view.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Map.md" target="_blank" rel="noopener">Read the docs →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/Dump1090Airplanes.png" alt="Live airplane tracking on the map in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">FM radio</span>
+          <h3>FM broadcast receiver</h3>
+          <p>Tune the radio to commercial FM broadcast stations right from the app. Save your favorites as presets and switch between them without ever touching the handheld.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View on GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/FmBroadcastRadio.png" alt="FM broadcast radio receiver in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 7: BUILT FOR EVERYONE ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Built for everyone</h2>
+      <p class="group-sub">Cross-platform · translated · themed</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Cross-platform</span>
+          <h3>Runs on every platform</h3>
+          <p>One app, everywhere. HTCommander runs natively on Windows, macOS, Linux, iOS, Android and the web — anywhere you have Bluetooth — so your station comes with you on whatever device you're carrying.</p>
+          <a class="btn btn--ghost btn--sm" href="get-started.html">Get started →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/MultiPlatform.png" alt="HTCommander running on iPad, macOS, Windows and Android" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Languages</span>
+          <h3>Multiple languages</h3>
+          <p>The interface is translated into many languages, from Spanish to Chinese, so operators around the world can use HTCommander comfortably in their own language.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View on GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/MultiLanguage.png" alt="HTCommander in Spanish and Chinese" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Themes</span>
+          <h3>Light &amp; dark themes</h3>
+          <p>A modern, polished interface that follows your system's light or dark theme — easy on the eyes at a bright field day or during a late-night net.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View on GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/LightAndDarkModes.png" alt="HTCommander in light and dark themes" loading="lazy" /></div>
       </div>
 
       <div class="center mt-56">
@@ -232,7 +334,7 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy policy</a></li>
-            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+            <li><a href="license.html">License (Apache 2.0)</a></li>
           </ul>
         </div>
       </div>

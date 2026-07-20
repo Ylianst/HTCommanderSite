@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
-  <!-- ================= NAV ================= -->
   <header class="nav" id="nav">
     <div class="container nav__inner">
       <a class="brand" href="index.html">
@@ -27,7 +26,7 @@
       </nav>
       <div class="nav__cta">
         <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
-        <a class="btn btn--primary btn--sm" href="get-started.html">Download</a>
+        <a class="btn btn--primary btn--sm" href="get-started.html#downloads">Download</a>
         <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
@@ -35,7 +34,6 @@
     </div>
   </header>
 
-  <!-- ================= PAGE HERO ================= -->
   <section class="page-hero">
     <div class="container">
       <span class="eyebrow">Technology blog</span>
@@ -44,116 +42,136 @@
     </div>
   </section>
 
-  <!-- ================= DART SERIES ================= -->
   <section class="section--tight">
     <div class="container">
-      <h2 class="group-title">The DART modem</h2>
-      <p class="group-sub">Building and tuning an adaptive OFDM modem for sending data over ordinary FM voice radios. Best read in order.</p>
+      <h2 class="group-title">DART Modem</h2>
+      <p class="group-sub">Building and tuning <strong>DART</strong> (Data Adaptive Rate Transport), an adaptive OFDM modem for sending data over ordinary VHF/UHF <strong>FM voice</strong> radios (2 m / 70 cm) across a Bluetooth (SBC) audio link. Best read in order — each post builds on the last, walking from the first over-the-air observation down to the root-cause diagnosis and fix.</p>
 
       <div class="grid grid--blog mt-40">
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-over-the-air-findings.md" target="_blank" rel="noopener">
+        <a class="post" href="blogs/dart-over-the-air-findings.html">
           <span class="kicker">Part 1</span>
-          <h3>Pushing data through FM voice radios</h3>
-          <p>The first over-the-air test on two UV-Pro radios — which modes work, which fail, and the first evidence the ceiling lives in the audio path.</p>
-          <span class="post__more">Read on GitHub →</span>
+          <h3>Pushing Data Through FM Voice Radios: Real-World Findings</h3>
+          <p>The first over-the-air test on two UV-Pro radios. Which modes work, which fail, and the first evidence that the quality ceiling lives in the <em>audio path</em> — not the RF, band, or transmit level.</p>
+          <span class="post__more">Read more →</span>
         </a>
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-sbc-bitpool.md" target="_blank" rel="noopener">
+        <a class="post" href="blogs/dart-sbc-bitpool.html">
           <span class="kicker">Part 2</span>
-          <h3>Does SBC bitpool matter?</h3>
-          <p>The Bluetooth SBC codec adds a small noise floor under the signal. We measure how much — and why raising the bitpool never moves the ceiling.</p>
-          <span class="post__more">Read on GitHub →</span>
+          <h3>Does SBC Bitpool Matter?</h3>
+          <p>The Bluetooth SBC codec adds a small noise floor under the signal. We measure how much, and show that raising the bitpool saturates quickly and never moves the ceiling.</p>
+          <span class="post__more">Read more →</span>
         </a>
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-sbc-allocation.md" target="_blank" rel="noopener">
+        <a class="post" href="blogs/dart-sbc-allocation.html">
           <span class="kicker">Part 3</span>
-          <h3>Inside SBC: loudness vs. SNR bit allocation</h3>
-          <p>How SBC spends its bits across subbands, and why switching data frames from loudness to SNR allocation is a free quality gain.</p>
-          <span class="post__more">Read on GitHub →</span>
+          <h3>Inside SBC: Loudness vs. SNR Bit Allocation</h3>
+          <p>How SBC spends its bits across subbands, and why its default <em>loudness</em> allocation is the wrong choice for data — a free quality gain from switching data frames to <em>SNR</em> allocation.</p>
+          <span class="post__more">Read more →</span>
         </a>
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-phase-noise-and-pilots.md" target="_blank" rel="noopener">
+        <a class="post" href="blogs/dart-phase-noise-and-pilots.html">
           <span class="kicker">Part 4</span>
-          <h3>Chasing a ghost: proving the real limiter</h3>
-          <p>A phase-noise model and phase-drift meter turn "it's probably phase noise" into a measurement — then pilot-aided tracking fixes it.</p>
-          <span class="post__more">Read on GitHub →</span>
+          <h3>Chasing a Ghost: Proving (and Fixing) the Real Limiter</h3>
+          <p>Building a phase-noise channel model and a phase-drift meter to turn &quot;it&#39;s probably phase noise&quot; into a measurement — then fixing it with pilot-aided phase tracking, recovering a rung of throughput, and showing the remaining ceiling is raw SNR (a link-budget problem), not DSP.</p>
+          <span class="post__more">Read more →</span>
         </a>
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-code-shortening.md" target="_blank" rel="noopener">
+        <a class="post" href="blogs/dart-code-shortening.html">
           <span class="kicker">Part 5</span>
-          <h3>The bits you already know: code shortening</h3>
-          <p>Short frames are mostly known zero-padding. Telling the decoder those bits are known buys 5+ dB of margin — for free.</p>
-          <span class="post__more">Read on GitHub →</span>
+          <h3>The Bits You Already Know: Code Shortening for Short Frames</h3>
+          <p>A lopsided constellation reveals that short frames are mostly known zero-padding. Telling the decoder those bits are known (code shortening) buys 5+ dB of margin on short frames — for free, and scaling exactly with how short the frame is.</p>
+          <span class="post__more">Read more →</span>
         </a>
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-inter-symbol-interference.md" target="_blank" rel="noopener">
+        <a class="post" href="blogs/dart-inter-symbol-interference.html">
           <span class="kicker">Part 6</span>
-          <h3>Is 125 microseconds enough?</h3>
-          <p>A multipath echo channel tests whether DART's deliberately-short cyclic prefix is big enough — and finds the classic ISI knee.</p>
-          <span class="post__more">Read on GitHub →</span>
+          <h3>Is 125 Microseconds Enough? A Look at Inter-Symbol Interference</h3>
+          <p>Building a multipath echo channel to test whether DART&#39;s deliberately-short cyclic prefix is big enough. It finds the classic ISI knee at the CP boundary, confirms the SBC/audio path adds no dispersion the CP misses, and shows the short-CP bet was safe.</p>
+          <span class="post__more">Read more →</span>
         </a>
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-scrambling.md" target="_blank" rel="noopener">
+        <a class="post" href="blogs/dart-scrambling.html">
           <span class="kicker">Part 7</span>
-          <h3>Whitening the signal: why a modem scrambles data</h3>
-          <p>Why repetitive data wrecks spectrum, PAPR and phase tracking — and the LDPC-friendly PN15 whitener DART adopts to fix it.</p>
-          <span class="post__more">Read on GitHub →</span>
+          <h3>Whitening the Signal: Why a Modem Scrambles Its Own Data</h3>
+          <p>Why repetitive data (a frame full of zeros) wrecks spectrum, PAPR, and phase tracking — and why the fix is to make the data look like noise first. Compares the self-synchronizing G3RUH scrambler against an additive frame-synchronous one, and lays out the LDPC-friendly PN15 whitener DART will adopt.</p>
+          <span class="post__more">Read more →</span>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- ================= FIRMWARE SERIES ================= -->
   <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
-      <h2 class="group-title">Firmware updates</h2>
-      <p class="group-sub">Figuring out the radio's firmware-update path — from the cloud check to the two-phase Bluetooth flash.</p>
+      <h2 class="group-title">Firmware Updates</h2>
+      <p class="group-sub">FIguring out the radio&#39;s firmware-update path — from the cloud check that finds an update to the two-phase Bluetooth flash that writes it into the radio.</p>
 
       <div class="grid grid--blog mt-40">
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/benshi-firmware-update.md" target="_blank" rel="noopener">
+        <a class="post" href="blogs/benshi-firmware-update.html">
           <span class="kicker">Firmware</span>
-          <h3>How a Benshi radio updates its firmware</h3>
-          <p>A walk through the update path — from the cloud check and patch-based download to the device-paced, two-phase GAIA transfer over Bluetooth.</p>
-          <span class="post__more">Read on GitHub →</span>
+          <h3>How a Benshi Radio Updates Its Firmware, Step by Step</h3>
+          <p>A walk through the firmware-update path — from the cloud update check and patch-based download to the device-paced, two-phase GAIA transfer that streams a new image into the radio over Bluetooth.</p>
+          <span class="post__more">Read more →</span>
         </a>
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/benshi-firmware-server.md" target="_blank" rel="noopener">
+        <a class="post" href="blogs/benshi-firmware-server.html">
           <span class="kicker">Firmware</span>
-          <h3>Where does the firmware come from?</h3>
-          <p>A field report on the online side — the gRPC check, the patch-based download, and the DID puzzle we still can't crack.</p>
-          <span class="post__more">Read on GitHub →</span>
+          <h3>Where Does the Firmware Come From? Inside the Benshi Update Server</h3>
+          <p>A field report on the online side — the gRPC check, the patch-based download, and the honest ledger of what we&#39;ve proven and the DID puzzle we still can&#39;t crack.</p>
+          <span class="post__more">Read more →</span>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- ================= MORE ================= -->
   <section class="section--tight">
     <div class="container">
-      <h2 class="group-title">More field notes</h2>
-      <p class="group-sub">Assorted deep dives from around the project.</p>
+      <h2 class="group-title">Sharing &amp; Interop</h2>
+      <p class="group-sub">Making HTCommander features portable between operators and radios.</p>
 
       <div class="grid grid--blog mt-40">
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/audio-isolate-threading.md" target="_blank" rel="noopener">
-          <span class="kicker">Engineering</span>
-          <h3>Audio isolate threading</h3>
-          <p>Keeping the audio path smooth by moving DSP work off the UI thread and into an isolate.</p>
-          <span class="post__more">Read on GitHub →</span>
+        <a class="post" href="blogs/channel-share-string.html">
+          <span class="kicker">Interop</span>
+          <h3>A Channel You Can Text: The Channel-Share String</h3>
+          <p>A compact, human-readable one-line format that encodes a whole radio channel — frequency, offset, tones, bandwidth, modulation, and flags — so you can drag a channel into a chat, send it (even over the air), and have the recipient drop it straight into their radio.</p>
+          <span class="post__more">Read more →</span>
         </a>
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/channel-share-string.md" target="_blank" rel="noopener">
-          <span class="kicker">Feature</span>
-          <h3>The channel share string</h3>
-          <p>A compact, copy-pasteable encoding for sharing a channel configuration with another operator.</p>
-          <span class="post__more">Read on GitHub →</span>
-        </a>
-        <a class="post" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/home-assistant-mqtt.md" target="_blank" rel="noopener">
-          <span class="kicker">Integration</span>
-          <h3>Home Assistant over MQTT</h3>
-          <p>Bridging radio events into Home Assistant through MQTT for automation and dashboards.</p>
-          <span class="post__more">Read on GitHub →</span>
-        </a>
-      </div>
-
-      <div class="center mt-56">
-        <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/README.md" target="_blank" rel="noopener">See the full blog index on GitHub →</a>
       </div>
     </div>
   </section>
 
-  <!-- ================= FOOTER ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Home Automation &amp; Integrations</h2>
+      <p class="group-sub">Connecting HTCommander to the wider ecosystem of tools operators already run.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/home-assistant-mqtt.html">
+          <span class="kicker">Integration</span>
+          <h3>Your Radio, on the Dashboard: Home Assistant Integration over MQTT</h3>
+          <p>How HTCommander publishes each connected radio to Home Assistant as its own device — battery, GPS, volume, squelch, scan, channels, and incoming APRS — using an MQTT broker and Home Assistant&#39;s auto-discovery, plus a step-by-step setup guide. Desktop-only (Windows / Linux / macOS).</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">App Architecture</h2>
+      <p class="group-sub">How HTCommander is built under the hood — the threading, plumbing, and design decisions that keep the radio responsive.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/audio-isolate-threading.html">
+          <span class="kicker">Architecture</span>
+          <h3>Getting Audio Off the Main Thread: Moving the Radio Pipeline to Its Own Isolate</h3>
+          <p>Why the whole receive pipeline — SBC decode, software modem, and SSTV — runs on the UI thread today and stutters when the interface is busy, and the plan to move it into a dedicated background isolate with playback fed straight from the worker. Written before the work begins.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <div class="center">
+        <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/README.md" target="_blank" rel="noopener">See the source blog index on GitHub →</a>
+      </div>
+    </div>
+  </section>
+
   <footer class="footer">
     <div class="container">
       <div class="footer__grid">
@@ -183,7 +201,7 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy policy</a></li>
-            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+            <li><a href="license.html">License (Apache 2.0)</a></li>
           </ul>
         </div>
       </div>

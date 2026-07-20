@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Does SBC Bitpool Matter? Tuning the Bluetooth Codec Under a DART Signal — HTCommander</title>
+  <meta name="description" content="A follow-up experiment: someone suggested that raising the Bluetooth **SBC bitpool** might clean up our modem signal. We measured it in the simulator. Here's what we found — and why it isn't the lever we hoped for." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">DART Modem</span>
+      <h1>Does SBC Bitpool Matter? Tuning the Bluetooth Codec Under a DART Signal</h1>
+      <p>A follow-up experiment: someone suggested that raising the Bluetooth <strong>SBC bitpool</strong> might clean up our modem signal. We measured it in the simulator. Here&#39;s what we found — and why it isn&#39;t the lever we hoped for.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The suggestion</h2>
+<p>In our <a href="dart-over-the-air-findings.md">first field report</a> we characterized the
+DART modem over two UV-Pro handhelds and concluded that the link&#39;s quality
+ceiling lives in the <strong>audio path</strong>, most likely the Bluetooth <strong>SBC codec</strong> and
+the radio&#39;s audio processing — not in the RF, the band, or the transmit level.</p>
+<p>A natural follow-up landed in our inbox: <em>if the codec is the bottleneck, can you
+raise the SBC bitpool and get a cleaner signal?</em> Great question — and cheap to
+answer in software before touching any radio.</p>
+<h2>What &quot;bitpool&quot; is (in 30 seconds)</h2>
+<p>SBC is the mandatory Bluetooth A2DP audio codec. It splits audio into frequency
+subbands and quantizes each one. <strong>Bitpool</strong> is the dial that sets how many bits
+get spread across those subbands per frame — effectively the quality/bitrate
+knob. Higher bitpool → finer quantization → less quantization noise (and more
+Bluetooth bandwidth). Our radios use <strong>bitpool 18</strong>; for our audio format
+(32 kHz, mono, 16 blocks, 8 subbands) the valid maximum is <strong>124</strong>.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="center">Bitpool</th>
+<th align="center">Approx. Bluetooth bitrate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">18 (radio default)</td>
+<td align="center">~88 kbps</td>
+</tr>
+<tr>
+<td align="center">40</td>
+<td align="center">~176 kbps</td>
+</tr>
+<tr>
+<td align="center">124 (max)</td>
+<td align="center">~512 kbps</td>
+</tr>
+</tbody></table>
+</div>
+<p>Every DART frame passes through SBC <strong>twice</strong> — once app→radio, once
+radio→app — so if the codec is smearing our constellation, bitpool is the obvious
+thing to turn up.</p>
+<h2>The experiment</h2>
+<p>We used DART&#39;s software pipeline to isolate the codec&#39;s contribution: encode a
+<strong>16QAM (Level 5)</strong> frame — the mode most sensitive to distortion — push it
+through the SBC codec at a range of bitpools, then decode and measure Error
+Vector Magnitude (EVM, lower = tighter constellation). 16QAM is the acid test:
+it needs precise amplitude <em>and</em> phase, so any quantization noise shows up
+immediately.</p>
+<h3>Seeing it: bitpool 18 vs. 124 (SBC only, no channel noise)</h3>
+<p><strong>Bitpool 18 (the radio default) — EVM 3.5%</strong></p>
+<figure class="post-figure">
+  <img src="images/bitpool-18.png" alt="16QAM through SBC at bitpool 18">
+  <figcaption>16QAM through SBC at bitpool 18</figcaption>
+</figure>
+<p>All sixteen points resolve, but each is a visibly <strong>fuzzy blob</strong> — that spread is
+pure SBC quantization noise. (The denser bottom-left cluster is just the
+zero-padding of a short-ish payload landing on the <code>0000</code> symbol, not a channel
+effect.)</p>
+<p><strong>Bitpool 124 (maximum) — EVM 0.0%</strong></p>
+<figure class="post-figure">
+  <img src="images/bitpool-124.png" alt="16QAM through SBC at bitpool 124">
+  <figcaption>16QAM through SBC at bitpool 124</figcaption>
+</figure>
+<p>At maximum bitpool the codec is essentially <strong>transparent</strong> — the received red
+dots sit exactly on the blue ideal points. So yes: <strong>the SBC codec at bitpool 18
+really does add noise, and raising bitpool removes it.</strong></p>
+<h2>Result 1 — bitpool helps, but the benefit saturates fast</h2>
+<p>Sweeping bitpool on a clean link (light 25 dB noise), the EVM improves and then
+flattens out:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="center">Bitpool</th>
+<th align="center">~kbps</th>
+<th align="center">EVM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>18 (default)</strong></td>
+<td align="center">~88</td>
+<td align="center">3.9%</td>
+</tr>
+<tr>
+<td align="center">24</td>
+<td align="center">~112</td>
+<td align="center">3.2%</td>
+</tr>
+<tr>
+<td align="center">30</td>
+<td align="center">~136</td>
+<td align="center">2.5%</td>
+</tr>
+<tr>
+<td align="center">40</td>
+<td align="center">~176</td>
+<td align="center">2.1%</td>
+</tr>
+<tr>
+<td align="center">50</td>
+<td align="center">~216</td>
+<td align="center">2.0%</td>
+</tr>
+<tr>
+<td align="center">64–124</td>
+<td align="center">264–512</td>
+<td align="center">2.0% (floor)</td>
+</tr>
+</tbody></table>
+</div>
+<p>SBC at bitpool 18 costs us roughly <strong>~3% EVM</strong>, and turning it up recovers most of
+that — but the gains <strong>stop mattering by bitpool ~40.</strong> Beyond that you&#39;re
+spending Bluetooth bandwidth for no measurable return.</p>
+<h2>Result 2 — and it&#39;s swamped the moment real noise appears</h2>
+<p>Here&#39;s the catch. Repeat the sweep at harsh noise levels near what a real radio
+link delivers (~8–12 dB SNR), and the bitpool advantage <strong>collapses into the
+noise:</strong></p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="center">Channel SNR</th>
+<th align="center">EVM @ bitpool 18</th>
+<th align="center">EVM @ bitpool 124</th>
+<th align="center">Difference</th>
+<th align="center">Decoded?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">12 dB</td>
+<td align="center">9.3%</td>
+<td align="center">8.8%</td>
+<td align="center">0.5%</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">10 dB</td>
+<td align="center">11.4%</td>
+<td align="center">11.0%</td>
+<td align="center">0.4%</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">8 dB</td>
+<td align="center">14.2%</td>
+<td align="center">13.8%</td>
+<td align="center">0.4%</td>
+<td align="center">✅</td>
+</tr>
+</tbody></table>
+</div>
+<p>Two takeaways jump out:</p>
+<ol>
+<li><strong>Once channel noise is present, bitpool moves EVM by less than half a
+percent.</strong> The channel noise floor completely swamps the SBC quantization
+floor. A ~3% improvement is meaningless next to a 14% channel impairment.</li>
+<li><strong>16QAM decoded all the way down to 8 dB SNR</strong> through SBC + noise, at <em>every</em>
+bitpool. That&#39;s <em>below</em> the ~10–11 dB our real link actually delivered — so if
+additive noise were the whole story, 16QAM should have worked over the air.
+It didn&#39;t.</li>
+</ol>
+<h2>The verdict</h2>
+<ul>
+<li><strong>Yes, SBC bitpool has a real, measurable effect on the signal</strong> — at bitpool
+18 the codec adds ~3% EVM, and higher bitpool removes it, becoming transparent
+near the maximum.</li>
+<li><strong>But it is not the lever that unlocks the failed high-order modes.</strong> On the
+real link the constellation showed <del>29% EVM; the SBC contribution (</del>2–3%) is a
+rounding error against that. Bitpool is ~2% of a ~29% problem.</li>
+<li><strong>The gains saturate by bitpool ~40</strong>, so even in the best case there&#39;s no
+reason to push it to the maximum.</li>
+</ul>
+<p><strong>On real hardware:</strong> we tested this on the UV-Pro radios. The firmware <strong>accepts
+transmit bitpool up to 40 but rejects the codec maximum (124)</strong> — and 40 is
+exactly where the quality saturates anyway. So <strong>HTCommander now sends to the
+radio at bitpool 40</strong> (up from the default 18). The <em>incoming</em> (radio → app)
+stream is fixed at bitpool 18 by the radio&#39;s firmware and can&#39;t be changed, so
+the return path stays the lower-quality direction.</p>
+<p>This actually <em>sharpens</em> our earlier conclusion. Additive noise and SBC
+quantization — both fully reproducible in simulation — cannot break 16QAM even at
+8 dB SNR. Yet the real radio link fails it at a <em>better</em> nominal SNR. The missing
+ingredient is <strong>phase noise / distortion in the FM audio path</strong>, an impairment
+neither the codec setting nor the noise floor explains. That remains the one
+thing worth attacking: a <strong>wired audio connection or a higher-quality codec path</strong>
+that removes the analog audio round-trip entirely.</p>
+<p><strong>Practical guidance:</strong> if your radio firmware makes a higher bitpool trivial,
+setting it to <del>40 is a harmless, small quality win on clean links — but don&#39;t
+expect it to rescue 8PSK or 16QAM on a marginal link. The realistic best encoding
+on real hardware is still **QPSK R1/2 (</del>2 kbps)**, with <strong>BPSK</strong> and the <strong>4-FSK
+fallback</strong> below it.</p>
+<h2>Reproduce this</h2>
+<p>The bitpool sweep is built into the DART test tool. To watch the codec&#39;s effect
+on any mode:</p>
+<pre><code># Clean link, sweep quality:
+dart run test/dart_modem_test.dart pipeline -m 5 --bitpool 18  -o out.wav --png bp18.png  &quot;your message&quot;
+dart run test/dart_modem_test.dart pipeline -m 5 --bitpool 124 -o out.wav --png bp124.png &quot;your message&quot;
+
+# Add channel noise to see the bitpool advantage disappear:
+dart run test/dart_modem_test.dart pipeline -m 5 --noise 10 --bitpool 18  -o out.wav &quot;your message&quot;
+dart run test/dart_modem_test.dart pipeline -m 5 --noise 10 --bitpool 124 -o out.wav &quot;your message&quot;
+</code></pre>
+<p><code>--bitpool</code> accepts 2–124 (the radio uses 18) and implies <code>--sbc</code>. We&#39;d love to
+hear from anyone who can raise the bitpool on their radio firmware and capture
+real over-the-air constellations — does removing the SBC quantization floor help
+in practice, or does the phase-noise ceiling hold exactly as our simulation
+predicts?</p>
+<hr>
+<p><em>Method: DART software pipeline (encode → SBC codec round-trip → optional AWGN →
+decode), 16QAM R5/6, 32 kHz/mono SBC at 16 blocks / 8 subbands / loudness
+allocation. Constellation diagrams generated by the DART test tool. Companion to
+&quot;Pushing Data Through FM Voice Radios: Real-World Findings from the DART Modem.&quot;</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-sbc-bitpool.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

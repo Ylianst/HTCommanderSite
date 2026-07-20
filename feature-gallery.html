@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feature gallery — HTCommander</title>
+  <meta name="description" content="Browse HTCommander's features one at a time at your own pace — Winlink, APRS, maps, channel programming, file transfer, SSTV, aircraft tracking and more." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#screens">Screens</a>
+        <a href="features.html">Deep dive</a>
+        <a href="get-started.html">Get started</a>
+        <a href="blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= PAGE HERO ================= -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Feature gallery</span>
+      <h1>Browse features at your own pace</h1>
+      <p>Step through every HTCommander feature one screenshot at a time. Use the arrows to move back and forth.</p>
+    </div>
+  </section>
+
+  <!-- ================= GALLERY ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <div class="gallery" id="gallery" aria-roledescription="carousel">
+        <button class="gallery__nav gallery__nav--prev" id="galleryPrev" aria-label="Previous feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+
+        <div class="gallery__viewport">
+          <div class="gallery__stage" id="galleryStage" aria-live="polite">
+            <img class="gallery__image" id="galleryImage" src="" alt="" />
+          </div>
+          <div class="gallery__info">
+            <span class="badge" id="galleryBadge"></span>
+            <h2 class="gallery__title" id="galleryTitle"></h2>
+            <p class="gallery__desc" id="galleryDesc"></p>
+            <p class="gallery__counter"><span id="galleryIndex">1</span> / <span id="galleryTotal">20</span></p>
+          </div>
+        </div>
+
+        <button class="gallery__nav gallery__nav--next" id="galleryNext" aria-label="Next feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div class="gallery__dots" id="galleryDots" role="tablist" aria-label="Choose a feature"></div>
+
+      <div class="center mt-56">
+        <a class="btn btn--ghost" href="features.html">See the full deep dive →</a>
+        <a class="btn btn--primary" href="get-started.html">Download HTCommander</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature data (image / badge / title / description) -->
+  <script type="application/json" id="galleryData">
+  [
+    { "img": "assets/features/Winlink.png", "badge": "Email", "title": "Winlink email", "desc": "Send and receive Winlink email over packet radio and the Internet, attachments included, right from your radio." },
+    { "img": "assets/features/Aprs.png", "badge": "APRS", "title": "APRS messaging", "desc": "Receive and send APRS messages, set custom routes, text ordinary phones over SMS and request weather reports." },
+    { "img": "assets/features/AprsMap.png", "badge": "Map", "title": "Live APRS map", "desc": "An OpenStreetMap-powered map plots every APRS station around you with position history and station detail." },
+    { "img": "assets/features/PacketTerminal.png", "badge": "Terminal", "title": "Packet terminal", "desc": "Chat in packet mode with other stations, users and BBSes, with a built-in address book for quick access." },
+    { "img": "assets/features/ChannelEditing.png", "badge": "Channels", "title": "Channel editing", "desc": "Fast channel editing with a clean drag & drop layout — name, frequencies, mode, bandwidth, power and tones." },
+    { "img": "assets/features/BatchChannelProgramming.png", "badge": "Programming", "title": "Batch channel programming", "desc": "Import channel lists and drag & drop entries into the radio's slots to program a full memory bank in seconds." },
+    { "img": "assets/features/ChannelSharing.png", "badge": "Sharing", "title": "Share channels over the air", "desc": "Send a channel to anyone on frequency as a tappable message — they just tap to load it into their own radio." },
+    { "img": "assets/features/Contacts.png", "badge": "Address book", "title": "Shared address book", "desc": "Keep your APRS, Winlink and terminal contacts in one shared address book so the right details are a click away." },
+    { "img": "assets/features/FileTransferTorrent.png", "badge": "Files", "title": "Torrent file exchange", "desc": "Many-to-many file transfer over 1200-baud FM-AFSK, so a whole net can share a file at the same time." },
+    { "img": "assets/features/SstvSupport.png", "badge": "SSTV", "title": "SSTV support", "desc": "Send and receive slow-scan television images directly through HTCommander." },
+    { "img": "assets/features/Dump1090Airplanes.png", "badge": "ADS-B", "title": "Aircraft tracking", "desc": "Track nearby aircraft in real time with dump1090 ADS-B integration." },
+    { "img": "assets/features/SpeechToText.png", "badge": "Voice", "title": "Speech to text", "desc": "Real-time, offline speech-to-text transcription of received audio." },
+    { "img": "assets/features/FmBroadcastRadio.png", "badge": "Radio", "title": "FM broadcast radio", "desc": "Tune in and listen to regular FM broadcast radio stations." },
+    { "img": "assets/features/PacketCapture.png", "badge": "Packets", "title": "Packet capture", "desc": "Capture and inspect raw packet traffic to debug and understand what's on the air." },
+    { "img": "assets/features/HighPerformanceSoftwareModem.png", "badge": "Modem", "title": "Software modem", "desc": "A high-performance, built-in software-defined modem — no external TNC required." },
+    { "img": "assets/features/AudioControls.png", "badge": "Audio", "title": "Audio controls", "desc": "Full audio controls with level metering to dial in clean, well-balanced transmit and receive audio." },
+    { "img": "assets/features/SerialGps.png", "badge": "GPS", "title": "Serial GPS", "desc": "Connect a serial GPS for live positioning and accurate APRS beacons." },
+    { "img": "assets/features/MultiPlatform.png", "badge": "Cross-platform", "title": "Runs everywhere", "desc": "One app that runs on Windows, macOS, Linux, iOS, Android and the web over Bluetooth." },
+    { "img": "assets/features/MultiLanguage.png", "badge": "Languages", "title": "Multiple languages", "desc": "Translated into many languages, from Spanish to Chinese, so operators worldwide feel at home." },
+    { "img": "assets/features/LightAndDarkModes.png", "badge": "Themes", "title": "Light & dark themes", "desc": "A modern interface that follows your system's light or dark theme, easy on the eyes day or night." }
+  ]
+  </script>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#screens">Screens</a></li>
+            <li><a href="get-started.html">Get started</a></li>
+            <li><a href="features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="privacy.html">Privacy policy</a></li>
+            <li><a href="license.html">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

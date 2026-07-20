@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Is 125 Microseconds Enough? A Look at Inter-Symbol Interference — HTCommander</title>
+  <meta name="description" content="Sixth in our series on the DART FM data modem. A reader asked for an inter-symbol-interference (ISI) analysis — so we built a multipath channel into the simulator, found the cliff, and checked whether our deliberately-short cyclic prefix is actually big enough. Good news: it is." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">DART Modem</span>
+      <h1>Is 125 Microseconds Enough? A Look at Inter-Symbol Interference</h1>
+      <p>Sixth in our series on the DART FM data modem. A reader asked for an inter-symbol-interference (ISI) analysis — so we built a multipath channel into the simulator, found the cliff, and checked whether our deliberately-short cyclic prefix is actually big enough. Good news: it is.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>ISI in one paragraph</h2>
+<p>OFDM chops data into many slow subcarriers and prepends each symbol with a
+<strong>cyclic prefix (CP)</strong> — a copy of the symbol&#39;s tail. The CP is a guard buffer: as
+long as the channel&#39;s echoes (its <em>delay spread</em>) die out within the CP, every
+OFDM symbol stays clean and its subcarriers stay orthogonal. Push an echo <em>past</em>
+the CP, though, and energy from one symbol spills into the next — <strong>inter-symbol
+interference</strong> — and the subcarriers start to smear into each other too.</p>
+<p>DART&#39;s CP is deliberately short: <strong>4 samples at 32 kHz = 125 µs.</strong> That was a bet
+— that a 2 m/70 cm FM link at close range has almost no RF multipath, so a long CP
+would just waste airtime. The reader&#39;s question is really: <em>was that bet safe?</em></p>
+<h2>Building a multipath channel</h2>
+<p>To test it we added a two-tap echo channel to the simulator — <code>y[n] = x[n] + a·x[n−d]</code> — with a knob for echo delay <code>d</code> and amplitude <code>a</code>. Then we swept the
+delay against a strong (half-amplitude) echo on 16QAM and watched the EVM:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="center">Echo delay</th>
+<th align="center">In time</th>
+<th align="center">EVM</th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0–1 samples</td>
+<td align="center">0–31 µs</td>
+<td align="center">0.1%</td>
+<td align="left">clean</td>
+</tr>
+<tr>
+<td align="center">2 samples</td>
+<td align="center">63 µs</td>
+<td align="center">3.5%</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="center">4 samples</td>
+<td align="center"><strong>125 µs (= CP)</strong></td>
+<td align="center">4.2%</td>
+<td align="left">still absorbed</td>
+</tr>
+<tr>
+<td align="center"><strong>5 samples</strong></td>
+<td align="center"><strong>156 µs (&gt; CP)</strong></td>
+<td align="center"><strong>7.9%</strong></td>
+<td align="left"><strong>ISI kicks in</strong></td>
+</tr>
+<tr>
+<td align="center">8 samples</td>
+<td align="center">250 µs</td>
+<td align="center">11.3%</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="center">16 samples</td>
+<td align="center">500 µs</td>
+<td align="center">14.9%</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="center">24 samples</td>
+<td align="center">750 µs</td>
+<td align="center">19.9%</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+</div>
+<p>There&#39;s the classic ISI signature: EVM stays low while the echo fits inside the CP
+(≤ 4 samples), then <strong>roughly doubles the moment the echo crosses the CP boundary</strong>
+and climbs steadily from there. You can see it in the constellation — a strong echo
+well beyond the CP smears every one of the 16 points:</p>
+<figure class="post-figure">
+  <img src="images/isi-beyond-cp.png" alt="16QAM with an echo well beyond the CP">
+  <figcaption>16QAM with an echo well beyond the CP</figcaption>
+</figure>
+<p>(By contrast an echo <em>within</em> the CP, <a href="images/isi-within-cp.png">isi-within-cp.png</a>,
+stays tight — the equalizer folds it into the channel estimate and removes it.)</p>
+<h2>Confirming the cause: grow the CP, cure the ISI</h2>
+<p>If that degradation is really ISI, then <em>lengthening the CP</em> to cover the echo
+should fix it. We fixed the echo at 8 samples and grew the CP:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="center">CP length</th>
+<th align="center">EVM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">4 samples</td>
+<td align="center">11.3%</td>
+</tr>
+<tr>
+<td align="center">6 samples</td>
+<td align="center">9.0%</td>
+</tr>
+<tr>
+<td align="center"><strong>8 samples (= echo)</strong></td>
+<td align="center"><strong>8.9%</strong></td>
+</tr>
+<tr>
+<td align="center">12 / 16 samples</td>
+<td align="center">9.1% (flat)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Exactly as expected: EVM drops as the CP grows and <strong>plateaus once the CP covers
+the echo</strong> (8 samples). The part that a bigger CP removes <em>is</em> the ISI; the residual
+~9% is the echo&#39;s frequency-selective fading (a different effect the CP doesn&#39;t
+address). This cleanly separates ISI from everything else.</p>
+<h2>The question that actually matters: is <em>our</em> CP big enough?</h2>
+<p>A synthetic echo proves the mechanism, but the practical question is whether
+DART&#39;s real channel — the <strong>SBC codec and radio audio path</strong> — disperses energy
+past 125 µs. Both have impulse responses longer than a single sample, so it&#39;s a
+fair worry. We swept the CP through the real SBC codec with no artificial echo at
+all:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="center">CP length</th>
+<th align="center">EVM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">4 samples</td>
+<td align="center">0.4%</td>
+</tr>
+<tr>
+<td align="center">6 / 8 / 12 / 16 samples</td>
+<td align="center">0.4% (unchanged)</td>
+</tr>
+</tbody></table>
+</div>
+<p><strong>Flat.</strong> Growing the CP buys <em>nothing</em> through the SBC path — so the codec
+introduces <strong>no dispersion beyond the existing 4-sample CP.</strong> (It adds a fixed
+~73-sample <em>delay</em>, but that&#39;s absorbed by the guard interval between the preamble
+and payload; delay is not the same as delay <em>spread</em>.)</p>
+<h2>Verdict: the short CP was a safe bet</h2>
+<ul>
+<li><strong>The CP works exactly as designed</strong> — echoes up to 125 µs are absorbed
+invisibly; only beyond that does ISI appear, with a sharp, well-behaved knee.</li>
+<li><strong>The real SBC/audio path has no dispersion the CP misses</strong> — a longer CP would
+be pure wasted airtime.</li>
+<li><strong>RF multipath at these ranges is orders of magnitude smaller than 125 µs</strong> (a
+reflection would need a ~37 km path-length difference to fill the CP), so DART
+has enormous margin against real over-the-air echoes.</li>
+</ul>
+<p>So ISI is <em>not</em> a limiter for DART — the earlier findings stand: the ceiling is
+raw SNR, and phase noise is handled by the pilots. The one scenario where you&#39;d
+revisit the CP is a genuinely dispersive path — long-range tropo, heavy urban
+multipath, or a repeater with significant group-delay ripple — and now we have the
+tool to measure exactly how much CP that would need.</p>
+<h2>Reproduce this</h2>
+<p>The multipath channel and CP override are in the test tool:</p>
+<pre><code># Delay-spread sweep — watch the knee at the CP (4 samples):
+dart run test/dart_modem_test.dart pipeline -m 4 --echo 8 --echoamp 0.5 -o out.wav &quot;message&quot;
+
+# Grow the CP to cure a fixed echo:
+dart run test/dart_modem_test.dart pipeline -m 4 --echo 8 --cp 8 -o out.wav &quot;message&quot;
+
+# Check the real SBC path for hidden dispersion:
+dart run test/dart_modem_test.dart pipeline -m 4 --bitpool 40 --cp 16 -o out.wav &quot;message&quot;
+</code></pre>
+<hr>
+<p><em>Method: DART software pipeline with an added two-tap echo channel and a
+cyclic-prefix override, 16QAM, half-amplitude echo. Constellation diagrams from the
+DART test tool. Sixth in a series; companions cover the
+<a href="dart-over-the-air-findings.md">real-world findings</a>,
+<a href="dart-sbc-bitpool.md">SBC bitpool</a>, <a href="dart-sbc-allocation.md">SBC bit allocation</a>,
+<a href="dart-phase-noise-and-pilots.md">phase noise &amp; pilots</a>, and
+<a href="dart-code-shortening.md">code shortening</a>.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-inter-symbol-interference.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

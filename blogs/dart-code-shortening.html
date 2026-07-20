@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Bits You Already Know: Code Shortening for Short Frames — HTCommander</title>
+  <meta name="description" content="Fifth in our series on building the DART FM data modem. A stray detail in a constellation plot — one corner used far more than the others — led to a change that buys **5+ dB** of link margin on short frames, essentially for free." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">DART Modem</span>
+      <h1>The Bits You Already Know: Code Shortening for Short Frames</h1>
+      <p>Fifth in our series on building the DART FM data modem. A stray detail in a constellation plot — one corner used far more than the others — led to a change that buys <strong>5+ dB</strong> of link margin on short frames, essentially for free.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>A clue in the corner</h2>
+<p>While staring at 16QAM constellations, we noticed something odd: one corner point
+was used <em>far</em> more than the other fifteen. Here it is on a short message — the
+lower-left <code>0000</code> point is a dense cloud, the rest are nearly empty:</p>
+<figure class="post-figure">
+  <img src="images/shortening-clump.png" alt="The 0000 corner dominates a short frame">
+  <figcaption>The 0000 corner dominates a short frame</figcaption>
+</figure>
+<p>That lopsidedness is not a channel effect. It&#39;s <strong>zero-padding</strong>. DART&#39;s LDPC code
+works on fixed-size blocks (e.g., 540 information bits for the fastest 16QAM mode).
+A short message — a two-byte &quot;Hi&quot;, an ACK, a beacon — fills only a small fraction
+of that block; the encoder <strong>zero-fills the rest</strong>. Because the code is systematic
+(the information bits appear verbatim in the transmitted codeword), those padding
+zeros map straight onto the <code>0000</code> constellation point, over and over.</p>
+<p>The natural first reaction is: <em>should we scramble the bits so all symbols are used
+equally?</em> It&#39;s a reasonable instinct — but it&#39;s the wrong lever, and chasing why
+led us to a much better one.</p>
+<h2>Why &quot;scramble for uniform symbols&quot; doesn&#39;t help</h2>
+<p>For a linear channel (noise, phase, fading), an error-correcting decoder&#39;s
+performance depends only on the <strong>code and the per-bit SNR</strong> — <em>not</em> on which
+constellation points you happen to land on. Sending the <code>0000</code> corner a thousand
+times gives every bit the same distances, the same noise, the same reliability as
+sending random symbols. Making the symbol histogram uniform is cosmetically nicer
+and slightly better for spectral flatness, but it delivers <strong>zero coding gain</strong>.
+It will not lower the SNR you need to decode.</p>
+<p>So equalizing the symbols is a dead end. But the observation was still pointing at
+something real: <strong>those padding bits are wasted effort.</strong> The transmitter spends
+airtime sending them, and the receiver spends decoding effort trying to <em>figure
+out</em> bits whose value we already know is zero.</p>
+<h2>The right lever: code shortening</h2>
+<p><strong>Code shortening</strong> is the classic technique for exactly this situation. Instead of
+asking the decoder to recover the padding bits, we simply <em>tell</em> it: &quot;these bits
+are known to be zero.&quot; In a belief-propagation LDPC decoder that means pinning
+those bits&#39; log-likelihood ratios to a large, confident value before decoding.</p>
+<p>Known bits are not passengers — they&#39;re <strong>constraints</strong>. Every known bit tightens
+the web of parity checks around the <em>unknown</em> bits, so the decoder recovers the
+real payload from far noisier input. In effect, the code rate collapses: a two-byte
+payload in a 648-bit codeword is only ~7% real data, so it&#39;s protected as if by a
+rate-0.07 code instead of the nominal 5/6.</p>
+<p>The change is tiny — a few lines in the decoder that mark the padding region as
+known. Nothing about the transmitted signal changes; it&#39;s purely a smarter
+receiver. And as a bonus, it also strengthens the <strong>frame header</strong>, which is a
+144-bit field inside a 324-bit block — 180 known padding bits that now help every
+single frame decode.</p>
+<h2>What we measured</h2>
+<p>We A/B-tested a 2-byte message at the most aggressive mode (16QAM, rate 5/6)
+through the SBC codec, sweeping the channel down to the decode cliff:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="center">Decode holds down to</th>
+<th>What finally breaks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Without shortening</strong></td>
+<td align="center">~+3 dB channel SNR</td>
+<td>the LDPC code gives up</td>
+</tr>
+<tr>
+<td><strong>With shortening</strong></td>
+<td align="center"><strong>−2 dB channel SNR</strong></td>
+<td>the <strong>preamble detector</strong>, not the code</td>
+</tr>
+</tbody></table>
+</div>
+<p>That&#39;s a <strong>&gt; 5 dB improvement</strong> on a short frame — and notice the failure mode
+changed: with shortening the decoder is no longer the bottleneck at all. The frame
+stops decoding only because, at those noise levels, the receiver can&#39;t <em>find</em> the
+preamble anymore. The error correction has more margin than the rest of the link.</p>
+<p>Crucially, this is <strong>free and self-scaling</strong>:</p>
+<ul>
+<li>The gain is proportional to how much of the block is padding, so it&#39;s <strong>largest
+for the shortest frames</strong> — ACKs, control messages, beacons, keystrokes — which
+is exactly the traffic that most needs to punch through a weak link.</li>
+<li>For large payloads there&#39;s little padding, so the effect fades to nothing — no
+downside.</li>
+<li>It costs no bandwidth, no airtime, and no transmit changes. Existing signals
+decode better on a receiver that knows to do it.</li>
+<li>No regression across the full automated test suite.</li>
+</ul>
+<h2>Which modes actually benefit?</h2>
+<p>A natural follow-up: does this help the robust modes (BPSK, QPSK) too, or only the
+aggressive ones? We measured it — a 2-byte frame at the decode cliff, with and
+without shortening:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th align="center">Without shortening</th>
+<th align="center">With shortening</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>QPSK rate-1/2</strong></td>
+<td align="center">fails at −4 dB (preamble detection)</td>
+<td align="center">fails at −4 dB (preamble detection)</td>
+</tr>
+<tr>
+<td><strong>16QAM rate-5/6</strong></td>
+<td align="center">fails at +3 dB (the code)</td>
+<td align="center">~−3 dB (preamble detection)</td>
+</tr>
+</tbody></table>
+</div>
+<p>This is a clean illustration of <em>what shortening does and doesn&#39;t touch</em>.
+Shortening only helps when the <strong>error-correcting code is the bottleneck</strong>. For the
+robust rate-1/2 modes, the code is already stronger than the <strong>preamble detector</strong>:
+a short frame decodes down to about −3 dB whether or not we shorten, because below
+that the receiver can no longer <em>find</em> the preamble at all. The shortening still
+runs — it just has nothing left to save, because detection gives out first.</p>
+<p>For the aggressive modes it&#39;s the opposite. The code fails first (16QAM rate-5/6
+gives up at +3 dB, far above the detection floor), so shortening&#39;s extra margin
+slides the decode cliff all the way down to the detection limit — the full 5+ dB.</p>
+<p>The takeaways:</p>
+<ul>
+<li><strong>Shortening helps exactly where the code is working hardest</strong> — the high-rate
+modes and the shortest frames. It&#39;s invisible on the robust modes not because it
+fails, but because they were never code-limited to begin with.</li>
+<li>It <strong>never hurts</strong> and costs nothing, so it simply stays on.</li>
+<li>It also exposes a <em>different</em> lever for the future: the robust modes are now
+<strong>detection-limited</strong>, so extending <em>their</em> short-frame range would mean
+improving the preamble/sync, not the code.</li>
+</ul>
+<h2>The takeaway</h2>
+<p>The constellation clump wasn&#39;t a problem to <em>hide</em> (by scrambling) — it was a
+signpost saying <em>&quot;you&#39;re transmitting and decoding bits you already know.&quot;</em> The
+useful response wasn&#39;t to make the known bits look random; it was to <strong>exploit
+that we know them.</strong> Code shortening turns wasted padding into free error-correction
+margin, and it helps most precisely where a marginal link hurts most: the short
+control frames that keep a link alive.</p>
+<p>There&#39;s even a further step we haven&#39;t taken yet — <strong>puncturing</strong> the known
+padding, i.e., not transmitting it at all, to save airtime on short frames. That&#39;s
+a story for another day.</p>
+<h2>Reproduce this</h2>
+<p>The behavior is in the standard decode path — short frames simply decode at lower
+SNR now. To see the padding clump that started it all:</p>
+<pre><code>dart run test/dart_modem_test.dart pipeline -m 4 --sbc --noise 20 \
+    --png clump.png &quot;Hi&quot;
+</code></pre>
+<p>...and watch a tiny payload survive absurd noise levels that a full-rate codeword
+never could.</p>
+<hr>
+<p><em>Method: DART software pipeline (encode → SBC codec → AWGN → decode), 16QAM, 2-byte
+payload, controlled A/B on the LDPC shortening step. Fifth in a series; companions
+cover the <a href="dart-over-the-air-findings.md">real-world findings</a>,
+<a href="dart-sbc-bitpool.md">SBC bitpool</a>, <a href="dart-sbc-allocation.md">SBC bit allocation</a>,
+and <a href="dart-phase-noise-and-pilots.md">phase noise &amp; pilots</a>.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-code-shortening.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

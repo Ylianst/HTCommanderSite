@@ -1,0 +1,16 @@
+{
+  "name": "htcommander-blog-builder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Converts the HTCommander repo's markdown blog posts into styled HTML pages for the HTCommander website, and regenerates the blog index.",
+  "type": "module",
+  "bin": {
+    "build-blogs": "build.mjs"
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "marked": "^12.0.2"
+  }
+}

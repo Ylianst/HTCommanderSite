@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Where Does the Firmware Come From? Inside the Benshi Update Server — HTCommander</title>
+  <meta name="description" content="A companion to [How a Benshi Radio Updates Its Firmware, Step by Step](benshi-firmware-update.md). That post followed the bytes into the radio over Bluetooth. This one looks the other direction — up at the cloud — and documents exactly how the online update service works: the call that returns the latest firmware, the wire format, and how the pieces fit together." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Firmware Updates</span>
+      <h1>Where Does the Firmware Come From? Inside the Benshi Update Server</h1>
+      <p>A companion to <a href="benshi-firmware-update.md">How a Benshi Radio Updates Its Firmware, Step by Step</a>. That post followed the bytes into the radio over Bluetooth. This one looks the other direction — up at the cloud — and documents exactly how the online update service works: the call that returns the latest firmware, the wire format, and how the pieces fit together.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The three layers, and which one this is about</h2>
+<p>A full update has three layers:</p>
+<ol>
+<li><strong>Check</strong> — ask a server &quot;is there newer firmware?&quot;</li>
+<li><strong>Download + assemble</strong> — fetch it and reconstruct the image.</li>
+<li><strong>Flash</strong> — stream it into the radio (covered in the <a href="benshi-firmware-update.md">companion post</a>).</li>
+</ol>
+<p>This post is about <strong>layers 1 and 2</strong> — everything that happens on the network
+before a single byte reaches the radio.</p>
+<pre class="mermaid">flowchart TD
+    A[&quot;Layer 1: Check&lt;br/&gt;gRPC → rpc.benshikj.com:800&quot;] --&gt; B{firmware returned?}
+    B -- &quot;yes (URLs + version)&quot; --&gt; C[&quot;Layer 2: Download&lt;br/&gt;patch + base from Alibaba OSS&quot;]
+    C --&gt; E[&quot;Assemble with bspatch&lt;br/&gt;base + BSDIFF40 → firmware&quot;]
+    E --&gt; F[&quot;Layer 3: Flash to radio&quot;]
+</pre>
+<hr>
+<h2>Layer 1: the check — the method that actually works</h2>
+<p>The update check is a single <strong>gRPC-over-TLS</strong> call. The important lesson here is
+<em>which method you call.</em></p>
+<p>There is an <strong>older</strong> method, <code>/benshikj.APP/CheckUpdate</code>, that takes a model
+string plus a <code>V0.0.0</code> version. The current backend <strong>no longer honors it</strong> — it
+always replies <code>haveUpdate=false</code> (a zero-byte proto3 response), regardless of
+the model, version, or device serial you send. Chasing that method is a dead end.</p>
+<p>The <strong>working</strong> method is <code>/benshikj.DeviceManagement/CheckFirmwareUpdate</code>. It
+keys off a numeric <strong>product ID</strong>, not a model string or serial, and returns the
+latest firmware URLs when you ask for version <code>0</code>.</p>
+<ul>
+<li><strong>Endpoint:</strong> <code>rpc.benshikj.com:800</code> — TLS, but on port <strong>800</strong>, not 443.</li>
+<li><strong>Method:</strong> <code>/benshikj.DeviceManagement/CheckFirmwareUpdate</code>.</li>
+</ul>
+<h3>The request</h3>
+<p><code>CheckFirmwareUpdateRequest</code> is a proto3 message:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Field #</th>
+<th>Name</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>productId</code></td>
+<td>int32</td>
+<td>The radio&#39;s numeric product ID</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>firmwareVersion</code></td>
+<td>int32</td>
+<td>Send <code>0</code> to get the latest</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>beta</code></td>
+<td>bool</td>
+<td>Opt into beta builds</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>userId</code></td>
+<td>int64</td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>inviteCode</code></td>
+<td>int32</td>
+<td>Optional</td>
+</tr>
+</tbody></table>
+</div>
+<p>To get the latest firmware you only need to send <strong><code>productId</code></strong> and
+<strong><code>firmwareVersion = 0</code></strong>. Because this is proto3, any field left at its default
+value (<code>0</code> / <code>false</code>) is <strong>omitted from the wire entirely</strong>, so a minimal request
+is just <code>productId</code> (with <code>firmwareVersion = 0</code>, even that field is elided).</p>
+<h3>The response</h3>
+<p><code>CheckFirmwareUpdateResult</code> carries two firmware descriptors:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Field #</th>
+<th>Name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>firmware</code></td>
+<td><code>FirmwareInfo</code> (the patch)</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>base</code></td>
+<td><code>FirmwareInfo</code> (the shared base)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Each <code>FirmwareInfo</code> is:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Field #</th>
+<th>Name</th>
+<th>Type</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>version</code></td>
+<td>int</td>
+<td><code>147</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>url</code></td>
+<td>string</td>
+<td>OSS patch/base URL</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>md5</code></td>
+<td>string</td>
+<td>checksum</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>releaseNotes</code></td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>releaseDate</code></td>
+<td>string</td>
+<td></td>
+</tr>
+</tbody></table>
+</div>
+<p>Decoding the reply is the same wire format in reverse — walk the fields:
+<code>version</code> is a varint int (e.g. <code>147</code>), and <code>url</code>/<code>md5</code> are length-delimited
+strings.</p>
+<hr>
+<h2>Where the product ID comes from</h2>
+<p>The old method used a hardcoded model string (<code>&quot;VR_N7600&quot;</code>). The new method
+doesn&#39;t use a model string at all — it keys on the numeric <strong><code>productId</code></strong>, which
+you read <strong>from the radio</strong> via <code>GET_DEV_INFO</code> (<code>DevInfo.product_id</code>, a 16-bit
+int). So it&#39;s pulled live from the connected radio, not baked into the code.</p>
+<blockquote>
+<p><strong>Don&#39;t assume a fixed value.</strong> The example below was verified with
+<code>productId = 259</code>, but you should read <em>your</em> radio&#39;s product ID from
+<code>GET_DEV_INFO</code> rather than hardcoding one.</p>
+</blockquote>
+<h3>What about the device serial (DID)?</h3>
+<p>The old request also carried a <code>did</code> — the factory serial from the radio&#39;s
+Status-menu S/N field. That serial is <strong>not</strong> returned by <code>GET_DEV_INFO</code>, so
+there was no clean way to read it over the air. The good news: the new
+<code>CheckFirmwareUpdate</code> method <strong>has no DID field at all</strong>. You can drop the whole
+serial puzzle — the server returns the latest URLs keyed purely on <code>productId</code>.</p>
+<hr>
+<h2>Encoding the request in C# — raw proto3, no generated stubs</h2>
+<p>Because the message is so small, HTCommander hand-rolls the protobuf wire format
+instead of pulling in a code generator. Every field is either a varint
+(wire-type 0) or a length-delimited string (wire-type 2), encoded as
+<code>tag · value</code> or <code>tag · length · bytes</code>.</p>
+<pre><code class="language-csharp">using System.IO;
+using System.Text;
+using Grpc.Core;
+using Grpc.Net.Client;
+
+static void WriteVarint(Stream s, ulong v) {
+    do {
+        byte b = (byte)(v &amp; 0x7F);
+        v &gt;&gt;= 7;
+        if (v != 0) b |= 0x80;
+        s.WriteByte(b);
+    } while (v != 0);
+}
+
+// wire-type-0 (varint) field
+static void WriteVarintField(Stream s, int fieldNum, ulong value) {
+    WriteVarint(s, ((ulong)fieldNum &lt;&lt; 3) | 0);
+    WriteVarint(s, value);
+}
+
+// wire-type-2 (length-delimited) field — for string fields
+static void WriteStringField(Stream s, int fieldNum, string value) {
+    var b = Encoding.UTF8.GetBytes(value);
+    WriteVarint(s, ((ulong)fieldNum &lt;&lt; 3) | 2);
+    WriteVarint(s, (ulong)b.Length);
+    s.Write(b, 0, b.Length);
+}
+
+// CheckFirmwareUpdateRequest { productId=1, firmwareVersion=2, beta=3, userId=4, inviteCode=5 }
+static byte[] EncodeCheckFirmwareUpdateRequest(
+        int productId, int firmwareVersion = 0, bool beta = false,
+        long userId = 0, int inviteCode = 0) {
+    using var ms = new MemoryStream();
+    if (productId != 0) WriteVarintField(ms, 1, (ulong)productId);
+    if (firmwareVersion != 0) WriteVarintField(ms, 2, (ulong)firmwareVersion);
+    if (beta) WriteVarintField(ms, 3, 1);
+    if (userId != 0) WriteVarintField(ms, 4, (ulong)userId);
+    if (inviteCode != 0) WriteVarintField(ms, 5, (ulong)inviteCode);
+    return ms.ToArray();
+}
+
+// Send raw bytes over gRPC with a pass-through marshaller
+static async Task&lt;byte[]&gt; CheckFirmwareUpdate(int productId) {
+    var pass = Marshallers.Create&lt;byte[]&gt;(b =&gt; b, b =&gt; b);
+    var method = new Method&lt;byte[], byte[]&gt;(
+        MethodType.Unary, &quot;benshikj.DeviceManagement&quot;, &quot;CheckFirmwareUpdate&quot;, pass, pass);
+    using var channel = GrpcChannel.ForAddress(&quot;https://rpc.benshikj.com:800&quot;);
+    byte[] req = EncodeCheckFirmwareUpdateRequest(productId, firmwareVersion: 0);
+    var call = channel.CreateCallInvoker().AsyncUnaryCall(method, null, new CallOptions(), req);
+    return await call.ResponseAsync;
+}
+</code></pre>
+<p>The pass-through marshaller lets us push raw bytes through gRPC without any
+generated message classes — we own both the encoding and the decoding.</p>
+<hr>
+<h2>Layer 2: download + assemble</h2>
+<p>Once the check hands back URLs, the rest of the pipeline is straightforward:</p>
+<ul>
+<li>The response carries <strong>two</strong> <code>FirmwareInfo</code> entries pointing at Alibaba Cloud
+OSS: a <strong>patch</strong> (<code>firmware</code>) and a <strong>base</strong> (<code>base</code>).</li>
+<li>The download is a <strong>binary diff</strong>, not a whole image:<ul>
+<li><strong>base</strong> — a large, <em>shared</em> blob (<code>upgrade_base_v1.bin.zip</code>), the same
+across many firmware releases.</li>
+<li><strong>patch</strong> — a small <code>BSDIFF40</code> diff (e.g. <code>patch_base_to_vr_n76.bin</code>).</li>
+</ul>
+</li>
+<li>The client unzips the base, then applies the patch with <strong>bspatch</strong> to
+reconstruct the real firmware image. (HTCommander implements <code>BSDIFF40</code> in
+pure Dart, decompressing the three bzip2 streams and running the classic
+patch loop.)</li>
+</ul>
+<p>Rough sizes for a typical release:</p>
+<ul>
+<li>Patch: ~87 KB</li>
+<li>Base zip: ~659 KB</li>
+<li>Reassembled into a complete, flashable firmware image whose MD5 matches the
+value the server returns in the <code>FirmwareInfo.md5</code> field.</li>
+</ul>
+<hr>
+<h2>Confirming it works</h2>
+<p>This isn&#39;t theory — it was verified live against the production server:</p>
+<ul>
+<li>Sent <code>productId = 259</code>, <code>firmwareVersion = 0</code>.</li>
+<li>Server returned <code>version = 147</code>, plus the <strong>patch</strong> and <strong>base</strong> OSS URLs.</li>
+<li>The two blobs <code>bsdiff4</code>-assemble into a valid, flashable firmware image.</li>
+</ul>
+<p>That closes the loop end to end: query by product ID, get the newest version and
+its URLs, download, reassemble, and flash.</p>
+<hr>
+<h2>Takeaways</h2>
+<ol>
+<li><strong>Call the right method.</strong> <code>/benshikj.DeviceManagement/CheckFirmwareUpdate</code>
+works; the legacy <code>/benshikj.APP/CheckUpdate</code> always returns &quot;no update&quot; on
+the current backend.</li>
+<li><strong>Key off <code>productId</code>, not a model string or serial.</strong> Read it live from the
+radio via <code>GET_DEV_INFO</code> (<code>DevInfo.product_id</code>) — don&#39;t hardcode it.</li>
+<li><strong>Ask for version <code>0</code></strong> to get the latest firmware; proto3 omits zero/false
+fields, so the request is tiny.</li>
+<li><strong>No DID required.</strong> The new method has no serial field — the whole &quot;device
+serial&quot; puzzle from the old API is gone.</li>
+<li><strong>Download and assembly are a shared base plus a tiny <code>BSDIFF40</code> patch</strong>,
+reconstructed in pure Dart, with the server-supplied MD5 to verify the result.</li>
+</ol>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/benshi-firmware-server.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

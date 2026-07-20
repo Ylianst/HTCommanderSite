@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inside SBC: Loudness vs. SNR Bit Allocation, and Why It Matters for Data — HTCommander</title>
+  <meta name="description" content="Third in our series on running data over FM voice radios. We've established that the Bluetooth SBC codec adds a small but real noise floor under our DART modem signal. This post opens up SBC to explain **how** it spends its bits — and why one of its two allocation modes is quietly the wrong choice for data." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">DART Modem</span>
+      <h1>Inside SBC: Loudness vs. SNR Bit Allocation, and Why It Matters for Data</h1>
+      <p>Third in our series on running data over FM voice radios. We&#39;ve established that the Bluetooth SBC codec adds a small but real noise floor under our DART modem signal. This post opens up SBC to explain <strong>how</strong> it spends its bits — and why one of its two allocation modes is quietly the wrong choice for data.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The story so far</h2>
+<ul>
+<li><a href="dart-over-the-air-findings.md">Part 1</a> characterized the DART modem over two
+UV-Pro radios and traced the quality ceiling to the <strong>audio path</strong>.</li>
+<li><a href="dart-sbc-bitpool.md">Part 2</a> showed that SBC&#39;s <strong>bitpool</strong> setting adds ~3%
+EVM at the radio&#39;s default (18), but that raising it saturates fast and is
+swamped by channel noise.</li>
+</ul>
+<p>This time we go one level deeper: <em>given</em> a fixed bitpool budget, <strong>how does SBC
+decide where those bits go</strong> — and can we steer that decision to favor our data
+waveform?</p>
+<h2>A 60-second tour of how SBC works</h2>
+<p>SBC (the mandatory Bluetooth A2DP codec) is a <strong>subband codec</strong>. For each little
+block of audio it does three things:</p>
+<ol>
+<li><strong>Split into subbands.</strong> An analysis filterbank divides the spectrum into 4 or
+8 equal-width frequency subbands. At our 32 kHz / 8-subband config, each
+subband is <strong>2000 Hz wide</strong> (SB0 = 0–2000 Hz, SB1 = 2000–4000 Hz, …).</li>
+<li><strong>Measure each subband&#39;s level.</strong> For every subband it computes a <strong>scale
+factor</strong> — essentially how loud that band is in this block. The scale factor
+sets the range of the quantizer.</li>
+<li><strong>Hand out bits.</strong> SBC has a fixed pool of bits per frame — the <strong>bitpool</strong> —
+and it distributes them across the subbands. A subband that gets more bits is
+quantized finely (low noise); one that gets few bits is quantized coarsely
+(audible/measurable quantization noise).</li>
+</ol>
+<p>Step 3 is the interesting one. <strong>How</strong> SBC decides which subbands deserve more
+bits is governed by its <strong>bit-allocation method</strong>, and the SBC standard defines
+two: <strong>Loudness</strong> and <strong>SNR</strong>.</p>
+<h2>Loudness vs. SNR allocation</h2>
+<p>Both methods start from the per-subband scale factors, but they weight them
+differently:</p>
+<ul>
+<li><p><strong>SNR allocation</strong> distributes bits to equalize the <strong>signal-to-quantization-
+noise ratio across all subbands.</strong> Every occupied band gets enough bits to hit
+a similar noise floor. It&#39;s flat and even-handed — it treats all frequencies as
+equally important.</p>
+</li>
+<li><p><strong>Loudness allocation</strong> applies a <strong>psychoacoustic weighting</strong> on top of that.
+It knows the human ear is more sensitive to some frequencies (roughly the
+mid-band of speech and music) and less sensitive to others, so it <strong>steals bits
+from bands the ear cares less about and spends them where they&#39;ll be most
+audible.</strong> For <em>music and voice</em>, this is exactly right — it makes the codec
+sound better to a human at the same bitrate. Loudness is the sensible default
+for a Bluetooth speaker or headset.</p>
+</li>
+</ul>
+<p>Here&#39;s the catch: <strong>a data modem is not a human ear.</strong></p>
+<h2>Why loudness is the wrong choice for data</h2>
+<p>DART&#39;s OFDM waveform packs its subcarriers into ~500–2500 Hz. Every one of those
+subcarriers carries equally important bits — there is no &quot;perceptually less
+important&quot; part of the spectrum. When loudness allocation decides some of that
+band matters less (because it would matter less <em>to a listener</em>), it under-funds
+those subcarriers with bits, and their quantization noise spreads the
+constellation. The psychoacoustic model is optimizing for the wrong thing
+entirely.</p>
+<p><strong>SNR allocation, by contrast, gives every subcarrier a uniform quantization
+floor</strong> — which is precisely what a data waveform wants. Same bitpool, same
+bandwidth, just spent evenly instead of by a hearing curve.</p>
+<h2>Seeing the difference (16QAM through SBC @ bitpool 18)</h2>
+<p>We ran the hardest mode, 16QAM, through the SBC codec at the radio&#39;s bitpool 18
+with each allocation method — no channel noise, so this is <em>purely</em> the codec&#39;s
+contribution.</p>
+<p><strong>Loudness allocation — EVM 3.5%</strong></p>
+<figure class="post-figure">
+  <img src="images/alloc-loudness.png" alt="16QAM through SBC, loudness allocation">
+  <figcaption>16QAM through SBC, loudness allocation</figcaption>
+</figure>
+<p><strong>SNR allocation — EVM 1.8%</strong></p>
+<figure class="post-figure">
+  <img src="images/alloc-snr.png" alt="16QAM through SBC, SNR allocation">
+  <figcaption>16QAM through SBC, SNR allocation</figcaption>
+</figure>
+<p>Same codec, same bitpool, same signal — the only change is <em>how the bits were
+distributed.</em> The SNR clusters are visibly tighter around their ideal points, and
+the EVM is <strong>cut roughly in half (3.5% → 1.8%)</strong>. That improvement is free: it
+costs no extra Bluetooth bandwidth.</p>
+<h2>How the benefit holds up with real noise</h2>
+<p>Because this only helps where SBC quantization is the dominant noise, the
+advantage is largest on a clean link and shrinks as channel noise takes over:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="center">Channel noise</th>
+<th align="center">Loudness EVM</th>
+<th align="center">SNR EVM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">none (pure SBC)</td>
+<td align="center">3.5%</td>
+<td align="center"><strong>1.8%</strong></td>
+</tr>
+<tr>
+<td align="center">25 dB</td>
+<td align="center">3.9%</td>
+<td align="center"><strong>2.7%</strong></td>
+</tr>
+<tr>
+<td align="center">15 dB</td>
+<td align="center">7.0%</td>
+<td align="center"><strong>6.5%</strong></td>
+</tr>
+<tr>
+<td align="center">10 dB</td>
+<td align="center">11.4%</td>
+<td align="center"><strong>11.2%</strong></td>
+</tr>
+</tbody></table>
+</div>
+<p>All still decode. On a clean link SNR allocation nearly halves the codec&#39;s
+contribution; on a noisy link the channel dominates and the choice barely
+matters.</p>
+<h2>What we changed</h2>
+<p>We flipped DART&#39;s <strong>transmit</strong> SBC encoder to <strong>SNR allocation for data frames
+only</strong> — voice transmissions keep loudness, where the psychoacoustic weighting
+genuinely helps a human listener. The allocation method is signaled in each SBC
+frame header, so a compliant decoder adapts automatically; the SBC standard
+requires decoders to support both modes.</p>
+<h2>The honest caveats</h2>
+<ul>
+<li><strong>It only helps the app→radio hop.</strong> The return path (radio→app) uses the
+radio firmware&#39;s own SBC encoder, whose allocation method we can&#39;t change.</li>
+<li><strong>It won&#39;t unlock the failed high-order modes over the air.</strong> On the real link
+the constellation is dominated by ~29% EVM of <strong>phase noise</strong> from the FM audio
+path — a ~1.7% codec improvement is a rounding error against that. This is a
+clean, correct-by-design tidy-up of one avoidable noise source, not a fix for
+the phase-noise ceiling.</li>
+<li><strong>Compatibility should be verified on hardware.</strong> It&#39;s spec-compliant and very
+likely fine, but if a specific radio&#39;s firmware misbehaves with SNR frames,
+it&#39;s a one-line revert.</li>
+</ul>
+<h2>Reproduce this</h2>
+<p>The allocation method is now a switch in the DART test tool:</p>
+<pre><code>dart run test/dart_modem_test.dart pipeline -m 5 --bitpool 18 --sbcalloc loudness -o out.wav --png loud.png &quot;message&quot;
+dart run test/dart_modem_test.dart pipeline -m 5 --bitpool 18 --sbcalloc snr      -o out.wav --png snr.png  &quot;message&quot;
+</code></pre>
+<p>Try it with channel noise (<code>--noise 10</code>) to watch the advantage fade as the link
+degrades, and with different modes (<code>-m 3</code> for 8PSK) to see how the codec floor
+scales with constellation density.</p>
+<hr>
+<p><em>Method: DART software pipeline (encode → SBC codec round-trip → optional AWGN →
+decode), 16QAM R5/6, 32 kHz / mono SBC at 16 blocks / 8 subbands, bitpool 18.
+Constellation diagrams generated by the DART test tool. Third in a series;
+companions: &quot;Pushing Data Through FM Voice Radios&quot; and &quot;Does SBC Bitpool
+Matter?&quot;</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/dart-sbc-allocation.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

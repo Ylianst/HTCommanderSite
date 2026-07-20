@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Channel You Can Text: The HTCommander Channel-Share String — HTCommander</title>
+  <meta name="description" content="How we turned a radio channel — frequency, offset, tones, bandwidth, modulation, and all the little flags — into one short line of text you can drag, drop, paste, or send over the air to another operator." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Sharing &amp; Interop</span>
+      <h1>A Channel You Can Text: The HTCommander Channel-Share String</h1>
+      <p>How we turned a radio channel — frequency, offset, tones, bandwidth, modulation, and all the little flags — into one short line of text you can drag, drop, paste, or send over the air to another operator.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The idea</h2>
+<p>Programming a repeater or a simplex channel by hand is fiddly: receive
+frequency, transmit offset, CTCSS/DCS tones on both ends, wide vs. narrow,
+FM vs. AM, de-emphasis, mute. Get one digit wrong and you&#39;re transmitting into
+the void. Meanwhile the operator standing next to you already has that channel
+working perfectly.</p>
+<p>So why not just <strong>hand them the channel</strong>?</p>
+<p>The goal for HTCommander is simple and tactile:</p>
+<ul>
+<li><strong>Drag a channel</strong> out of the radio panel and drop it into the Comm or APRS
+tab. HTCommander turns it into a compact text token and sends it to whoever
+you&#39;re talking to — over Bluetooth, over the internet, or <strong>over the air</strong>.</li>
+<li>On the other end, the incoming token is recognized and rendered as a
+<strong>yellow channel block</strong>, exactly like the ones in the radio tab.</li>
+<li>The receiving operator <strong>drags that block into their radio</strong> to program the
+channel in one motion.</li>
+</ul>
+<p>For any of that to work, we first need a way to write a whole channel as a
+short, unambiguous, human-friendly string. This post documents that string —
+what it&#39;s for, how it&#39;s laid out, and how HTCommander will use it.</p>
+<h2>Design goals</h2>
+<p>A channel-share string has to survive some hostile environments — an APRS
+message field, a copy-paste, a marginal over-the-air packet — so the format is
+built around five rules:</p>
+<ol>
+<li><strong>Instantly recognizable.</strong> A receiver scanning a stream of chat text must be
+able to spot a channel with a simple pattern match. That means a distinctive
+magic prefix.</li>
+<li><strong>Self-contained on one line, no spaces.</strong> The whole channel is a single
+whitespace-free token, so you can locate it by scanning for the prefix and
+reading to the next space or newline. This also makes drag-select trivial.</li>
+<li><strong>Human-readable where it matters.</strong> Frequencies and tones are written the
+way a ham reads them — <code>146.520</code>, <code>-5</code>, <code>88.5</code> — not as opaque hex. Only the
+dense pile of boolean flags is packed.</li>
+<li><strong>Compact.</strong> It has to fit comfortably in an APRS message (a few dozen
+characters) and ideally in a single short data frame.</li>
+<li><strong>Integrity-checked.</strong> A trailing checksum catches truncation and typos, so a
+half-copied token is rejected instead of programming a wrong frequency.</li>
+</ol>
+<h2>The format at a glance</h2>
+<pre><code>HTC:1:NAME:RXFREQ:OFFSET:TXTONE:RXTONE:FLAGS*CK
+</code></pre>
+<p>Fields are separated by colons. A worked example — the 2 m calling frequency:</p>
+<pre><code>HTC:1:Calling:146.52:0:::G1*4A
+</code></pre>
+<p>Read left to right: it&#39;s an HTCommander channel (<code>HTC</code>), format version <code>1</code>,
+named <em>Calling</em>, receiving on <strong>146.52 MHz</strong>, <strong>simplex</strong> (offset <code>0</code>), <strong>no
+tones</strong> (two empty tone fields), flags <code>G1</code>, checksum <code>4A</code>.</p>
+<p>Here is each field in order.</p>
+<h3><code>HTC</code> — magic prefix</h3>
+<p>The literal characters <code>HTC</code>. This is the fingerprint the receiver looks for.
+A message scanner can find candidate channels with a pattern as simple as
+<code>HTC:</code> and then validate the checksum. Because the token contains no spaces, the
+end is just &quot;the next whitespace.&quot;</p>
+<h3><code>1</code> — format version</h3>
+<p>A single digit. Version <code>1</code> is the analog-channel format described here. Bumping
+this lets us extend the format later (DMR color codes, extra fields) without
+older clients silently misreading a newer string.</p>
+<h3><code>NAME</code> — channel name</h3>
+<p>The channel&#39;s display name (up to 10 characters on Benshi radios). Because the
+name is free text and could contain a colon, a space, or other reserved
+characters, it is <strong>percent-encoded</strong>: any character that isn&#39;t an unreserved
+ASCII letter, digit, <code>-</code>, <code>_</code>, or <code>.</code> is written as <code>%HH</code>. A space becomes
+<code>%20</code>. So <em>Air Guard</em> travels as <code>Air%20Guard</code>. This keeps the token
+whitespace-free and delimiter-safe.</p>
+<h3><code>RXFREQ</code> — receive frequency (MHz)</h3>
+<p>The receive frequency in <strong>megahertz</strong>, as a decimal string with trailing zeros
+trimmed: <code>146.52</code>, <code>446.00625</code>, <code>27.185</code>. Internally HTCommander stores
+frequency in whole hertz (a 30-bit field good to ~1073 MHz), and MHz with up to
+six decimal places reproduces every hertz exactly.</p>
+<h3><code>OFFSET</code> — transmit offset (MHz)</h3>
+<p>How the <strong>transmit</strong> frequency relates to the receive frequency:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Written as</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>0</code></td>
+<td>Simplex — transmit equals receive</td>
+</tr>
+<tr>
+<td><code>+0.6</code></td>
+<td>Transmit 600 kHz <strong>above</strong> receive (2 m repeater)</td>
+</tr>
+<tr>
+<td><code>-5</code></td>
+<td>Transmit 5 MHz <strong>below</strong> receive (70 cm repeater)</td>
+</tr>
+<tr>
+<td><code>=147.315</code></td>
+<td>Odd split — transmit on this <strong>absolute</strong> frequency in MHz</td>
+</tr>
+</tbody></table>
+</div>
+<p>Almost every real channel is simplex or a clean ± offset, so the common cases
+stay short and readable. The <code>=</code> form is the escape hatch for a full split where
+transmit isn&#39;t a tidy offset from receive.</p>
+<h3><code>TXTONE</code> and <code>RXTONE</code> — sub-audio squelch</h3>
+<p>Two independent fields: the <strong>transmit</strong> tone and the <strong>receive</strong> tone. Handling
+them separately is what lets the format express plain tone, tone squelch (TSQL),
+and cross-tone setups. Each field is one of:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Field value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><em>(empty)</em></td>
+<td>No sub-audio</td>
+</tr>
+<tr>
+<td><code>88.5</code></td>
+<td><strong>CTCSS</strong> tone in Hz</td>
+</tr>
+<tr>
+<td><code>D023</code></td>
+<td><strong>DCS</strong> code (the numeric code as printed on radios, zero-padded)</td>
+</tr>
+</tbody></table>
+</div>
+<p>The two ranges never collide: a CTCSS value is always a decimal frequency, and a
+DCS value always carries the <code>D</code> prefix. Some common combinations:</p>
+<ul>
+<li><code>:::</code> &nbsp;→&nbsp; carrier squelch, no tones (both fields empty)</li>
+<li><code>100:100</code> &nbsp;→&nbsp; <strong>TSQL</strong> — 100.0 Hz encode and decode</li>
+<li><code>88.5:</code> &nbsp;→&nbsp; <strong>tone</strong> on transmit only (open receive)</li>
+<li><code>:D023</code> &nbsp;→&nbsp; DCS-023 required to open the receiver</li>
+</ul>
+<p>Internally, HTCommander (like the radios) stores CTCSS as <code>round(Hz × 100)</code>
+and DCS as its bare numeric code; CTCSS values land at ≥ 1000 and DCS codes stay
+below it, so the ranges are unambiguous on the wire too.</p>
+<h3><code>FLAGS</code> — the packed bit field</h3>
+<p>Everything that&#39;s a yes/no switch is bundled into a <strong>10-bit flag word</strong> and
+written as <strong>two <a href="https://www.crockford.com/base32.html" target="_blank" rel="noopener">Crockford Base32</a>
+characters</strong> (alphabet <code>0-9 A-Z</code> minus the ambiguous <code>I L O U</code>). This is the
+&quot;letter of the alphabet for bitflags&quot; idea, just widened to two characters so
+there&#39;s room to grow. High five bits first, low five bits second.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>Mask</th>
+<th>Meaning when set</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td><code>0x001</code></td>
+<td>Bandwidth <strong>WIDE</strong> (clear = narrow / 12.5 kHz)</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>0x002</code></td>
+<td>Receive modulation <strong>AM</strong> (clear = FM)</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>0x004</code></td>
+<td>Transmit modulation <strong>AM</strong> (clear = FM)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>0x008</code></td>
+<td><strong>Mute</strong> — speaker muted on this channel</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>0x010</code></td>
+<td><strong>De-emphasis / pre-emphasis bypass</strong> (flat audio)</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>0x020</code></td>
+<td><strong>TX disabled</strong> — receive-only channel</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>0x040</code></td>
+<td><strong>Scan</strong> — include in the scan list</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>0x080</code></td>
+<td><strong>Talk-around</strong> — transmit on the receive frequency</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>0x100</code></td>
+<td><strong>TX medium power</strong></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>0x200</code></td>
+<td><strong>TX high power</strong> (neither 8 nor 9 set = low power)</td>
+</tr>
+</tbody></table>
+</div>
+<p>The five flags the sharing feature cares about most — bandwidth, AM/FM, mute,
+de-emphasis, and TX power — are all here, alongside a few extras (scan,
+talk-around, receive-only) that come free once you have a bit field.</p>
+<p>Worked example: a <strong>wide FM, high-power</strong> simplex channel sets bit 0 (<code>0x001</code>)
+and bit 9 (<code>0x200</code>) → <code>0x201</code> → <code>513</code>. Splitting into two five-bit groups gives
+<code>16</code> and <code>1</code>, which Crockford Base32 renders as <code>G</code> and <code>1</code> → <strong><code>G1</code></strong>. That&#39;s
+the <code>G1</code> in the <em>Calling</em> example above.</p>
+<blockquote>
+<p><strong>Note on DMR.</strong> Version 1 is an analog format (FM/AM). A DMR channel carries
+color codes and time-slot data that don&#39;t fit these fields, so it is out of
+scope for v1 — a future version bump can add them.</p>
+</blockquote>
+<h3><code>*CK</code> — checksum</h3>
+<p>An asterisk followed by a <strong>two-digit uppercase hex checksum</strong>: the XOR of every
+character <em>before</em> the <code>*</code>. This is the same lightweight scheme NMEA and APRS
+already use, and it does two jobs: it rejects a token that was truncated during
+copy-paste or a bad packet, and it catches the odd fat-fingered digit before it
+becomes a mis-programmed radio.</p>
+<h2>Finding a channel inside a sentence</h2>
+<p>A shared channel almost never arrives alone — it&#39;s dropped into the middle of a
+conversation: <em>&quot;try this one HTC:1:Calling:146.52:0:::G1*4A 73!&quot;</em>. The format is
+built so a receiver can pull the channel out of that surrounding chatter, even
+when user text is glued directly to it with no spaces. Three properties make it
+work:</p>
+<ol>
+<li><strong>An anchored, distinctive start.</strong> The scanner doesn&#39;t look for a loose
+<code>HTC</code>; it matches the prefix <code>HTC:</code> followed by a version digit and colon —
+in practice the regex <code>HTC:\d+:</code>. That pattern is specific enough that it
+effectively never occurs by accident inside ordinary words, and if it ever
+did, the checksum would reject it.</li>
+<li><strong>A self-defining end.</strong> The token finishes with <code>*</code> and <strong>exactly two hex
+digits</strong>. So the parser doesn&#39;t need a trailing space to know where the
+channel stops: it sees the <code>*</code>, reads two characters, and is done.
+<code>...G1*4Aand more text</code> still yields exactly <code>...G1*4A</code>.</li>
+<li><strong>No spaces in between.</strong> Because the name is percent-encoded and every other
+field is numeric, the whole token is one unbroken run of non-space
+characters. So &quot;the channel&quot; is always the text between the <code>HTC:\d+:</code> anchor
+and the end of the <code>*HH</code> checksum.</li>
+</ol>
+<p>The upshot: leading text, trailing text, or even two channels on one line all
+parse cleanly.</p>
+<pre><code>&quot;see HTC:1:Calling:146.52:0:::G1*4A works&quot;          -&gt; one channel, spaces around it
+&quot;ch:HTC:1:Calling:146.52:0:::G1*4Ahere&quot;             -&gt; glued both sides, still recovered
+&quot;HTC:1:Calling:146.52:0:::G1*4A HTC:1:W1AW:...:G0*62&quot; -&gt; two channels, both extracted
+</code></pre>
+<p>The only thing that would break extraction is a literal space <em>inside</em> a
+token — which is precisely why the channel name is percent-encoded (<code>Air Guard</code>
+→ <code>Air%20Guard</code>) so a channel is always a single whitespace-free unit.</p>
+<h2>A field guide of examples</h2>
+<p>Every token below is complete and checksum-valid.</p>
+<p><strong>2 m simplex calling frequency</strong> — 146.520, wide FM, high power, no tones:</p>
+<pre><code>HTC:1:Calling:146.52:0:::G1*4A
+</code></pre>
+<p><strong>70 cm repeater with tone squelch</strong> — 449.925 receive, −5 MHz transmit,
+100.0 Hz TSQL, narrow FM, high power:</p>
+<pre><code>HTC:1:W1AW:449.925:-5:100:100:G0*62
+</code></pre>
+<p><strong>GMRS repeater</strong> — 462.650 receive, +5 MHz transmit, 141.3 Hz TSQL:</p>
+<pre><code>HTC:1:GMRS-19:462.65:+5:141.3:141.3:G0*0E
+</code></pre>
+<p><strong>Airband monitor</strong> — 121.500 AM, receive-only, both modulation bits + TX-disable
+set (<code>0x002|0x004|0x020</code> = <code>16</code>):</p>
+<pre><code>HTC:1:Air%20Guard:121.5:0:::16*72
+</code></pre>
+<p><strong>Packet / data channel</strong> — 144.390 simplex, wide FM, muted speaker, flat audio
+(de-emphasis bypass), high power (<code>0x001|0x008|0x010|0x200</code> = <code>GS</code>):</p>
+<pre><code>HTC:1:Packet:144.39:0:::GS*4D
+</code></pre>
+<h2>How HTCommander uses it</h2>
+<p>The string is the wire format; the experience wrapped around it is the point.</p>
+<pre class="mermaid">flowchart LR
+    A[Radio panel&lt;br/&gt;channel] --&gt;|drag &amp;amp; drop| B[Comm / APRS tab]
+    B --&gt;|encode| C[&quot;HTC:1:...*CK&quot;]
+    C --&gt;|Bluetooth · Internet · over-the-air| D[Recipient&#39;s&lt;br/&gt;Comm / APRS tab]
+    D --&gt;|recognize + validate| E[Yellow channel block]
+    E --&gt;|drag &amp;amp; drop| F[Recipient&#39;s radio&lt;br/&gt;programmed]
+</pre>
+<ol>
+<li><strong>Sending.</strong> Drag a channel from the radio panel into the Comm or APRS
+message box. HTCommander encodes the <code>RadioChannelInfo</code> into the token and
+inserts it into the outgoing message, so it rides whatever transport that
+conversation uses — including an over-the-air APRS or DART frame.</li>
+<li><strong>Recognizing.</strong> The message renderer scans incoming text for <code>HTC:</code> tokens
+and validates the checksum. A valid token is drawn as a <strong>yellow channel
+block</strong> showing the name and frequency, just like the blocks in the radio
+tab.</li>
+<li><strong>Receiving.</strong> The recipient drags that yellow block onto a channel slot in
+their radio panel. HTCommander decodes the token back into a
+<code>RadioChannelInfo</code> and writes it to the radio — no manual entry, no
+transcription errors.</li>
+</ol>
+<p>Because the entire channel is one short, self-checking line of printable ASCII,
+the same token works whether it&#39;s typed into a chat, pasted into an email, or
+bounced off a repeater as an APRS message. A channel becomes something you can
+simply <em>hand to someone</em>.</p>
+<h2>What&#39;s next</h2>
+<p>This post defines and freezes the version 1 string. The implementation follows:
+an <code>encode(RadioChannelInfo)</code> / <code>decode(String)</code> pair, the drag-and-drop hooks in
+the Comm and APRS tabs, and the yellow-block renderer that makes a shared channel
+feel like an object you can pick up and drop into a radio.</p>
+<hr>
+<p><em>Part of the <a href="README.md">HTCommander technology blog</a>.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/channel-share-string.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

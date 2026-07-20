@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How a Benshi Radio Updates Its Firmware, Step by Step — HTCommander</title>
+  <meta name="description" content="A walk through the firmware-update path that the `benlink-firmware-update` fork adds on top of stock `benlink` — from asking a cloud server &quot;is there an update?&quot; all the way down to the byte-by-byte handshake that streams a new image into the radio over Bluetooth." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Firmware Updates</span>
+      <h1>How a Benshi Radio Updates Its Firmware, Step by Step</h1>
+      <p>A walk through the firmware-update path that the <code>benlink-firmware-update</code> fork adds on top of stock <code>benlink</code> — from asking a cloud server &quot;is there an update?&quot; all the way down to the byte-by-byte handshake that streams a new image into the radio over Bluetooth.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<blockquote>
+<p><strong>Update (2026-07) — the commit finalize was wrong everywhere.</strong> After this
+post first went out, an end-to-end OTA commit on the VR-N76 / GA-5WB finally
+succeeded, and it exposed two bugs present in <em>every</em> <code>benlink</code>-derived
+implementation (including the early HTCommander port):</p>
+<ol>
+<li><strong>The <code>UPDATE_TRANSFER_COMPLETE_RES</code> action byte is inverted from its
+<code>is_complete</code> naming:</strong> <code>0x00</code> = <em>proceed / commit-to-trial-reboot</em>,
+<code>0x01</code> = <em>abort</em>. <code>benlink</code>&#39;s <code>is_complete=True</code> sends <code>0x01</code> — abort — so
+the radio never rebooted. You must send <strong><code>0x00</code></strong>.</li>
+<li><strong>The finalize is genuinely two-stage.</strong> After the trial reboot you must
+reconnect and run <code>SYNC → START → UPDATE_IN_PROGRESS_RES (0x00) → UPDATE_COMPLETE_IND</code> to make it permanent. On a unit that applied the trial,
+the post-reboot <code>UPDATE_SYNC_CFM</code> reports <strong><code>update_state = 3</code> (IN_PROGRESS)</strong>
+— the resume point that only appears once the Phase 1 <code>0x00</code> actually took.</li>
+</ol>
+<p>These semantics were recovered off-the-wire from the vendor app&#39;s own
+<code>UpdateVMFragment</code> debug strings — not guesswork. The sequences below are
+annotated with the corrected bytes.</p>
+</blockquote>
+<h2>The 30,000-foot view</h2>
+<p>A full update happens in three layers, and the third layer is itself split into
+two phases separated by a <strong>radio reboot</strong>:</p>
+<pre class="mermaid">flowchart TD
+    A[Layer 1: Check&lt;br/&gt;gRPC to Benshi cloud] --&gt; B[Layer 2: Download + assemble&lt;br/&gt;patch + base → firmware image]
+    B --&gt; C[Layer 3 Phase 1: Transfer&lt;br/&gt;stream image over Bluetooth]
+    C --&gt; D[Radio reboots&lt;br/&gt;BT connection drops]
+    D --&gt; E[Layer 3 Phase 2: Confirm&lt;br/&gt;reconnect + commit]
+    E --&gt; F[Done]
+</pre>
+<p>Let&#39;s take them one at a time.</p>
+<hr>
+<h2>Layer 1 — Asking the cloud &quot;is there an update?&quot;</h2>
+<p>The radio doesn&#39;t know whether newer firmware exists. A server does. The check is
+a single <strong>gRPC-over-TLS</strong> call:</p>
+<ul>
+<li><strong>Host:</strong> <code>rpc.benshikj.com:800</code> (note: TLS on port <strong>800</strong>, not 443)</li>
+<li><strong>Service / method:</strong> <code>benshikj.APP</code> / <code>CheckUpdate</code></li>
+<li><strong>Request fields:</strong> the device&#39;s factory ID (<code>did</code>, the serial number from the
+radio&#39;s Status menu), the current <code>firmwareVersion</code> string (e.g. <code>V0.9.2-7</code>),
+and a hard-coded <code>model</code> (<code>VR_N7600</code>).</li>
+</ul>
+<p>A neat implementation detail: rather than depend on <code>grpcio-tools</code>/<code>protoc</code>, the
+fork hand-rolls a tiny protobuf wire encoder/decoder (<code>_varint</code>,
+<code>_encode_string_field</code>, <code>_decode_proto_fields</code>). It only needs to write three
+string fields and read a couple back, so a full protobuf toolchain would be
+overkill.</p>
+<p>The server answers with two things:</p>
+<ol>
+<li>A boolean <strong><code>haveUpdate</code></strong>.</li>
+<li>Two download URLs on Alibaba Cloud OSS — a <strong>patch</strong> URL and a <strong>base</strong> URL.</li>
+</ol>
+<pre><code class="language-python">from benlink.firmware import check_update
+
+info = check_update(did=&quot;&quot;, fw_version=&quot;V0.0.0&quot;)
+# info.patch_url, info.base_url
+</code></pre>
+<p>A couple of observations baked into the code and its comments:</p>
+<ul>
+<li>Passing <code>fw_version=&quot;V0.0.0&quot;</code> always makes the server think you&#39;re out of date,
+which is a handy way to <em>force</em> an update response for testing.</li>
+<li>The server returns URLs even when it doesn&#39;t recognize your <code>did</code>. It only says
+<code>haveUpdate=False</code> when the model+version combination genuinely has nothing
+newer.</li>
+</ul>
+<hr>
+<h2>Layer 2 — Download and assemble the image</h2>
+<p>Here&#39;s the clever bit: the radio doesn&#39;t download a complete firmware image.
+Instead it downloads:</p>
+<ul>
+<li>a <strong>base image</strong> — a large, <em>shared</em> blob (<code>upgrade_base_v{N}.bin.zip</code>) that is
+the same across many firmware releases, and</li>
+<li>a small <strong>binary patch</strong> (<code>patch_base_to_vr_n76.bin</code>).</li>
+</ul>
+<p>The patch is a standard <code>BSDIFF40</code> diff. The client extracts the <code>.bin</code> from the
+base zip and applies the patch with <code>bsdiff4</code> to reconstruct the <em>actual</em> target
+firmware:</p>
+<pre><code>base image  +  BSDIFF40 patch   ──►   assembled firmware image
+(shared, large)  (tiny, per-release)
+</code></pre>
+<p>Because the base is shared, each new firmware release only ships a small patch —
+much less bandwidth than a fresh multi-megabyte image every time. The code
+verifies the patch really starts with the <code>BSDIFF40</code> magic before applying it, so
+a truncated or wrong download fails loudly instead of bricking a radio.</p>
+<p>The result is wrapped in a <code>FirmwareBundle</code>, which also computes the image&#39;s MD5.
+One field matters a lot in Layer 3:</p>
+<pre><code class="language-python">@property
+def md5_tail(self) -&gt; bytes:
+    &quot;&quot;&quot;Last 4 bytes of md5 digest — used in UPDATE_SYNC_REQ.&quot;&quot;&quot;
+    return bytes.fromhex(self.base_md5)[-4:]
+</code></pre>
+<p>Those <strong>last 4 bytes of the MD5</strong> become the radio&#39;s fingerprint for &quot;the image
+we are updating to.&quot; The radio echoes them back and uses them to detect a
+resumed-vs-mismatched update.</p>
+<p><code>fetch_firmware()</code> bundles Layers 1 and 2 into one call:</p>
+<pre><code class="language-python">bundle = fetch_firmware(fw_version=&quot;V0.9.2-7&quot;)
+if bundle:
+    print(f&quot;Update available: {bundle.size} bytes, md5={bundle.md5}&quot;)
+</code></pre>
+<hr>
+<h2>Layer 3 — Flashing over Bluetooth</h2>
+<p>Now the interesting part. The assembled image is delivered to the radio over the
+<strong>same RFCOMM command channel</strong> that normal radio control uses — there&#39;s no
+separate socket. The app <em>sends</em> <code>VM_CONNECT</code> / <code>VM_CONTROL</code> / <code>VM_DISCONNECT</code>
+extended commands, and the radio <em>replies</em> asynchronously by wrapping its answers
+inside <code>BT_EVENT_NOTIFICATION</code> events of type <strong><code>VMU_PACKET</code></strong>.</p>
+<p>So there are two message directions with two different shapes:</p>
+<ul>
+<li><strong>App → radio:</strong> <code>VM_CONTROL</code> messages, tagged by a <code>VmControlType</code>
+(e.g. <code>UPDATE_SYNC_REQ</code>, <code>UPDATE_DATA</code>).</li>
+<li><strong>Radio → app:</strong> <code>VMU_PACKET</code> notifications, tagged by a <code>VmuPacketType</code>
+(e.g. <code>UPDATE_SYNC_CFM</code>, <code>UPDATE_DATA_BYTES_REQ</code>).</li>
+</ul>
+<p>Each carries a small header — an 8-bit type, a 16-bit payload length, then the
+body — defined in <code>vm.py</code>.</p>
+<p>The whole exchange is a two-phase state machine with a reboot in the middle.</p>
+<h3>Phase 1 — Transfer</h3>
+<pre class="mermaid">sequenceDiagram
+    participant App
+    participant Radio
+    App-&gt;&gt;Radio: VM_CONNECT
+    Radio--&gt;&gt;App: (reply: SUCCESS)
+    App-&gt;&gt;Radio: UPDATE_SYNC_REQ (md5_tail)
+    Radio--&gt;&gt;App: UPDATE_SYNC_CFM (state, md5_tail)
+    App-&gt;&gt;Radio: UPDATE_START_REQ
+    Radio--&gt;&gt;App: UPDATE_START_CFM (code = OK)
+    App-&gt;&gt;Radio: UPDATE_DATA_START_REQ
+    loop until whole image sent
+        Radio--&gt;&gt;App: UPDATE_DATA_BYTES_REQ (n_bytes, skip)
+        App-&gt;&gt;Radio: UPDATE_DATA (chunk, is_final_fragment?)
+    end
+    App-&gt;&gt;Radio: UPDATE_IS_VALIDATION_DONE_REQ
+    Radio--&gt;&gt;App: UPDATE_TRANSFER_COMPLETE_IND
+    App-&gt;&gt;Radio: UPDATE_TRANSFER_COMPLETE_RES (action=0x00 = commit)
+    Note over Radio: Radio reboots into trial image, BT drops
+</pre>
+<p>Step by step:</p>
+<ol>
+<li><p><strong><code>VM_CONNECT</code></strong> — open a VM update session on the command channel. Wait for
+the <code>is_reply=True</code> acknowledgement.</p>
+</li>
+<li><p><strong><code>UPDATE_SYNC_REQ</code> → <code>UPDATE_SYNC_CFM</code></strong> — the app sends the 4-byte
+<code>md5_tail</code>. The radio replies with its current <code>update_state</code> and echoes the
+tail. This is how the radio decides whether this is a brand-new update, a
+resume of the same image, or a mismatch. (A wrong image surfaces later as the
+<code>SYNC_IS_DIFFERENT</code> error, code 129.)</p>
+</li>
+<li><p><strong><code>UPDATE_START_REQ</code> → <code>UPDATE_START_CFM</code></strong> — the reply carries a <code>cfm_code</code>:</p>
+<ul>
+<li><strong><code>OK</code> (0)</strong> — proceed with a fresh transfer.</li>
+<li><strong><code>GOTO_NEXT_STATE</code> (9)</strong> — the radio has <em>already</em> received this image and
+is waiting to be confirmed. During Phase 1 this is an error (&quot;power-cycle and
+retry&quot;); during Phase 2 it&#39;s exactly what we want to see (more below).</li>
+</ul>
+</li>
+<li><p><strong><code>UPDATE_DATA_START_REQ</code></strong> — tell the radio to enter the data-transfer state.
+There&#39;s no direct reply; instead the radio starts <em>pulling</em> data.</p>
+</li>
+<li><p><strong>The device-driven chunk loop</strong> — this is the heart of the transfer, and the
+design is worth pausing on. The app does <strong>not</strong> blast the image at the radio.
+Instead the radio sends an <strong><code>UPDATE_DATA_BYTES_REQ</code></strong> each time it&#39;s ready,
+saying &quot;give me <code>n_bytes_requested</code> bytes, skipping <code>n_bytes_skip</code>.&quot; The app
+answers with a single <strong><code>UPDATE_DATA</code></strong> carrying exactly that many bytes:</p>
+<pre><code class="language-python">req = await self._wait_vmu(VmuPacketType.UPDATE_DATA_BYTES_REQ)
+n    = req.n_bytes_requested      # device chooses the chunk size (≤ 250)
+skip = req.n_bytes_skip           # non-zero only when resuming
+chunk = fw[offset : offset + n]
+is_last = (offset + len(chunk) &gt;= total)
+await self._send(UPDATE_DATA(is_final_fragment=is_last, data=chunk))
+</code></pre>
+<p>This pull model is flow control: the radio requests the next slice only when
+it has finished writing the previous one into its serial flash (SQIF). The
+chunk size is <strong>device-driven</strong> (commonly 145 bytes, capped at 250) rather than
+hard-coded, and <code>n_bytes_skip</code> allows a mid-transfer <strong>resume</strong> — the app just
+advances its offset by the skip the radio asks for. The very last chunk sets
+<code>is_final_fragment=True</code>.</p>
+</li>
+<li><p><strong><code>UPDATE_IS_VALIDATION_DONE_REQ</code> → <code>UPDATE_TRANSFER_COMPLETE_IND</code></strong> — once
+every byte is delivered, the app asks the radio to validate. The radio checks
+the image (CRC/MD5) and, when it passes, sends <code>UPDATE_TRANSFER_COMPLETE_IND</code>.
+Validation can take a while, so this step gets a generous timeout.</p>
+</li>
+<li><p><strong><code>UPDATE_TRANSFER_COMPLETE_RES (action = 0x00)</code></strong> — the app confirms. This
+is the trigger: the radio <strong>reboots</strong> into the newly-staged trial image, and
+the Bluetooth connection drops.</p>
+<blockquote>
+<p>⚠️ <strong>This is where every <code>benlink</code>-derived implementation got it wrong.</strong>
+The single action byte is <strong>inverted</strong> from its <code>is_complete</code> naming:
+<strong><code>0x00</code> = proceed / commit-to-trial-reboot</strong>, <strong><code>0x01</code> = abort</strong>.
+<code>benlink</code>&#39;s <code>is_complete=True</code> serializes to <code>0x01</code> — which is <em>abort</em> — so
+the radio quietly discarded the staged image and <strong>never rebooted</strong>. Sending
+<code>0x00</code> is what actually kicks off the trial reboot. (The byte semantics were
+recovered off-the-wire from the vendor app&#39;s own <code>UpdateVMFragment</code> debug
+strings, not guessed.)</p>
+</blockquote>
+</li>
+</ol>
+<p>If anything throws during Phase 1, the updater sends a best-effort
+<strong><code>UPDATE_ABORT_REQ</code></strong> so the radio doesn&#39;t get stuck half-updated.</p>
+<h3>The reboot gap</h3>
+<p>After <code>UPDATE_TRANSFER_COMPLETE_RES</code>, the caller is expected to close the
+connection, wait for the radio to reboot (~15–20 s), and reconnect on the same
+RFCOMM channel. The new image is <em>staged</em> but not yet <em>committed</em> — the radio has
+booted into it provisionally and is waiting to be told it&#39;s good.</p>
+<h3>Phase 2 — Confirm</h3>
+<pre class="mermaid">sequenceDiagram
+    participant App
+    participant Radio
+    Note over Radio: Fresh connection after reboot
+    App-&gt;&gt;Radio: VM_CONNECT
+    Radio--&gt;&gt;App: (reply: SUCCESS)
+    App-&gt;&gt;Radio: UPDATE_SYNC_REQ (md5_tail)
+    Radio--&gt;&gt;App: UPDATE_SYNC_CFM (update_state = IN_PROGRESS = 3)
+    App-&gt;&gt;Radio: UPDATE_START_REQ
+    Radio--&gt;&gt;App: UPDATE_START_CFM (code = GOTO_NEXT_STATE)
+    App-&gt;&gt;Radio: UPDATE_IN_PROGRESS_RES (action=0x00)
+    Radio--&gt;&gt;App: UPDATE_COMPLETE_IND
+    App-&gt;&gt;Radio: VM_DISCONNECT
+</pre>
+<ol start="8">
+<li><p><strong><code>VM_CONNECT</code></strong> again, on the fresh post-reboot connection.</p>
+</li>
+<li><p><strong><code>UPDATE_SYNC_REQ</code> → <code>UPDATE_SYNC_CFM</code></strong> — same <code>md5_tail</code> as before, so the
+radio recognizes we&#39;re finishing the same update. On a unit that actually
+applied the trial, this reply now reports <strong><code>update_state = 3</code> (IN_PROGRESS)</strong>
+— the resume point that <em>only appears once the Phase 1 <code>0x00</code> commit byte
+took effect</em>. Seeing <code>update_state = 3</code> here is the positive proof that the
+reboot booted the new trial image; if it&#39;s missing, Phase 1 didn&#39;t commit.</p>
+</li>
+<li><p><strong><code>UPDATE_START_REQ</code> → <code>UPDATE_START_CFM</code></strong> — this time the code <strong>must</strong> be
+<code>GOTO_NEXT_STATE</code>. That&#39;s the radio saying &quot;I&#39;ve booted the new image and I&#39;m
+ready to commit.&quot; If it isn&#39;t <code>GOTO_NEXT_STATE</code>, the radio probably hasn&#39;t
+finished rebooting yet.</p>
+</li>
+<li><p><strong><code>UPDATE_IN_PROGRESS_RES</code> → <code>UPDATE_COMPLETE_IND</code></strong> — the app tells the radio
+to finalize (the <code>UPDATE_IN_PROGRESS_RES</code> body is a <code>0x00</code> action byte); the
+radio commits the image <strong>permanently</strong> and answers with
+<code>UPDATE_COMPLETE_IND</code>.</p>
+</li>
+<li><p><strong><code>VM_DISCONNECT</code></strong> — close the VM session. The radio is now running the new
+firmware.</p>
+</li>
+</ol>
+<p>That transfer-then-reboot-then-commit shape is the classic GAIA upgrade pattern:
+the image is written to a secondary bank, the device reboots into it, and only an
+explicit confirm makes it permanent. If the reboot had failed, the radio would
+still have its old, working firmware — the update is fail-safe by construction.</p>
+<hr>
+<h2>Putting it together</h2>
+<p>The full public API is small:</p>
+<pre><code class="language-python">import asyncio
+from benlink.firmware import fetch_firmware
+from benlink.firmware_updater import FirmwareUpdater
+from benlink.command import CommandConnection
+
+async def update_radio(mac: str, channel: int):
+    # Layers 1 + 2: check the cloud, download, assemble
+    bundle = fetch_firmware(fw_version=&quot;V0.9.2-7&quot;)
+    if bundle is None:
+        print(&quot;No update available&quot;)
+        return
+
+    # Layer 3, Phase 1: transfer
+    async with CommandConnection.new_rfcomm(mac, channel) as conn:
+        updater = FirmwareUpdater(
+            conn, bundle,
+            progress_cb=lambda stage, done, total: print(f&quot;{stage} {done}/{total}&quot;),
+        )
+        await updater.transfer()          # returns just before the radio reboots
+
+    print(&quot;Transfer complete — waiting for reboot…&quot;)
+    await asyncio.sleep(20)
+
+    # Layer 3, Phase 2: confirm (fresh connection)
+    async with CommandConnection.new_rfcomm(mac, channel) as conn:
+        await FirmwareUpdater.confirm(conn, bundle)
+
+    print(&quot;Firmware update complete!&quot;)
+
+asyncio.run(update_radio(&quot;38:D2:00:00:F7:F5&quot;, channel=1))
+</code></pre>
+<h2>Failure and abort paths</h2>
+<p>The protocol has explicit escape hatches, all defined in <code>vm.py</code>:</p>
+<ul>
+<li><strong><code>UPDATE_ABORT_REQ</code> → <code>UPDATE_ABORT_CFM</code></strong> — clean cancel. The updater fires
+this automatically on any exception during transfer.</li>
+<li><strong><code>UPDATE_ABORT_WITH_CODE_1_REQ</code> / <code>_2_REQ</code></strong> — abort while reporting a specific
+error code (the app appears to send both back-to-back with the same code).</li>
+<li><strong><code>UPDATE_ERROR</code></strong> — the radio reporting a problem, with codes including
+<code>BATTERY_LOW</code> (33) and <code>SYNC_IS_DIFFERENT</code> (129, a wrong/mismatched image).</li>
+</ul>
+<p>There are also <code>UPDATE_COMMIT_CFM</code> and <code>UPDATE_ERASE_SQIF_CFM</code> control types that
+don&#39;t appear in normal update logs — likely reachable only from a hidden debug
+firmware UI in the official app.</p>
+<hr>
+<h2>Why this matters</h2>
+<p>The two takeaways worth remembering:</p>
+<ol>
+<li><strong>The download is a patch, not a whole image</strong> — a shared base plus a tiny
+<code>BSDIFF40</code> diff, reassembled on the client.</li>
+<li><strong>The flash is device-paced and fail-safe</strong> — the radio pulls each chunk when
+it&#39;s ready, validates, reboots into the staged image, and only commits after
+an explicit second-phase confirmation.</li>
+</ol>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/benshi-firmware-update.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

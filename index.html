@@ -31,7 +31,7 @@
       </nav>
       <div class="nav__cta">
         <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
-        <a class="btn btn--primary btn--sm" href="get-started.html">Download</a>
+        <a class="btn btn--primary btn--sm" href="get-started.html#downloads">Download</a>
         <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
@@ -53,7 +53,92 @@
         <p class="hero__meta"><strong>Free &amp; open source</strong> · Windows · macOS · Linux · iOS · Android · Web</p>
       </div>
       <div class="hero__media">
-        <img src="assets/img/hero.png" alt="HTCommander running on the desktop" />
+        <div class="feature-show" id="featureShow" aria-live="polite">
+          <div class="feature-show__stage">
+            <figure class="feature-show__slide is-active">
+              <img src="assets/features/Winlink.png" alt="Winlink" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/Aprs.png" alt="APRS messaging" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/AprsMap.png" alt="APRS map" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/PacketTerminal.png" alt="Packet terminal" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/ChannelEditing.png" alt="Channel editing" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/BatchChannelProgramming.png" alt="Batch channel programming" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/ChannelSharing.png" alt="Channel sharing" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/Contacts.png" alt="Contacts" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/FileTransferTorrent.png" alt="Torrent file transfer" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/SstvSupport.png" alt="SSTV support" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/Dump1090Airplanes.png" alt="Aircraft tracking" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/SpeechToText.png" alt="Speech to text" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/FmBroadcastRadio.png" alt="FM broadcast radio" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/PacketCapture.png" alt="Packet capture" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/HighPerformanceSoftwareModem.png" alt="Software modem" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/AudioControls.png" alt="Audio controls" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/SerialGps.png" alt="Serial GPS" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/MultiPlatform.png" alt="Multi-platform" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/MultiLanguage.png" alt="Multi-language" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="assets/features/LightAndDarkModes.png" alt="Light and dark modes" />
+            </figure>
+          </div>
+          <p class="feature-show__caption" id="featureCaption" data-captions='[
+            "Winlink email over packet radio and the Internet",
+            "APRS messaging, weather and SMS bridging",
+            "Live APRS map with station position history",
+            "Packet terminal for chatting with users and BBSes",
+            "Fast channel editing with drag &amp; drop layout",
+            "Program many channels at once with batch tools",
+            "Drag & drop to share or program a channel online",
+            "Built-in address book for your contacts",
+            "Torrent-style file transfer over the air",
+            "Send and receive SSTV images",
+            "Track nearby aircraft with dump1090",
+            "Real-time speech-to-text transcription",
+            "Listen to FM broadcast radio",
+            "Capture and inspect raw packet traffic",
+            "High-performance built-in software modem",
+            "Full audio controls and level metering",
+            "Serial GPS support for live positioning",
+            "Runs on Windows, macOS, Linux, iOS, Android and web",
+            "Available in many languages",
+            "Beautiful light and dark themes"
+          ]'>Winlink email over packet radio and the Internet</p>
+        </div>
       </div>
     </div>
   </section>
@@ -146,9 +231,9 @@
 
         <article class="card">
           <div class="card__icon"><img src="assets/img/tabs/voice.png" alt="" /></div>
-          <h3>Speech &amp; AGWPE</h3>
-          <p>Convert speech-to-text and text-to-speech, and route other apps' traffic over the radio via AGWPE.</p>
-          <div class="tags"><span class="tag">Desktop only</span><span class="tag">AGWPE</span></div>
+          <h3>Speech</h3>
+          <p>Convert speech-to-text and text-to-speech to send and read messages hands-free.</p>
+          <div class="tags"><span class="tag">Desktop only</span><span class="tag">Speech</span></div>
         </article>
       </div>
 
@@ -334,7 +419,7 @@
         </ul>
         <div class="hero__actions mt-40">
           <a class="btn btn--ghost btn--sm" href="privacy.html">Read the privacy policy</a>
-          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">View the license</a>
+          <a class="btn btn--ghost btn--sm" href="license.html">View the license</a>
         </div>
       </div>
       <div class="assure__badge">
@@ -388,7 +473,7 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy policy</a></li>
-            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+            <li><a href="license.html">License (Apache 2.0)</a></li>
           </ul>
         </div>
       </div>
