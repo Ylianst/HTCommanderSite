@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speech-to-Text — HTCommander</title>
+  <meta name="description" content="HTCommander transcribes incoming radio audio to text in real time using OpenAI Whisper, fully offline, plus text-to-speech to read your messages on the air." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Audio &amp; voice</span>
+      <h1>Speech-to-Text</h1>
+      <p>Transcribe incoming radio audio to text in real time — fully offline on your device — plus text-to-speech to read typed messages on the air.</p>
+      <p class="article__back-top"><a href="../features.html">← All features</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="https://github.com/Ylianst/HTCommander/blob/main/docs/images/ht-voice.png?raw=true" alt="Speech-to-text in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>Whisper, running on your machine</h2>
+        <p>HTCommander has built-in speech recognition powered by OpenAI's Whisper. Radio audio is run through a neural-network language model to convert it into text, and the results are impressive. A powerful CPU with AVX support is required, and everything runs locally — great for catching a busy net or a NOAA weather bulletin.</p>
+
+        <h2>Pick the right model</h2>
+        <p>From within HTCommander you can select and download a Whisper model. Larger models give better results but need more CPU power.</p>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Model</th><th>Size</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Tiny</td><td>77.7 MB</td><td></td></tr>
+            <tr><td>Tiny.en</td><td>77.7 MB</td><td>English only</td></tr>
+            <tr><td>Base</td><td>148 MB</td><td></td></tr>
+            <tr><td>Base.en</td><td>148 MB</td><td>English only (recommended)</td></tr>
+            <tr><td>Small</td><td>488 MB</td><td></td></tr>
+            <tr><td>Small.en</td><td>488 MB</td><td>English only</td></tr>
+            <tr><td>Medium</td><td>1.53 GB</td><td></td></tr>
+            <tr><td>Medium.en</td><td>1.53 GB</td><td>English only</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>The English-only models are best if you only listen to English; the regular models support a wide range of languages. You can help the model by selecting the language you'll be listening to in the Settings panel, which hints it to focus on that language.</p>
+
+        <h2>When it runs, and talking back</h2>
+        <p>Once enabled, voice recognition runs when the radio stops receiving a signal, or every 20 to 30 seconds. There's also text-to-speech using the Microsoft Speech API, so you can type a message and have it read on the air.</p>
+
+        <hr>
+        <p><em>Available on desktop only: Windows, macOS and Linux.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← All features</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Voice.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20260719"></script>
+</body>
+</html>

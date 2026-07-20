@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Built-in BBS — HTCommander</title>
+  <meta name="description" content="HTCommander includes a built-in BBS that acts as a private Winlink gateway and even hosts a multiplayer text adventure, with live station statistics." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Email, terminal &amp; file transfer</span>
+      <h1>Built-in BBS</h1>
+      <p>Run your own bulletin board — a private Winlink gateway, a multiplayer text adventure and live station statistics — straight from HTCommander.</p>
+      <p class="article__back-top"><a href="../features.html">← All features</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="https://github.com/Ylianst/HTCommander/blob/main/docs/images/ht-bbs.png?raw=true" alt="Built-in BBS in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>A BBS in your pocket</h2>
+        <p>HTCommander has a built-in BBS, a bit like the old modem days. It's only available if you hold a license and have enabled the app to transmit. Activating it is easy: select a channel on the main or top channel and hit <strong>Activate</strong> in the top-right of the BBS tab.</p>
+
+        <h2>Protocols it speaks</h2>
+        <p>The BBS supports AX.25 sessions along with RAW AX.25, APRS and compressed packet formats — the same protocols the <a href="terminal.html">terminal</a> supports. An incoming packet must be directed at the station, and the BBS replies in the same format it was received. The AX.25 session and APRS formats include relay/ack support; RAW AX.25 does not.</p>
+
+        <h2>Winlink gateway and a text adventure</h2>
+        <p>Right now the BBS acts as a private <a href="winlink.html">Winlink</a> email gateway, and it hosts a text adventure game called <a href="https://github.com/TheTextAdventurer/Adventurer" target="_blank" rel="noopener">The Adventurer</a>. Any unconnected packet sent to the BBS starts the adventure, and each turn is saved against the sender's callsign — so many stations can play at once, each seeing their own game. Transmit <code>quit</code> at any time to restart.</p>
+
+        <h2>Live statistics</h2>
+        <p>The BBS tab shows real-time statistics on which stations are using the BBS and how many bytes and packets have been sent and received.</p>
+
+        <hr>
+        <p><em>Available on all platforms: Windows, macOS, Linux, iOS, Android and web.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← All features</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/BBS.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20260719"></script>
+</body>
+</html>
