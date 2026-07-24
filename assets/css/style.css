@@ -608,7 +608,7 @@ section { position: relative; }
   border-bottom: 1px solid var(--border);
 }
 .feature-row:nth-child(even) .feature-row__media { order: -1; }
-.feature-row__media img { border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-soft); }
+.feature-row__media img { box-shadow: var(--shadow-soft); }
 .feature-row h3 { font-size: 1.55rem; }
 .feature-row .badge { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 10px; }
 .group-title { font-size: 1.4rem; margin: 56px 0 4px; color: var(--text); }
