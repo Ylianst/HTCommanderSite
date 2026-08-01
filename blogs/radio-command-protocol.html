@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Every Command a Benshi Radio Understands: A Complete Protocol Reference — HTCommander</title>
+  <meta name="description" content="A reference deep-dive on the wire protocol HTCommander speaks to Benshi handheld radios (BTech UV-Pro, RadioOddity GA-5WB, Vero VR-N76 / VR-N7500, and friends). This post documents the framing, the command set, the status/response model, the bit-level layout of every important payload, and the two sub-protocols that ride on top: TNC data (AX.25 packet) and the VM firmware-update channel." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Radio Protocol</span>
+      <h1>Every Command a Benshi Radio Understands: A Complete Protocol Reference</h1>
+      <p>A reference deep-dive on the wire protocol HTCommander speaks to Benshi handheld radios (BTech UV-Pro, RadioOddity GA-5WB, Vero VR-N76 / VR-N7500, and friends). This post documents the framing, the command set, the status/response model, the bit-level layout of every important payload, and the two sub-protocols that ride on top: TNC data (AX.25 packet) and the VM firmware-update channel.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<p><em>The canonical implementation lives in
+<a href="../../src/lib/radio/gaia_protocol.dart">src/lib/radio/gaia_protocol.dart</a>,
+<a href="../../src/lib/radio/radio_models.dart">src/lib/radio/radio_models.dart</a>,
+<a href="../../src/lib/radio/tnc_data_fragment.dart">src/lib/radio/tnc_data_fragment.dart</a>,
+and <a href="../../src/lib/radio/radio.dart">src/lib/radio/radio.dart</a>. This document
+describes exactly what that code does.</em></p>
+<hr>
+<h2>The big picture</h2>
+<p>Everything the app and the radio say to each other is a <strong>command</strong> — a small
+binary message with a group, a command id, and an optional payload. The same
+message shape is used for requests, replies, and unsolicited notifications. On
+top of that single mechanism the radio layers three conceptually different kinds
+of traffic:</p>
+<ol>
+<li><strong>Control</strong> — read/write settings, channels, volume, GPS, FM radio, buttons,
+trusted devices, and so on. Request/reply.</li>
+<li><strong>Notifications</strong> — the radio pushes state changes (status, channel, position,
+incoming packet data) without being polled.</li>
+<li><strong>Bulk sub-protocols</strong> — TNC data fragments (carrying AX.25 packets) and the
+GAIA VM protocol (carrying firmware images). These reuse the command envelope
+but define their own internal formats.</li>
+</ol>
+<pre class="mermaid">flowchart TD
+    A[&quot;App&quot;] -- &quot;command (request)&quot; --&gt; R[&quot;Radio&quot;]
+    R -- &quot;command (reply, response bit set)&quot; --&gt; A
+    R -- &quot;EVENT_NOTIFICATION (unsolicited)&quot; --&gt; A
+    A -- &quot;HT_SEND_DATA (TNC fragments)&quot; --&gt; R
+    R -- &quot;RX_DATA / dataRxd (TNC fragments)&quot; --&gt; A
+    A -- &quot;VM_CONNECT/CONTROL (group 10)&quot; --&gt; R
+    R -- &quot;BT_EVENT_NOTIFICATION (VMU)&quot; --&gt; A
+</pre>
+<hr>
+<h2>Layer 1: framing</h2>
+<p>Before a command reaches the radio it must be <em>framed</em> for the transport. There
+are two framings, chosen automatically by transport type.</p>
+<h3>GAIA serial framing (Bluetooth Classic / RFCOMM)</h3>
+<p>Used on <strong>macOS, Windows, and Android</strong>, where the radio is reached over an
+RFCOMM serial link. Each command is wrapped in a GAIA-style header:</p>
+<pre><code>FF 01 CS LEN  &lt;command bytes...&gt;
+</code></pre>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Byte</th>
+<th>Name</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>Start of frame</td>
+<td><code>0xFF</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>Version</td>
+<td><code>0x01</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Checksum flag</td>
+<td><code>0x00</code> (HTCommander never uses a checksum)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Payload length</td>
+<td>number of <em>data</em> bytes after the 4-byte command header</td>
+</tr>
+<tr>
+<td>4..</td>
+<td>Command</td>
+<td><code>[group_hi, group_lo, cmd_hi, cmd_lo, data...]</code></td>
+</tr>
+</tbody></table>
+</div>
+<p>The encoder is deliberately minimal — see <code>GaiaProtocol.encode()</code>:</p>
+<pre><code class="language-dart">bytes[0] = 0xFF;
+bytes[1] = 0x01;
+bytes[2] = 0x00;          // no checksum
+bytes[3] = cmd.length - 4; // payload length (data only)
+bytes.setRange(4, 4 + cmd.length, cmd);
+</code></pre>
+<p>On receive, <code>GaiaProtocol.decode()</code> walks the RX buffer looking for <code>FF 01</code>. It
+needs at least 8 bytes to decide anything (<code>4</code> header + <code>4</code> command header),
+reads the payload length from byte 3, reads the checksum flag (bit 0 of byte 2),
+and computes the total frame length as <code>payloadLen + 8 + hasChecksum</code>. If the
+whole frame is present it returns the <strong>un-framed</strong> command
+(<code>[group_hi, group_lo, cmd_hi, cmd_lo, data...]</code>) and how many bytes it consumed;
+if the leading bytes are not <code>FF 01</code> it returns <code>-1</code> so the caller can skip one
+byte and resynchronise.</p>
+<h3>Raw GATT framing (Bluetooth LE)</h3>
+<p>Used on <strong>web, iOS, and Linux</strong>, where the radio is a BLE GATT peripheral. Here
+there is <em>no</em> <code>FF 01</code> wrapper at all — the command bytes are written directly to
+the characteristic and arrive directly in notifications:</p>
+<pre><code>&lt;group_hi&gt; &lt;group_lo&gt; &lt;cmd_hi&gt; &lt;cmd_lo&gt; &lt;data...&gt;
+</code></pre>
+<p>The selector is a single getter in <a href="../../src/lib/radio/radio.dart">radio.dart</a>:</p>
+<pre><code class="language-dart">bool get _useGattFraming =&gt;
+    kIsWeb || _transport?.connectedDevice?.type == BluetoothType.ble;
+</code></pre>
+<blockquote>
+<p><strong>Compact BLE variants.</strong> Some UV-PRO web-BLE firmware speaks a <em>compact</em>
+dialect where the 16-bit group is collapsed to a single byte and/or the
+command is little-endian. HTCommander auto-detects this (a tell-tale
+<code>FF 01 80 02 01</code> error reply) and rotates through six framings
+(<code>cmd16-be</code>, <code>group+cmd8</code>, <code>cmd8</code>, <code>cmd16-le</code>, <code>group+cmd16-be</code>,
+<code>group+cmd16-le</code>) until one answers. This is a compatibility shim; the logical
+command set below is identical.</p>
+</blockquote>
+<hr>
+<h2>Layer 2: the command envelope</h2>
+<p>Once un-framed, every message has the same 4-byte header followed by an optional
+payload. All multi-byte integers in the header are <strong>big-endian</strong>.</p>
+<pre><code>+--------+--------+--------+--------+-----------------+
+| group_hi group_lo | cmd_hi  cmd_lo | payload ...    |
++--------+--------+--------+--------+-----------------+
+     16-bit group       16-bit command
+</code></pre>
+<h3>Groups</h3>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Value</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>basic</code></td>
+<td><code>2</code></td>
+<td>Everything except firmware update</td>
+</tr>
+<tr>
+<td><code>extended</code></td>
+<td><code>10</code></td>
+<td>GAIA VM firmware-update protocol</td>
+</tr>
+</tbody></table>
+</div>
+<h3>The response bit</h3>
+<p>Replies from the radio set <strong>bit 15 (<code>0x8000</code>)</strong> in the command field. That is
+the <em>only</em> structural difference between a request and its reply. The parser
+strips it back off:</p>
+<pre><code class="language-dart">final isResponse = (cmdValue &amp; 0x8000) != 0;
+final actualCmd  =  cmdValue &amp; 0x7FFF;
+</code></pre>
+<p>So a <code>GET_HT_STATUS</code> request carries command <code>0x0014</code>, and its reply carries
+<code>0x8014</code>.</p>
+<h3>Building a command</h3>
+<p><code>GaiaProtocol.buildRawCommand(group, cmd, data)</code> lays the header down
+big-endian and appends the payload:</p>
+<pre><code class="language-dart">cmdData[0] = (group &gt;&gt; 8) &amp; 0xFF;
+cmdData[1] =  group       &amp; 0xFF;
+cmdData[2] = (cmd   &gt;&gt; 8) &amp; 0xFF;
+cmdData[3] =  cmd         &amp; 0xFF;
+// data...
+</code></pre>
+<p>Convenience helpers exist for the common payload shapes: <code>buildCommandByte</code>
+(single byte) and <code>buildCommandInt</code> (a big-endian 32-bit int, via
+<code>RadioUtils.setInt</code>).</p>
+<h3>Endianness helpers</h3>
+<p>Almost every field in this protocol is big-endian, and the codec funnels through
+four helpers in <a href="../../src/lib/radio/utils.dart">utils.dart</a>:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Helper</th>
+<th>Reads/writes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>getByte(d, p)</code></td>
+<td>one byte, bounds-checked (returns 0 past end)</td>
+</tr>
+<tr>
+<td><code>getShort(d, p)</code></td>
+<td>big-endian <code>uint16</code> = <code>d[p]&lt;&lt;8 | d[p+1]</code></td>
+</tr>
+<tr>
+<td><code>getInt(d, p)</code></td>
+<td>big-endian <code>uint32</code></td>
+</tr>
+<tr>
+<td><code>setShort</code> / <code>setInt</code></td>
+<td>big-endian writes</td>
+</tr>
+</tbody></table>
+</div>
+<p>The notable exception is the <strong>BSS user id</strong>, which is little-endian — a wrinkle
+called out explicitly in the code.</p>
+<h3>Reply layout and status byte</h3>
+<p>For basic-group replies, the first payload byte (offset 4 of the whole frame) is
+a <strong>status byte</strong>:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>0</code></td>
+<td>success</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>notSupported</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>notAuthenticated</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td>insufficientResources</td>
+</tr>
+<tr>
+<td><code>4</code></td>
+<td>authenticating</td>
+</tr>
+<tr>
+<td><code>5</code></td>
+<td>invalidParameter</td>
+</tr>
+<tr>
+<td><code>6</code></td>
+<td>incorrectState</td>
+</tr>
+<tr>
+<td><code>7</code></td>
+<td>inProgress</td>
+</tr>
+</tbody></table>
+</div>
+<p>Because the header is 4 bytes and the status byte is at offset 4, the model
+parsers consistently read their <strong>real payload starting at offset 5</strong> — you will
+see <code>RadioUtils.getByte(msg, 5)</code> at the top of almost every <code>fromBytes</code>.</p>
+<hr>
+<h2>The complete basic command set (group 2)</h2>
+<p>These are the <code>RadioBasicCommand</code> opcodes. Opcode is the 16-bit command id
+(shown in decimal / hex). &quot;R&quot; = HTCommander sends it as a request; &quot;N&quot; = the
+radio sends it unsolicited; a reply always mirrors the request opcode with
+<code>0x8000</code> set.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="right">Opcode</th>
+<th>Name</th>
+<th align="center">Dir</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">0</td>
+<td><code>UNKNOWN</code></td>
+<td align="center">—</td>
+<td>Sentinel for unrecognised opcodes</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td><code>GET_DEV_ID</code></td>
+<td align="center">R</td>
+<td>Device id</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td><code>SET_REG_TIMES</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td><code>GET_REG_TIMES</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td><code>GET_DEV_INFO</code></td>
+<td align="center">R</td>
+<td>Capabilities; payload <code>[3]</code>. <strong>Parsed</strong> → <code>RadioDevInfo</code></td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td><code>READ_STATUS</code></td>
+<td align="center">R</td>
+<td>Battery / power status; request <code>[0, type16]</code></td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td><code>REGISTER_NOTIFICATION</code></td>
+<td align="center">R</td>
+<td>No reply. Payload = list of notification bytes</td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td><code>CANCEL_NOTIFICATION</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">8</td>
+<td><code>GET_NOTIFICATION</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">9</td>
+<td><code>EVENT_NOTIFICATION</code></td>
+<td align="center">N</td>
+<td>Unsolicited; byte 4 = notification type</td>
+</tr>
+<tr>
+<td align="right">10</td>
+<td><code>READ_SETTINGS</code></td>
+<td align="center">R</td>
+<td><strong>Parsed</strong> → <code>RadioSettings</code></td>
+</tr>
+<tr>
+<td align="right">11</td>
+<td><code>WRITE_SETTINGS</code></td>
+<td align="center">R</td>
+<td>No reply on some firmware; app re-reads</td>
+</tr>
+<tr>
+<td align="right">12</td>
+<td><code>STORE_SETTINGS</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">13</td>
+<td><code>READ_RF_CH</code></td>
+<td align="center">R</td>
+<td>Channel; request <code>[channelId]</code>. <strong>Parsed</strong> → <code>RadioChannelInfo</code></td>
+</tr>
+<tr>
+<td align="right">14</td>
+<td><code>WRITE_RF_CH</code></td>
+<td align="center">R</td>
+<td>Payload = 25-byte channel struct</td>
+</tr>
+<tr>
+<td align="right">15</td>
+<td><code>GET_IN_SCAN</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">16</td>
+<td><code>SET_IN_SCAN</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">17</td>
+<td><code>SET_REMOTE_DEVICE_ADDR</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">18</td>
+<td><code>GET_TRUSTED_DEVICE</code></td>
+<td align="center">R</td>
+<td>Read one entry by index; walks list</td>
+</tr>
+<tr>
+<td align="right">19</td>
+<td><code>DEL_TRUSTED_DEVICE</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">20</td>
+<td><code>GET_HT_STATUS</code></td>
+<td align="center">R</td>
+<td><strong>Parsed</strong> → <code>RadioHtStatus</code></td>
+</tr>
+<tr>
+<td align="right">21</td>
+<td><code>SET_HT_ON_OFF</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">22</td>
+<td><code>GET_VOLUME</code></td>
+<td align="center">R</td>
+<td>Reply: <code>[status, level]</code></td>
+</tr>
+<tr>
+<td align="right">23</td>
+<td><code>SET_VOLUME</code></td>
+<td align="center">R</td>
+<td>Payload <code>[level]</code> (0–15)</td>
+</tr>
+<tr>
+<td align="right">24</td>
+<td><code>RADIO_GET_STATUS</code></td>
+<td align="center">R</td>
+<td>FM broadcast receiver → <code>RadioFmRadioStatus</code></td>
+</tr>
+<tr>
+<td align="right">25</td>
+<td><code>RADIO_SET_MODE</code></td>
+<td align="center">R</td>
+<td>Payload <code>[2]</code> on / <code>[0]</code> off</td>
+</tr>
+<tr>
+<td align="right">26</td>
+<td><code>RADIO_SEEK_UP</code></td>
+<td align="center">R</td>
+<td>FM seek</td>
+</tr>
+<tr>
+<td align="right">27</td>
+<td><code>RADIO_SEEK_DOWN</code></td>
+<td align="center">R</td>
+<td>FM seek</td>
+</tr>
+<tr>
+<td align="right">28</td>
+<td><code>RADIO_SET_FREQ</code></td>
+<td align="center">R</td>
+<td>Payload = big-endian <code>uint16</code>, units of 10 kHz</td>
+</tr>
+<tr>
+<td align="right">29</td>
+<td><code>READ_ADVANCED_SETTINGS</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">30</td>
+<td><code>WRITE_ADVANCED_SETTINGS</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">31</td>
+<td><code>HT_SEND_DATA</code></td>
+<td align="center">R</td>
+<td><strong>TNC fragment out</strong> (see TNC section)</td>
+</tr>
+<tr>
+<td align="right">32</td>
+<td><code>SET_POSITION</code></td>
+<td align="center">R</td>
+<td>Payload = 18-byte position</td>
+</tr>
+<tr>
+<td align="right">33</td>
+<td><code>READ_BSS_SETTINGS</code></td>
+<td align="center">R</td>
+<td><strong>Parsed</strong> → <code>RadioBssSettings</code></td>
+</tr>
+<tr>
+<td align="right">34</td>
+<td><code>WRITE_BSS_SETTINGS</code></td>
+<td align="center">R</td>
+<td>Payload = 46-byte BSS struct</td>
+</tr>
+<tr>
+<td align="right">35</td>
+<td><code>FREQ_MODE_SET_PAR</code></td>
+<td align="center">R</td>
+<td>Tune the VFO to explicit RX/TX freqs + sub-audio; the workhorse of satellite Doppler tracking. <strong>Decoded</strong> below</td>
+</tr>
+<tr>
+<td align="right">36</td>
+<td><code>FREQ_MODE_GET_STATUS</code></td>
+<td align="center">R</td>
+<td>VFO tuned frequency</td>
+</tr>
+<tr>
+<td align="right">37</td>
+<td><code>READ_RDA1846S_AGC</code></td>
+<td align="center">R</td>
+<td>RF chip register</td>
+</tr>
+<tr>
+<td align="right">38</td>
+<td><code>WRITE_RDA1846S_AGC</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">39</td>
+<td><code>READ_FREQ_RANGE</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">40</td>
+<td><code>WRITE_DE_EMPH_COEFFS</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">41</td>
+<td><code>STOP_RINGING</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">42</td>
+<td><code>SET_TX_TIME_LIMIT</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">43</td>
+<td><code>SET_IS_DIGITAL_SIGNAL</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">44</td>
+<td><code>SET_HL</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">45</td>
+<td><code>SET_DID</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">46</td>
+<td><code>SET_IBA</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">47</td>
+<td><code>GET_IBA</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">48</td>
+<td><code>SET_TRUSTED_DEVICE_NAME</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">49</td>
+<td><code>SET_VOC</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">50</td>
+<td><code>GET_VOC</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">51</td>
+<td><code>SET_PHONE_STATUS</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">52</td>
+<td><code>READ_RF_STATUS</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">53</td>
+<td><code>PLAY_TONE</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">54</td>
+<td><code>GET_DID</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">55</td>
+<td><code>GET_PF</code></td>
+<td align="center">R</td>
+<td>Programmable-function button table</td>
+</tr>
+<tr>
+<td align="right">56</td>
+<td><code>SET_PF</code></td>
+<td align="center">R</td>
+<td>One effect byte per slot</td>
+</tr>
+<tr>
+<td align="right">57</td>
+<td><code>RX_DATA</code></td>
+<td align="center">N</td>
+<td><strong>TNC fragment in</strong> (BLE data path)</td>
+</tr>
+<tr>
+<td align="right">58</td>
+<td><code>WRITE_REGION_CH</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">59</td>
+<td><code>WRITE_REGION_NAME</code></td>
+<td align="center">R</td>
+<td>Payload <code>[index] + UTF-8 name</code></td>
+</tr>
+<tr>
+<td align="right">60</td>
+<td><code>SET_REGION</code></td>
+<td align="center">R</td>
+<td>Payload <code>[region]</code> (no reply)</td>
+</tr>
+<tr>
+<td align="right">61</td>
+<td><code>SET_PP_ID</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">62</td>
+<td><code>GET_PP_ID</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">63</td>
+<td><code>READ_ADVANCED_SETTINGS2</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">64</td>
+<td><code>WRITE_ADVANCED_SETTINGS2</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">65</td>
+<td><code>UNLOCK</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">66</td>
+<td><code>DO_PROG_FUNC</code></td>
+<td align="center">R</td>
+<td>Trigger a PF effect remotely</td>
+</tr>
+<tr>
+<td align="right">67</td>
+<td><code>SET_MSG</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">68</td>
+<td><code>GET_MSG</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">69</td>
+<td><code>BLE_CONN_PARAM</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">70</td>
+<td><code>SET_TIME</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">71</td>
+<td><code>SET_APRS_PATH</code></td>
+<td align="center">R</td>
+<td>Payload = UTF-8 digipeater path</td>
+</tr>
+<tr>
+<td align="right">72</td>
+<td><code>GET_APRS_PATH</code></td>
+<td align="center">R</td>
+<td>Reply: <code>[status] + UTF-8 path</code></td>
+</tr>
+<tr>
+<td align="right">73</td>
+<td><code>READ_REGION_NAME</code></td>
+<td align="center">R</td>
+<td>Reply: <code>[status, index] + UTF-8 name</code></td>
+</tr>
+<tr>
+<td align="right">74</td>
+<td><code>SET_DEV_ID</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">75</td>
+<td><code>GET_PF_ACTIONS</code></td>
+<td align="center">R</td>
+<td></td>
+</tr>
+<tr>
+<td align="right">76</td>
+<td><code>GET_POSITION</code></td>
+<td align="center">R</td>
+<td><strong>Parsed</strong> → <code>RadioPosition</code></td>
+</tr>
+<tr>
+<td align="right">77</td>
+<td><code>SET_SATELLITE_INFO</code></td>
+<td align="center">R</td>
+<td>Native satellite mode: bird name + live look-angle metadata for the radio&#39;s on-screen tracker. <strong>Decoded</strong> below</td>
+</tr>
+</tbody></table>
+</div>
+<p>Only a subset of these are actively used by HTCommander today; the rest are
+defined for recognition (so an unexpected reply is named rather than shown as raw
+hex). The next sections give the bit-level layout for the payloads the app
+actually encodes and decodes.</p>
+<hr>
+<h2>Payload deep-dives</h2>
+<h3>GET_DEV_INFO (4) → <code>RadioDevInfo</code></h3>
+<p>The request payload is a single byte <code>[3]</code>. The reply is a fixed capability
+block; fields are bit-packed starting at offset 5:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Bits</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>8</td>
+<td><code>vendorId</code></td>
+</tr>
+<tr>
+<td>6–7</td>
+<td>16 (BE)</td>
+<td><code>productId</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>8</td>
+<td><code>hwVer</code></td>
+</tr>
+<tr>
+<td>9–10</td>
+<td>16 (BE)</td>
+<td><code>softVer</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>0x80</code></td>
+<td><code>supportRadio</code> (has FM broadcast receiver)</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>0x40</code></td>
+<td><code>supportMediumPower</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>0x20</code></td>
+<td><code>fixedLocSpeakerVol</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>0x10</code></td>
+<td><code>notSupportSoftPowerCtrl</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>0x08</code></td>
+<td><code>haveNoSpeaker</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>0x04</code></td>
+<td><code>haveHmSpeaker</code></td>
+</tr>
+<tr>
+<td>11–12</td>
+<td><code>0x03</code> + <code>0xF0</code></td>
+<td><code>regionCount</code> (spans two bytes)</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>0x08</code></td>
+<td><code>supportNoaa</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>0x04</code></td>
+<td><code>gmrs</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>0x02</code></td>
+<td><code>supportVfo</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>0x01</code></td>
+<td><code>supportDmr</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td>8</td>
+<td><code>channelCount</code></td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>0xF0</code></td>
+<td><code>freqRangeCount</code></td>
+</tr>
+</tbody></table>
+</div>
+<p><code>productId</code> also drives the friendly name (<code>0x0001</code> → VR-N7500, <code>0x0002</code> →
+VR-N76, <code>0x0003</code> → SA-888S, <code>0x0004</code> → HG-UV98, <code>0x0005</code> → HAM-AIO). This reply
+is what tells the app how many channels and regions to enumerate.</p>
+<h3>GET_HT_STATUS (20) → <code>RadioHtStatus</code></h3>
+<p>A compact live-status block. Note how several fields straddle byte boundaries —
+a recurring theme in this protocol.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Bits</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td><code>0x80</code></td>
+<td><code>isPowerOn</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>0x40</code></td>
+<td><code>isInTx</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>0x20</code></td>
+<td><code>isSq</code> (squelch open)</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>0x10</code></td>
+<td><code>isInRx</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>0x0C</code></td>
+<td><code>doubleChannel</code> (0=off,1=A,2=B,3=C)</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>0x02</code></td>
+<td><code>isScan</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>0x01</code></td>
+<td><code>isRadio</code> (FM broadcast active)</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>&gt;&gt;4</code></td>
+<td><code>currChIdLower</code> (low 4 bits of channel id)</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>0x08</code></td>
+<td><code>isGpsLocked</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>0x04</code></td>
+<td><code>isHfpConnected</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>0x02</code></td>
+<td><code>isAocConnected</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>&gt;&gt;4</code></td>
+<td><code>rssi</code></td>
+</tr>
+<tr>
+<td>7–8</td>
+<td><code>0x0F</code>&lt;&lt;2 + <code>&gt;&gt;6</code></td>
+<td><code>currRegion</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>0x3C</code>&gt;&gt;2</td>
+<td><code>currChannelIdUpper</code> (high bits of channel id)</td>
+</tr>
+</tbody></table>
+</div>
+<p><code>currChId</code> is reassembled as <code>(upper &lt;&lt; 4) | lower</code>. This status arrives both as
+a direct <code>GET_HT_STATUS</code> reply and inline inside the <code>htStatusChanged</code>
+notification.</p>
+<h3>READ_RF_CH (13) / WRITE_RF_CH (14) → <code>RadioChannelInfo</code></h3>
+<p>A channel is a 25-byte record (offset 5 onward in a reply; offset 0 onward in a
+<code>WRITE_RF_CH</code> payload). The frequency fields cleverly pack the <strong>modulation</strong> in
+the top 2 bits of a 32-bit big-endian frequency, so the frequency mask is
+<code>&amp; 0x3FFFFFFF</code>:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Offset (reply)</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td><code>channelId</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>txMod</code> = byte <code>&gt;&gt; 6</code>; <code>txFreq</code> = <code>getInt(6) &amp; 0x3FFFFFFF</code> (Hz)</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>rxMod</code> = byte <code>&gt;&gt; 6</code>; <code>rxFreq</code> = <code>getInt(10) &amp; 0x3FFFFFFF</code> (Hz)</td>
+</tr>
+<tr>
+<td>14–15</td>
+<td><code>txSubAudio</code> (BE <code>uint16</code>)</td>
+</tr>
+<tr>
+<td>16–17</td>
+<td><code>rxSubAudio</code> (BE <code>uint16</code>)</td>
+</tr>
+<tr>
+<td>18 <code>0x80..0x01</code></td>
+<td><code>scan</code>, <code>txAtMaxPower</code>, <code>talkAround</code>, <code>bandwidth</code>(wide=0x10), <code>preDeEmphBypass</code>, <code>sign</code>, <code>txAtMedPower</code>, <code>txDisable</code></td>
+</tr>
+<tr>
+<td>19 <code>0x80..0x10</code></td>
+<td><code>fixedFreq</code>, <code>fixedBandwidth</code>, <code>fixedTxPower</code>, <code>mute</code></td>
+</tr>
+<tr>
+<td>20–29</td>
+<td><code>name</code> (10 bytes, UTF-8, null-trimmed)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Writing rebuilds the record from the fields — see <code>RadioChannelInfo.toByteArray()</code>
+— re-inserting the modulation bits into the high 2 bits of each frequency word
+(<code>r[1] = (r[1] &amp; 0x3F) | ((txMod &lt;&lt; 6))</code>).</p>
+<h3>READ_SETTINGS (10) / WRITE_SETTINGS (11) → <code>RadioSettings</code></h3>
+<p>The densest structure in the protocol: ~40 fields packed into ~20 bytes, many
+split across byte boundaries. A few representative examples (see
+<a href="../../src/lib/radio/radio_models.dart">radio_models.dart</a> for the full list):</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Source bits</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>channelA</code></td>
+<td><code>(byte5 &amp; 0xF0)&gt;&gt;4</code> + <code>(byte14 &amp; 0xF0)</code></td>
+</tr>
+<tr>
+<td><code>channelB</code></td>
+<td><code>(byte5 &amp; 0x0F)</code> + <code>((byte14 &amp; 0x0F)&lt;&lt;4)</code></td>
+</tr>
+<tr>
+<td><code>scan</code></td>
+<td><code>byte6 &amp; 0x80</code></td>
+</tr>
+<tr>
+<td><code>squelchLevel</code></td>
+<td><code>byte6 &amp; 0x0F</code></td>
+</tr>
+<tr>
+<td><code>micGain</code></td>
+<td><code>(byte7 &amp; 0x0E)&gt;&gt;1</code></td>
+</tr>
+<tr>
+<td><code>txTimeLimit</code></td>
+<td><code>byte8 &amp; 0x1F</code></td>
+</tr>
+<tr>
+<td><code>autoShareLocCh</code></td>
+<td><code>(byte10 &amp; 0x1F)</code> | <code>((byte16 &amp; 0x07)&lt;&lt;5)</code></td>
+</tr>
+<tr>
+<td><code>vfo1ModFreqX</code></td>
+<td><code>getInt(17)</code> (BE <code>uint32</code>)</td>
+</tr>
+<tr>
+<td><code>vfo2ModFreqX</code></td>
+<td><code>getInt(21)</code> (BE <code>uint32</code>)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Because so many fields share bytes, HTCommander never builds a settings block
+from scratch. Instead <code>toByteArray()</code> <strong>copies the last-read raw block</strong> (minus
+the 4-byte header + status byte) and overwrites only the bytes it needs to change
+(channel A/B, dual-channel mode, scan, squelch). <code>toByteArrayWith(...)</code> is the
+copy-on-write wrapper the app calls. This preserves every field the app does not
+model. After a write, the radio may or may not push a <code>htSettingsChanged</code>
+notification, so the app re-reads settings to be safe.</p>
+<h3>GET_POSITION (76) / SET_POSITION (32) → <code>RadioPosition</code></h3>
+<p>An 18-byte position payload (offset 5 onward in a reply). Latitude and longitude
+are <strong>24-bit signed</strong> values in an unusual unit:</p>
+<pre><code>degrees = raw / 60.0 / 500.0        (i.e. raw = degrees × 60 × 500)
+</code></pre>
+<p>The 24-bit two&#39;s-complement sign is handled explicitly (subtract <code>0x01000000</code>
+when bit 23 is set) because Dart ints are 64-bit and naive sign-extension would
+produce a huge positive number.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5–7</td>
+<td>latitude (24-bit signed)</td>
+</tr>
+<tr>
+<td>8–10</td>
+<td>longitude (24-bit signed)</td>
+</tr>
+<tr>
+<td>11–12</td>
+<td>altitude (BE <code>uint16</code>, metres)</td>
+</tr>
+<tr>
+<td>13–14</td>
+<td>speed (BE <code>uint16</code>)</td>
+</tr>
+<tr>
+<td>15–16</td>
+<td>heading (BE <code>uint16</code>, degrees)</td>
+</tr>
+<tr>
+<td>17–20</td>
+<td>Unix time (BE <code>uint32</code>, seconds)</td>
+</tr>
+<tr>
+<td>21–22</td>
+<td>accuracy (BE <code>uint16</code>)</td>
+</tr>
+</tbody></table>
+</div>
+<p><code>toByteArray()</code> emits exactly these 18 bytes for <code>SET_POSITION</code>. The radio only
+transmits APRS position beacons while a <code>positionChange</code> notification is
+registered — which is why the app (re)registers it on every connect whenever GPS
+sharing is on.</p>
+<h3>READ_BSS_SETTINGS (33) / WRITE_BSS_SETTINGS (34) → <code>RadioBssSettings</code></h3>
+<p>Beacon / location-sharing configuration, 46 bytes. The one little-endian field in
+the whole protocol lives here (<code>bssUserIdLower</code>, a LE <code>int32</code> at offset 9):</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td><code>maxFwdTimes</code> (<code>&gt;&gt;4</code>), <code>timeToLive</code> (<code>&amp;0x0F</code>)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>flags: <code>pttReleaseSendLocation</code>(0x80), <code>…SendIdInfo</code>(0x40), <code>…SendBssUserId</code>(0x20), <code>shouldShareLocation</code>(0x10), <code>sendPwrVoltage</code>(0x08), <code>packetFormat</code>(0x04), <code>allowPositionCheck</code>(0x02)</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>aprsSsid</code> (<code>&gt;&gt;4</code>)</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>locationShareInterval</code> = byte × 10 (seconds)</td>
+</tr>
+<tr>
+<td>9–12</td>
+<td><code>bssUserIdLower</code> (<strong>LE</strong> <code>int32</code>)</td>
+</tr>
+<tr>
+<td>13–24</td>
+<td><code>pttReleaseIdInfo</code> (12 bytes UTF-8)</td>
+</tr>
+<tr>
+<td>25–42</td>
+<td><code>beaconMessage</code> (18 bytes UTF-8)</td>
+</tr>
+<tr>
+<td>43–44</td>
+<td><code>aprsSymbol</code> (2 bytes UTF-8)</td>
+</tr>
+<tr>
+<td>45–50</td>
+<td><code>aprsCallsign</code> (6 bytes UTF-8)</td>
+</tr>
+</tbody></table>
+</div>
+<p>(<code>toByteArray()</code> produces a 46-byte payload — offsets above are shown relative to
+the received frame, which is 5 bytes higher because of the header + status byte.)</p>
+<h3>FM broadcast: RADIO_* (24–28) → <code>RadioFmRadioStatus</code></h3>
+<p>The built-in FM broadcast receiver has its own little command family:</p>
+<ul>
+<li><code>RADIO_SET_MODE</code> (25): payload <code>[2]</code> = on, <code>[0]</code> = off.</li>
+<li><code>RADIO_SET_FREQ</code> (28): big-endian <code>uint16</code> in units of 10 kHz, so 91.5 MHz →
+<code>9150</code> → <code>0x23BE</code>.</li>
+<li><code>RADIO_SEEK_UP</code> / <code>RADIO_SEEK_DOWN</code> (26/27): no payload; progress arrives via
+notifications.</li>
+<li><code>RADIO_GET_STATUS</code> (24) reply / <code>radioStatusChanged</code> notification share a
+layout at offset 5: <code>[flags, 0x00, freqHi, freqLo]</code> where <code>flags &amp; 0x80</code> = FM
+on, <code>flags &amp; 0x10</code> = seeking, and the frequency is a BE <code>uint16</code> in 10 kHz
+units (so <code>0x290E</code> = 10510 → 105.10 MHz).</li>
+</ul>
+<h3>READ_STATUS (5): battery and power</h3>
+<p>The request is <code>[0, type]</code> where <code>type</code> is a <code>RadioPowerStatus</code>
+(<code>batteryLevel</code>=1, <code>batteryVoltage</code>=2, <code>rcBatteryLevel</code>=3,
+<code>batteryLevelAsPercentage</code>=4). The reply payload (relative to the status byte)
+is <code>[status, type_hi, type_lo, value...]</code>; voltage is a BE <code>uint16</code> in
+hundredths of a volt (<code>getShort/100.0</code>), everything else is a single byte.</p>
+<h3>Programmable functions: GET_PF (55) / SET_PF (56)</h3>
+<p>The button table maps physical buttons to effects. The <code>GET_PF</code> reply is a
+status byte followed by <strong>two bytes per slot</strong>:</p>
+<pre><code>byte0 = (buttonId &lt;&lt; 4) | actionType
+byte1 = effectType
+</code></pre>
+<p><code>actionType</code> is a <code>PFActionType</code> (short/long/double/edge transitions/…) and
+<code>effectType</code> is a <code>PFEffectType</code> (<code>mainPtt</code>, <code>toggleRadioTx</code>, <code>nextChannel</code>,
+<code>sendLocation</code>, …). <code>SET_PF</code> sends one effect byte per slot in the same order.
+Because the radio commits the write asynchronously, the app waits ~800 ms before
+re-reading so the cached table reflects the settled state.</p>
+<h3>Region names: READ_REGION_NAME (73) / WRITE_REGION_NAME (59) / SET_REGION (60)</h3>
+<ul>
+<li><code>READ_REGION_NAME</code> request <code>[index]</code>; reply <code>[status, index, UTF-8 name…]</code>.</li>
+<li><code>WRITE_REGION_NAME</code> payload <code>[index] + UTF-8 name</code>.</li>
+<li><code>SET_REGION</code> payload <code>[region]</code> — this one gets <strong>no reply</strong> (it is in the
+&quot;expected response = none&quot; list alongside <code>REGISTER_NOTIFICATION</code> and
+<code>WRITE_SETTINGS</code>).</li>
+</ul>
+<h3>APRS path: GET_APRS_PATH (72) / SET_APRS_PATH (71)</h3>
+<p>A simple variable-length UTF-8 string, e.g. <code>&quot;WIDE1-1,WIDE2-1&quot;</code>. The reply is
+<code>[status] + UTF-8 path</code>. The app updates its cache optimistically on write and
+re-reads to confirm.</p>
+<h3>Satellite tracking: SET_SATELLITE_INFO (77) + FREQ_MODE_SET_PAR (35)</h3>
+<p>These two commands are how the manufacturer app works an amateur satellite —
+telling the radio which bird it is looking at and continuously steering the VFO
+to follow the Doppler shift. They were reverse-engineered from a capture of the
+original app tracking the <strong>International Space Station</strong> through its FM
+cross-band voice repeater (uplink <strong>145.990 MHz</strong> with a <strong>67.0 Hz</strong> CTCSS tone,
+downlink <strong>437.800 MHz</strong>). The two commands are always sent <strong>as a pair</strong>, once
+per update (roughly once a second), and each gets a one-byte <code>[0x00]</code> success
+reply.</p>
+<p>HTCommander implements this same flow: a <strong>Satellite</strong> usage lock puts the radio
+into tracking mode, and the satellite handler pushes a fresh
+<code>SET_SATELLITE_INFO</code> + <code>FREQ_MODE_SET_PAR</code> pair every second for the length of
+the pass (see <code>RadioFreqModePar</code> / <code>RadioSatelliteInfo</code> in
+<a href="../../src/lib/radio/radio_models.dart">radio_models.dart</a> and
+<code>Radio._onSatelliteTrackUpdate</code> in <a href="../../src/lib/radio/radio.dart">radio.dart</a>).</p>
+<h4>FREQ_MODE_SET_PAR (35) — the Doppler-steered VFO</h4>
+<p>This is the important one: it puts the radio into &quot;frequency mode&quot; (a free-tuned
+VFO, not a stored channel) and sets the exact receive and transmit frequencies.
+Its 16-byte payload uses the <strong>same field layout</strong> as the
+<a href="#freqmodestatuschanged-14-layout"><code>freqModeStatusChanged</code> notification</a> — RX
+freq, TX freq, sub-audio, flags — which is what let us decode it. All multi-byte
+fields are big-endian.</p>
+<p>Example (first update of the ISS pass):</p>
+<pre><code>1a 18 42 d7  08 b3 a4 93  00 00  1a 2c  0a 03  61 a8
+└── RX ────┘ └── TX ────┘ └rxSA┘ └txSA┘ └flags┘ └const┘
+</code></pre>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Bytes</th>
+<th>Field</th>
+<th>Value in the example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0–3</td>
+<td><code>1a 18 42 d7</code></td>
+<td><strong>RX (downlink) frequency</strong> — <code>uint32</code>; top 2 bits = modulation, low 30 bits (<code>&amp; 0x3FFFFFFF</code>) = Hz</td>
+<td>mod 0 (FM), 437 797 591 Hz ≈ <strong>437.7976 MHz</strong></td>
+</tr>
+<tr>
+<td>4–7</td>
+<td><code>08 b3 a4 93</code></td>
+<td><strong>TX (uplink) frequency</strong> — same encoding</td>
+<td>mod 0 (FM), 145 990 803 Hz ≈ <strong>145.9908 MHz</strong></td>
+</tr>
+<tr>
+<td>8–9</td>
+<td><code>00 00</code></td>
+<td><strong>RX sub-audio</strong> — <code>uint16</code>, CTCSS in units of 0.01 Hz (<code>0</code> = none)</td>
+<td>none (nothing to decode on the downlink)</td>
+</tr>
+<tr>
+<td>10–11</td>
+<td><code>1a 2c</code></td>
+<td><strong>TX sub-audio</strong> — same units</td>
+<td><code>0x1a2c</code> = 6700 = <strong>67.00 Hz</strong> CTCSS (the ISS repeater access tone)</td>
+</tr>
+<tr>
+<td>12–13</td>
+<td><code>0a 03</code></td>
+<td><strong>status / mode flags</strong> — the <strong>high byte <code>0x0a</code> is the satellite-mode switch</strong>: it is what makes the radio jump to its on-screen satellite tracker instead of an ordinary VFO. The low byte carries <code>0x03</code> on the first couple of updates then settles to <code>0x00</code> (same &quot;is-in-VFO-mode&quot; flag family as <code>freqModeStatusChanged</code>)</td>
+<td><code>0x0a03</code> → <code>0x0a00</code></td>
+</tr>
+<tr>
+<td>14–15</td>
+<td><code>61 a8</code></td>
+<td><strong>constant</strong> — <code>0x61a8</code> (25000) is sent unchanged on every update</td>
+<td></td>
+</tr>
+</tbody></table>
+</div>
+<blockquote>
+<p><strong>The <code>0x0a</code> flag is load-bearing.</strong> This was confirmed against HTCommander&#39;s
+own implementation: sending the frame with the flags word left at <code>0x0000</code>
+(frequencies, sub-audio and the <code>0x61a8</code> constant all correct) <em>does</em> drop the
+radio into frequency (VFO) mode and it happily ACKs every update — but it
+<strong>never switches to the satellite tracking screen</strong>. Only once the high byte
+is <code>0x0a</code> does the radio show its satellite display. HTCommander therefore
+sends <code>0x0a03</code> on the first two updates of a session and <code>0x0a00</code> thereafter,
+mirroring the capture. See <code>Radio._onSatelliteTrackUpdate</code> in
+<a href="../../src/lib/radio/radio.dart">radio.dart</a>.</p>
+</blockquote>
+<p>The RX and TX frequencies are what carry the Doppler correction. The app runs
+the orbit propagator on the phone and, each second, recomputes:</p>
+<ul>
+<li><code>RX = downlinkHz × (1 − rangeRate/c)</code>  (receiver Doppler)</li>
+<li><code>TX = uplinkHz × (1 + rangeRate/c)</code>  (transmit pre-compensation)</li>
+</ul>
+<p>with <code>rangeRate</code> in km/s (positive = receding) and <code>c = 299 792.458 km/s</code> — the
+exact formulas already used by
+<a href="../../src/lib/satellite/satellite_models.dart">satellite_models.dart</a>. Both
+numbers agree: in the sample above the downlink is 2.4 kHz <strong>low</strong> and the uplink
+0.8 kHz <strong>high</strong>, each corresponding to the same line-of-sight range-rate of
+<strong>+1.65 km/s</strong> (the ISS receding). Over the captured segment the downlink drifts
+up (437.797591 → 437.797662 MHz) while the uplink drifts down
+(145.990803 → 145.990779 MHz) — the classic mirror-image signature of a single
+range-rate shrinking as the pass progresses.</p>
+<h4>SET_SATELLITE_INFO (77) — the bird and its look-angle</h4>
+<p>Sent immediately before each <code>FREQ_MODE_SET_PAR</code>, this names the satellite and
+carries the live look-angle the radio shows on its own screen. The 30-byte
+payload is a 20-byte name field followed by a 10-byte tracking block (big-endian
+fields):</p>
+<pre><code>49 53 53 20 28 5a 41 52 59 41 29 00 00 00 00 00 00 00 00 00  39 00  b4 00  31 fb  01 b0  0c 12
+└──────────────  &quot;ISS (ZARYA)&quot; + NUL padding (20 bytes) ──────────────┘ └az──┘ └el──┘ └dist┘ └alt─┘ └next┘
+</code></pre>
+<p>The tracking block was originally guessed from a single capture. It has since
+been <strong>pinned down by driving a real radio and reading the values off its
+on-screen satellite display</strong> — the radio simply echoes the fields we send, so
+comparing sent bytes to shown numbers gave the exact scales:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Bytes</th>
+<th>Field</th>
+<th>Decode</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>20–21</td>
+<td><code>39 00</code></td>
+<td><strong>Azimuth</strong></td>
+<td><code>uint16</code> = degrees <strong>× 128</strong></td>
+<td><code>0x3900</code>/128 = <strong>114°</strong></td>
+</tr>
+<tr>
+<td>22–23</td>
+<td><code>b4 00</code></td>
+<td><strong>Elevation</strong></td>
+<td><strong>signed</strong> <code>int16</code> = degrees <strong>× 256</strong></td>
+<td><code>0xb400</code> = −19456 → −19456/256 = <strong>−76°</strong></td>
+</tr>
+<tr>
+<td>24–25</td>
+<td><code>31 fb</code></td>
+<td><strong>Distance</strong> (slant range)</td>
+<td><code>uint16</code>, kilometres</td>
+<td><code>0x31fb</code> = <strong>12795 km</strong></td>
+</tr>
+<tr>
+<td>26–27</td>
+<td><code>01 b0</code></td>
+<td><strong>Altitude</strong></td>
+<td><code>uint16</code>, kilometres</td>
+<td><code>0x01b0</code> = <strong>432 km</strong> (ISS ✓)</td>
+</tr>
+<tr>
+<td>28–29</td>
+<td><code>0c 12</code></td>
+<td><strong>Next pass</strong> (seconds to AOS)</td>
+<td><code>uint16</code>, seconds → <code>hh:mm:ss</code></td>
+<td><code>0x0c12</code> = 3090 s = <strong>00:51:30</strong></td>
+</tr>
+</tbody></table>
+</div>
+<p>This capture was of the ISS while it was <strong>below the horizon on the far side of
+the Earth</strong> — hence elevation −76°, and a &quot;distance&quot; of ~12795 km (about one
+Earth diameter, the straight-line chord to the antipode). The values that were
+once thought to be constants (<code>39 00</code>, <code>b4 00</code>, <code>01 b0</code>) were simply the
+azimuth, elevation, and altitude holding nearly steady over the short capture.
+The last field is the <strong>&quot;Next Pass&quot; countdown</strong> the radio shows: it decremented
+by exactly one per second across the capture (3090 → 3089 → 3088 …), which is
+what gives it away as a wall-clock seconds counter rather than a physical
+quantity. HTCommander encodes exactly these five fields — azimuth, elevation,
+distance, altitude, and seconds-to-next-AOS from the orbit propagator; see
+<code>RadioSatelliteInfo.toByteArray()</code> in
+<a href="../../src/lib/radio/radio_models.dart">radio_models.dart</a>.</p>
+<p>All five fields are now confirmed against the radio&#39;s on-screen read-outs.</p>
+<h4>The tracking session, start to finish</h4>
+<p>The whole ISS session in the capture unfolds like this:</p>
+<ol>
+<li><strong>Housekeeping / setup</strong> — before tracking, the app does its normal connect
+chores: <code>GET_DEV_INFO</code>, reads every channel (<code>READ_RF_CH</code>), reads settings and
+BSS settings, <code>GET_APRS_PATH</code>, <code>SET_TIME</code> (a big-endian <code>uint32</code> Unix
+timestamp so the radio clock is current), <code>SET_PHONE_STATUS</code>, a <code>READ_STATUS</code>
+battery poll, and a <code>READ_REGION_NAME</code> sweep.</li>
+<li><strong>Tracking loop</strong> — once the bird is selected the app enters the steady state:
+every ~1 s it sends <code>SET_SATELLITE_INFO</code> (name + look-angle) immediately
+followed by <code>FREQ_MODE_SET_PAR</code> (Doppler-corrected RX/TX), and the radio
+ACKs each with <code>[0x00]</code>. This repeats for the whole pass — 25+ update pairs in
+the capture.</li>
+<li><strong>Teardown</strong> — to stop tracking, the app sends a single <code>FREQ_MODE_SET_PAR</code>
+with an <strong>all-zero 16-byte payload</strong>. That drops the radio out of frequency
+(VFO) mode, and the radio responds with a burst of <code>htSettingsChanged</code>
+(<code>EVENT_NOTIFICATION</code> type 6) events as it restores its normal channel state.
+No &quot;stop&quot; <code>SET_SATELLITE_INFO</code> is sent — clearing the VFO is what ends the
+session.</li>
+</ol>
+<pre class="mermaid">sequenceDiagram
+    participant A as App (phone)
+    participant R as Radio
+    Note over A,R: setup (dev info, channels, settings, SET_TIME, region names)
+    loop every ~1 s for the whole pass
+        A-&gt;&gt;R: SET_SATELLITE_INFO (name + az/el)
+        R--&gt;&gt;A: 0x00
+        A-&gt;&gt;R: FREQ_MODE_SET_PAR (Doppler RX/TX + 67.0 Hz tone)
+        R--&gt;&gt;A: 0x00
+    end
+    A-&gt;&gt;R: FREQ_MODE_SET_PAR (16 zero bytes)  %% stop tracking
+    R--&gt;&gt;A: 0x00
+    R--&gt;&gt;A: EVENT_NOTIFICATION htSettingsChanged (×N)
+</pre>
+<hr>
+<h2>Notifications (EVENT_NOTIFICATION, opcode 9)</h2>
+<p>The radio pushes state changes as <code>EVENT_NOTIFICATION</code> frames. Byte 4 (the first
+payload byte) is the <strong>notification type</strong>; the rest of the frame is that
+notification&#39;s inline payload.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="right">Type</th>
+<th>Name</th>
+<th>Payload / action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">1</td>
+<td><code>htStatusChanged</code></td>
+<td>Inline <code>RadioHtStatus</code> (offset 5)</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td><code>dataRxd</code></td>
+<td>Inline TNC fragment (hardware AFSK path)</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td><code>newInquiryData</code></td>
+<td></td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td><code>restoreFactorySettings</code></td>
+<td></td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td><code>htChChanged</code></td>
+<td>App re-reads settings</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td><code>htSettingsChanged</code></td>
+<td>Inline <code>RadioSettings</code></td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td><code>ringingStopped</code></td>
+<td></td>
+</tr>
+<tr>
+<td align="right">8</td>
+<td><code>radioStatusChanged</code></td>
+<td>Inline <code>RadioFmRadioStatus</code></td>
+</tr>
+<tr>
+<td align="right">9</td>
+<td><code>userAction</code></td>
+<td></td>
+</tr>
+<tr>
+<td align="right">10</td>
+<td><code>systemEvent</code></td>
+<td></td>
+</tr>
+<tr>
+<td align="right">11</td>
+<td><code>bssSettingsChanged</code></td>
+<td>App re-reads BSS settings</td>
+</tr>
+<tr>
+<td align="right">12</td>
+<td><code>dataTxd</code></td>
+<td></td>
+</tr>
+<tr>
+<td align="right">13</td>
+<td><code>positionChange</code></td>
+<td>Inline <code>RadioPosition</code></td>
+</tr>
+<tr>
+<td align="right">14</td>
+<td><code>freqModeStatusChanged</code></td>
+<td>Live VFO frequency while tuning/scanning</td>
+</tr>
+</tbody></table>
+</div>
+<p>To subscribe, the app sends <code>REGISTER_NOTIFICATION</code> (opcode 6) with a payload
+that is simply a <strong>list of notification-type bytes</strong> — e.g. on connect it
+registers <code>htStatusChanged</code> and <code>freqModeStatusChanged</code> in one call:</p>
+<pre><code class="language-dart">_sendCommand(RadioCommandGroup.basic, RadioBasicCommand.registerNotification,
+  Uint8List.fromList([
+    RadioNotification.htStatusChanged.value,      // 1
+    RadioNotification.freqModeStatusChanged.value // 14
+  ]));
+</code></pre>
+<p><code>positionChange</code> is registered with a 4-byte form <code>[0, 0, 0, 13]</code>. A radio power
+cycle clears all registrations, so the app re-applies them on every connection.</p>
+<h3>freqModeStatusChanged (14) layout</h3>
+<p>Worth calling out because it packs several fields and has a subtle &quot;authoritative
+bit&quot;. Relative to the frame start:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4</td>
+<td>notification type (14)</td>
+</tr>
+<tr>
+<td>5–8</td>
+<td>live RX frequency (BE <code>uint32</code>, top 2 bits = modulation, mask <code>0x3FFFFFFF</code>)</td>
+</tr>
+<tr>
+<td>9–12</td>
+<td>TX frequency</td>
+</tr>
+<tr>
+<td>13–16</td>
+<td>sub-audio</td>
+</tr>
+<tr>
+<td>17–18</td>
+<td>status flags</td>
+</tr>
+</tbody></table>
+</div>
+<p>Only the <strong>low</strong> flags byte (offset 18) reliably indicates whether the radio is
+in frequency (VFO) mode — the high byte can remain set after leaving VFO mode.</p>
+<hr>
+<h2>Sub-protocol A: TNC data (AX.25 packet radio)</h2>
+<p>Packet data does not fit in a single command, so it is <strong>fragmented</strong>. Outgoing
+fragments use <code>HT_SEND_DATA</code> (31); incoming fragments arrive as either <code>RX_DATA</code>
+(57, BLE) or the <code>dataRxd</code> notification (hardware AFSK path). Both directions use
+the same fragment format defined in
+<a href="../../src/lib/radio/tnc_data_fragment.dart">tnc_data_fragment.dart</a>.</p>
+<h3>Fragment format</h3>
+<p>The payload begins with a single <strong>control byte</strong>, then the fragment data, then an
+optional trailing channel-id byte:</p>
+<pre><code>+----------+------------------+-----------------+
+| control  | data ...         | [channelId]     |
++----------+------------------+-----------------+
+</code></pre>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Control byte bit</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>0x80</code></td>
+<td>final fragment</td>
+</tr>
+<tr>
+<td><code>0x40</code></td>
+<td>a channel-id byte is appended at the end</td>
+</tr>
+<tr>
+<td><code>0x3F</code></td>
+<td>fragment id (0–63)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Decoding (<code>fromBytes</code>) reads the control byte at offset 5, extracts the flags and
+fragment id, copies the data, and — if <code>0x40</code> is set — reads the last byte as the
+channel id. Encoding (<code>toByteArray</code>) is the mirror image.</p>
+<h3>Reassembly</h3>
+<p>Fragments are numbered sequentially starting at 0. The accumulator only starts on
+fragment id 0, and <code>append()</code> merges a fragment only when its id is exactly
+<code>previous + 1</code> and the previous fragment was not marked final; anything out of
+order discards the partial and restarts. When the final fragment
+(<code>0x80</code>) arrives, the completed frame is dispatched.</p>
+<pre class="mermaid">sequenceDiagram
+    participant App
+    participant Radio
+    App-&gt;&gt;Radio: HT_SEND_DATA frag#0 (0x00 | id, data)
+    Radio--&gt;&gt;App: HT_SEND_DATA reply (ack)
+    App-&gt;&gt;Radio: HT_SEND_DATA frag#1 (0x01, data)
+    Radio--&gt;&gt;App: HT_SEND_DATA reply (ack)
+    App-&gt;&gt;Radio: HT_SEND_DATA frag#2 (0x82, data)  %% 0x80 = final
+    Radio--&gt;&gt;App: HT_SEND_DATA reply (ack)
+</pre>
+<p>Outgoing sending is strictly one-fragment-in-flight: the next fragment is only
+sent after the previous <code>HT_SEND_DATA</code> is acknowledged, and only when the radio
+is not already transmitting (<code>htStatus.isInTx == false</code> and <code>rssi == 0</code>, i.e. the
+channel is clear). Each fragment carries at most <code>_maxMtu</code> data bytes.</p>
+<h3>What rides inside: AX.25</h3>
+<p>The reassembled fragment data is an <strong>AX.25 frame</strong>, decoded by
+<a href="../../src/lib/radio/ax25_packet.dart">ax25_packet.dart</a>. AX.25 is its own topic,
+but the essentials of the encoding:</p>
+<ul>
+<li><strong>Addresses</strong> (7 bytes each): 6 callsign characters shifted left by 1 bit, plus
+an SSID byte carrying the command/response (C) bits and the &quot;last address&quot;
+marker in bit 0.</li>
+<li><strong>Control field</strong> (1 byte for modulo-8, 2 bytes for modulo-128): encodes the
+frame type (I / S / U), the send/receive sequence numbers <code>N(S)</code>/<code>N(R)</code>, and
+the poll/final bit.</li>
+<li><strong>PID</strong> (1 byte): present on I-frames and UI-frames (<code>0xF0</code> = &quot;no layer 3&quot;).</li>
+<li><strong>Info</strong>: the payload (e.g. an APRS message).</li>
+</ul>
+<p>The C/R bits are set so that address 0 (destination) carries the command bit and
+address 1 (source) carries its complement, per the AX.25 spec — see the
+<code>toByteArray()</code> address loop. Connected-mode sequencing (SABM/UA/DISC, I/RR/RNR/
+REJ/SREJ, retries and windowing) is handled a layer up in
+<a href="../../src/lib/radio/ax25_session.dart">ax25_session.dart</a>.</p>
+<hr>
+<h2>Sub-protocol B: the VM firmware-update channel (group 10)</h2>
+<p>Firmware update uses the <strong>extended</strong> command group (10) and a different opcode
+space, the GAIA VM protocol. Only Bluetooth Classic transports support it.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="right">Opcode</th>
+<th>Name</th>
+<th>Direction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">769</td>
+<td><code>GET_BT_SIGNAL</code></td>
+<td>R</td>
+</tr>
+<tr>
+<td align="right">1600</td>
+<td><code>VM_CONNECT</code></td>
+<td>R</td>
+</tr>
+<tr>
+<td align="right">1601</td>
+<td><code>VM_DISCONNECT</code></td>
+<td>R</td>
+</tr>
+<tr>
+<td align="right">1602</td>
+<td><code>VM_CONTROL</code></td>
+<td>R</td>
+</tr>
+<tr>
+<td align="right">1825</td>
+<td><code>DEV_REGISTRATION</code></td>
+<td>R</td>
+</tr>
+<tr>
+<td align="right">16385</td>
+<td><code>REGISTER_BT_NOTIFICATION</code></td>
+<td>R</td>
+</tr>
+<tr>
+<td align="right">16386</td>
+<td><code>CANCEL_BT_NOTIFICATION</code></td>
+<td>R</td>
+</tr>
+<tr>
+<td align="right">16387</td>
+<td><code>BT_EVENT_NOTIFICATION</code></td>
+<td>N</td>
+</tr>
+</tbody></table>
+</div>
+<p>The flow is: the app sends <code>VM_CONNECT</code> / <code>VM_CONTROL</code> (each carrying VMU
+protocol packets in the payload), and the radio replies <strong>asynchronously</strong> by
+pushing <code>BT_EVENT_NOTIFICATION</code> events that carry the VMU responses. The
+extended group is routed separately in <code>_handleCommand</code> → <code>_handleExtendedCommand</code>
+precisely because these opcodes fall outside <code>RadioBasicCommand</code>. The full
+firmware-update state machine — image assembly, chunking, and flashing — is a
+story of its own, told in
+<a href="benshi-firmware-update.md">How a Benshi Radio Updates Its Firmware, Step by Step</a>
+and <a href="benshi-firmware-server.md">Where Does the Firmware Come From?</a>.</p>
+<p>Encoding for extended commands reuses <code>buildRawCommand</code> with the 16-bit opcode
+laid down big-endian, then wraps in GAIA serial framing (or sends raw for GATT).</p>
+<hr>
+<h2>Putting it together: connect handshake</h2>
+<p>The command set makes the most sense in the order the app actually uses it. A
+fresh connection runs roughly:</p>
+<pre class="mermaid">sequenceDiagram
+    participant App
+    participant Radio
+    App-&gt;&gt;Radio: GET_DEV_INFO [3]
+    Radio--&gt;&gt;App: RadioDevInfo (channel/region counts, capabilities)
+    App-&gt;&gt;Radio: REGISTER_NOTIFICATION [htStatusChanged, freqModeStatusChanged]
+    App-&gt;&gt;Radio: READ_SETTINGS
+    Radio--&gt;&gt;App: RadioSettings
+    App-&gt;&gt;Radio: READ_BSS_SETTINGS
+    Radio--&gt;&gt;App: RadioBssSettings
+    App-&gt;&gt;Radio: GET_APRS_PATH
+    Radio--&gt;&gt;App: path string
+    App-&gt;&gt;Radio: READ_STATUS [0, batteryLevelAsPercentage]
+    Radio--&gt;&gt;App: battery %
+    App-&gt;&gt;Radio: GET_HT_STATUS
+    Radio--&gt;&gt;App: RadioHtStatus
+    loop each channel 0..N
+        App-&gt;&gt;Radio: READ_RF_CH [i]
+        Radio--&gt;&gt;App: RadioChannelInfo
+    end
+    loop each region 0..M
+        App-&gt;&gt;Radio: READ_REGION_NAME [i]
+        Radio--&gt;&gt;App: region name
+    end
+</pre>
+<p>Channel and region reads are <strong>serialized</strong> through a queue with a
+response-timeout watchdog and a couple of retries, because firing them all at
+once overruns some radios. Everything after that is event-driven: the app reacts
+to notifications and issues writes as the user changes settings.</p>
+<hr>
+<h2>Quick reference: the rules that never change</h2>
+<ul>
+<li><strong>Two framings.</strong> GAIA <code>FF 01 CS LEN …</code> on Bluetooth Classic; raw
+<code>group/cmd/data</code> on BLE. Chosen by transport, invisible above the framing
+layer.</li>
+<li><strong>4-byte header.</strong> <code>[group16, cmd16]</code>, big-endian. Group 2 = basic, group 10 =
+firmware.</li>
+<li><strong>Response bit <code>0x8000</code></strong> distinguishes replies from requests.</li>
+<li><strong>Status byte at offset 4</strong> of every basic reply; real payload at offset 5.</li>
+<li><strong>Big-endian everywhere</strong> — except the BSS user id (little-endian) and the
+fragment control byte (bit flags).</li>
+<li><strong>Frequencies pack modulation</strong> in the top 2 bits; mask with <code>0x3FFFFFFF</code>.</li>
+<li><strong>Notifications are opt-in</strong> via <code>REGISTER_NOTIFICATION</code>, and reset on power
+cycle.</li>
+<li><strong>Bulk data fragments</strong>, one in flight at a time, reassembled by sequential
+fragment id with a final-bit terminator.</li>
+</ul>
+<p>That is the whole language a Benshi radio speaks. Everything HTCommander does —
+tuning channels, sharing GPS, running packet radio, updating firmware — is one of
+these commands, encoded exactly as described above.</p>
+<hr>
+<p><em>Source of truth: <a href="../../src/lib/radio/gaia_protocol.dart">gaia_protocol.dart</a>,
+<a href="../../src/lib/radio/radio_models.dart">radio_models.dart</a>,
+<a href="../../src/lib/radio/tnc_data_fragment.dart">tnc_data_fragment.dart</a>,
+<a href="../../src/lib/radio/utils.dart">utils.dart</a>, and
+<a href="../../src/lib/radio/radio.dart">radio.dart</a>. The browser mirror in
+<a href="../../src/assets/web/radio.js">radio.js</a> implements the same formats for the web
+client.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/radio-command-protocol.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

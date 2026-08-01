@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1.6 Million Hams in Your Pocket: Compacting the FCC Callsign Database — HTCommander</title>
+  <meta name="description" content="How HTCommander turns the FCC's weekly amateur-license dump into a small, self-contained file you can binary-search offline — and the pile of encoding tricks that shrink every record down to the bone." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Data &amp; Storage</span>
+      <h1>1.6 Million Hams in Your Pocket: Compacting the FCC Callsign Database</h1>
+      <p>How HTCommander turns the FCC&#39;s weekly amateur-license dump into a small, self-contained file you can binary-search offline — and the pile of encoding tricks that shrink every record down to the bone.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The problem</h2>
+<p>HTCommander can look up any US amateur callsign <strong>offline</strong> — name, license
+class, status, city/state/ZIP, expiration — with no server, no SQLite, no
+network round-trip. The data comes from the FCC&#39;s Universal Licensing System
+(ULS): a weekly &quot;complete&quot; amateur dump of pipe-delimited <code>.dat</code> files that,
+once joined, describes roughly <strong>1.59 million licenses</strong>.</p>
+<p>That&#39;s a lot of rows to ship to a phone. The naive approaches all disappoint:</p>
+<ul>
+<li><strong>Bundle a SQLite database</strong> — pulls in a dependency, and the file is large.</li>
+<li><strong>Ship JSON/CSV</strong> — enormous, slow to parse, and you&#39;d load it all into RAM.</li>
+<li><strong>Query an online API</strong> — defeats the entire point of <em>offline</em> lookup.</li>
+</ul>
+<p>So HTCommander uses a purpose-built binary format, the <code>.cdb</code> (&quot;Callsign
+DataBase&quot;). The design has exactly two jobs:</p>
+<ol>
+<li><strong>Be small</strong> — both the download and the on-disk file.</li>
+<li><strong>Be searchable in place</strong> — find one callsign out of 1.6 million with a
+handful of reads, without loading the whole thing into memory.</li>
+</ol>
+<p>Everything below follows from those two goals. The reader/writer lives in
+<a href="../../src/lib/callsign/callsign_database.dart"><code>callsign_database.dart</code></a>; the
+offline builder that produces the shipped file is
+<a href="../../src/tools/build_fcc_db.py"><code>build_fcc_db.py</code></a>. The two must agree on every
+byte, and a round-trip test plus a Python→Dart cross-check keep them honest.</p>
+<h2>The shape of a searchable file</h2>
+<p>The core idea is old and reliable: a <strong>sorted index you binary-search</strong>, next to
+a <strong>records section you seek into</strong>.</p>
+<pre><code>┌───────────────┐
+│ Header (64 B) │  magic, counts, section offsets, epoch
+├───────────────┤
+│ Dictionaries  │  state · class/status · city  (shared lookup tables)
+├───────────────┤
+│ Keys block    │  one packed key per record, sorted ascending
+├───────────────┤
+│ Lengths block │  one u16 record length per record
+├───────────────┤
+│ Records block │  the variable-length record bodies, in key order
+└───────────────┘
+</code></pre>
+<p>To look up <code>K7VZT</code>, we:</p>
+<ol>
+<li>Pack the callsign into an integer key (more on that below).</li>
+<li><strong>Binary-search</strong> the keys block — ~21 comparisons for 1.6 M records.</li>
+<li>Use the record&#39;s position to find its byte offset, then read and decode one
+record body.</li>
+</ol>
+<p>Only the keys and a couple of small tables live in memory; the record bodies
+stay on disk (or in the downloaded buffer) and are read one at a time. All
+multi-byte integers are little-endian unless noted.</p>
+<h2>Trick 1: Don&#39;t store what you can reconstruct — the callsign</h2>
+<p>The obvious thing to put in each record is the callsign. But the <strong>index already
+contains it</strong> — that&#39;s what we binary-search on. Storing it again in the body is
+pure duplication.</p>
+<p>US amateur callsigns are uppercase <code>[A-Z0-9]</code>, six characters or fewer. So the
+key <em>is</em> the callsign, and the record body omits it entirely. On read we
+reconstruct the callsign from the key. That&#39;s ~7 bytes/record gone for free.</p>
+<h2>Trick 2: Pack the key into base-37</h2>
+<p>Naively, a key is 8 ASCII bytes (max callsign length, zero-padded). But each
+position only ever holds one of 37 things: nothing (padding), a digit <code>0</code>–<code>9</code>,
+or a letter <code>A</code>–<code>Z</code>. That&#39;s a <strong>base-37 digit</strong>.</p>
+<p>Eight base-37 digits fit in $37^8 \approx 3.5\times10^{12}$, which needs only 42
+bits — so the whole key packs into a <strong>6-byte big-endian integer</strong> instead of 8
+bytes.</p>
+<p>The clever part is preserving sort order. Binary search needs the packed
+integers to sort exactly like the original padded callsigns. We map:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>padding</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>0</code>–<code>9</code></td>
+<td>1–10</td>
+</tr>
+<tr>
+<td><code>A</code>–<code>Z</code></td>
+<td>11–36</td>
+</tr>
+</tbody></table>
+</div>
+<p>and place the <em>real</em> characters in the <strong>high</strong> digits, so shorter callsigns
+(padding in the low digits) sort before longer ones sharing a prefix — the same
+result as comparing zero-padded ASCII, because padding (0) is the smallest code.
+Store the integer <strong>big-endian</strong> and a plain byte compare on the keys block still
+matches integer order. Lookups even get slightly faster: we compare 48-bit ints
+instead of walking 8-byte arrays.</p>
+<pre><code class="language-dart">// &#39;K7VZT&#39; -&gt; value*37 + code, real chars in the high digits, then
+// multiply by 37 for each missing character to push padding low.
+value = value * 37 + code;   // per character
+for (; n &lt; keyChars; n++) value *= 37;   // pad the tail
+</code></pre>
+<h2>Trick 3: An index with no offsets</h2>
+<p>Classic layouts store, per entry, <code>(key, offset)</code> — the key to search and the
+absolute byte offset of the record. That offset is a <code>u32</code>: four bytes × 1.6 M =
+~6 MB of pointers.</p>
+<p>But the records are written in the <strong>same order as the keys</strong>, back to back. So
+we don&#39;t need absolute offsets at all — we store each record&#39;s <strong>length</strong> as a
+<code>u16</code> in a separate &quot;lengths block,&quot; and reconstruct the offsets by prefix-summing
+them once when the file opens. Ten bytes per index entry (<code>6</code> key + <code>2</code> length…
+plus the record itself) instead of twelve, and the length column is far more
+compressible than a column of ever-growing absolute offsets.</p>
+<p>Splitting keys and lengths into <strong>separate contiguous blocks</strong> (rather than
+interleaving them) also helps the compressor: each block is internally
+self-similar.</p>
+<h2>Trick 4: Dates as 16-bit day counts — with the epoch in the header</h2>
+<p>License expiration is a date. Stored as <code>YYYYMMDD</code> it&#39;s a <code>u32</code> (4 bytes). But we
+don&#39;t need absolute precision across all of history — just a few decades around
+now. So we store <strong>days since a base date</strong> in a <code>u16</code> (2 bytes), where <code>0</code> means
+&quot;unknown.&quot;</p>
+<p>The nice touch: the <strong>base date lives in the file header</strong> (<code>epochDate</code>), not
+hard-coded in the reader. A <code>u16</code> day count covers ~179 years, so with a base of
+<code>2000-01-01</code> the window runs to ~2179. If we ever approach that, a future build
+just slides the epoch forward — the reader always honors whatever the header
+says. It works &quot;forever&quot; without a format change.</p>
+<h2>Trick 5–7: Dictionaries for repetitive fields</h2>
+<p>Three fields repeat heavily across 1.6 M records. Instead of writing the value in
+every record, we write each <strong>distinct</strong> value once in a small dictionary and let
+records reference it by a compact index. The dictionaries are built from the data
+itself (sorted for reproducible output) and stored in the file, so the reader
+never assumes a fixed set — any value the FCC emits is handled.</p>
+<ul>
+<li><strong>State</strong> — ~60 distinct 2-letter codes. Dictionary of 2-byte entries; each
+record stores a <strong>1-byte</strong> index. (4 bytes → 1.)</li>
+<li><strong>Class + status</strong> — a handful of single letters each. We pack the <em>pair</em>
+<code>(operatorClass, status)</code> into one 2-byte dictionary entry and reference it
+with a <strong>single 1-byte</strong> index. (2 bytes → 1, and both fields covered by one
+lookup.)</li>
+<li><strong>City</strong> — tens of thousands of distinct names, but wildly repetitive
+(&quot;SPRINGFIELD&quot; appears everywhere). A dictionary of <code>u8 len + UTF-8</code> names,
+referenced by a <strong>24-bit</strong> index (3 bytes, room for ~16 M cities). This turns a
+~10-byte inline string into a 3-byte pointer and deduplicates the rest — the
+single biggest raw win.</li>
+</ul>
+<p><code>name</code> is deliberately <strong>not</strong> dictionary-encoded: person names are mostly
+unique, so a dictionary would buy nothing. It&#39;s the one variable-length field
+kept inline, and it rides on the whole-file compressor instead.</p>
+<h2>Trick 8: ZIP as a number</h2>
+<p>A ZIP code looks like text but is really an integer: <code>06111</code> or a 9-digit
+ZIP+4 like <code>061111234</code>. We pack it into a fixed <strong><code>u32</code></strong> (<code>0xFFFFFFFF</code> = none),
+and reconstruct on read by zero-padding to 5 or 9 digits — the magnitude tells us
+which (a 9-digit ZIP is always ≥ 100000). Leading zeros survive the round-trip.
+FCC amateur ZIPs are numeric (foreign addresses leave the field blank, which maps
+cleanly to the sentinel), so this is lossless in practice, and a fixed-width
+number compresses better than a length-prefixed string.</p>
+<h2>Trick 9: xz instead of zip for the download</h2>
+<p>Everything above shrinks the <em>uncompressed</em> file. The <strong>download</strong> gets one more
+lever: the transport compressor.</p>
+<p>The database is overwhelmingly text (names and city dictionary), which compresses
+well — but DEFLATE (plain <code>.zip</code>) leaves a lot on the table. Switching the
+download to <strong>xz/LZMA</strong> typically buys another 25–40% over DEFLATE on this kind of
+data. The app already depends on the <code>archive</code> package, which ships an
+<code>XZDecoder</code>, so decoding is a one-liner; the builder writes the stream with
+Python&#39;s stdlib <code>lzma</code>. xz embeds no filenames or timestamps, so identical FCC
+input still produces a byte-identical archive.</p>
+<h2>The format, precisely</h2>
+<p>For anyone implementing a reader, here is the whole v2 layout.</p>
+<p><strong>Header (64 bytes):</strong></p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th align="right">Off</th>
+<th>Type</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">0</td>
+<td>u32</td>
+<td>magic <code>0x42444348</code> (&quot;HCDB&quot;)</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td>u16</td>
+<td>formatVersion = 2</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td>u16</td>
+<td>flags (reserved)</td>
+</tr>
+<tr>
+<td align="right">8</td>
+<td>u32</td>
+<td>recordCount</td>
+</tr>
+<tr>
+<td align="right">12</td>
+<td>u32</td>
+<td>keysOffset</td>
+</tr>
+<tr>
+<td align="right">16</td>
+<td>u32</td>
+<td>lengthsOffset</td>
+</tr>
+<tr>
+<td align="right">20</td>
+<td>u32</td>
+<td>recordsOffset</td>
+</tr>
+<tr>
+<td align="right">24</td>
+<td>u32</td>
+<td>sourceDate (<code>YYYYMMDD</code>, FCC data date)</td>
+</tr>
+<tr>
+<td align="right">28</td>
+<td>u32</td>
+<td>epochDate (<code>YYYYMMDD</code>, base for expire day counts)</td>
+</tr>
+<tr>
+<td align="right">32</td>
+<td>u16</td>
+<td>stateCount</td>
+</tr>
+<tr>
+<td align="right">34</td>
+<td>u16</td>
+<td>classStatusCount</td>
+</tr>
+<tr>
+<td align="right">36</td>
+<td>u32</td>
+<td>stateOffset</td>
+</tr>
+<tr>
+<td align="right">40</td>
+<td>u32</td>
+<td>classStatusOffset</td>
+</tr>
+<tr>
+<td align="right">44</td>
+<td>u32</td>
+<td>cityCount</td>
+</tr>
+<tr>
+<td align="right">48</td>
+<td>u32</td>
+<td>cityOffset</td>
+</tr>
+<tr>
+<td align="right">52</td>
+<td>…</td>
+<td>reserved (zero) to byte 64</td>
+</tr>
+</tbody></table>
+</div>
+<p><strong>Sections, in file order:</strong></p>
+<ul>
+<li><strong>State dictionary</strong> — <code>stateCount</code> × 2 bytes (ASCII, zero-padded).</li>
+<li><strong>Class/status dictionary</strong> — <code>classStatusCount</code> × 2 bytes: <code>[classByte, statusByte]</code> (0 = empty).</li>
+<li><strong>City dictionary</strong> — <code>cityCount</code> entries of <code>u8 len + UTF-8</code>.</li>
+<li><strong>Keys block</strong> — <code>recordCount</code> × 6-byte big-endian packed base-37 keys,
+sorted ascending.</li>
+<li><strong>Lengths block</strong> — <code>recordCount</code> × <code>u16</code> record byte-lengths.</li>
+<li><strong>Records block</strong> — the bodies, in key order.</li>
+</ul>
+<p><strong>Record body:</strong></p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>u16 len + UTF-8</td>
+<td>name</td>
+</tr>
+<tr>
+<td>u24</td>
+<td>cityIndex → city dictionary</td>
+</tr>
+<tr>
+<td>u8</td>
+<td>stateIndex → state dictionary</td>
+</tr>
+<tr>
+<td>u8</td>
+<td>csIndex → class/status dictionary</td>
+</tr>
+<tr>
+<td>u32</td>
+<td>zip (packed numeric; <code>0xFFFFFFFF</code> = none)</td>
+</tr>
+<tr>
+<td>u16</td>
+<td>expireDate (days since <code>epochDate</code>; <code>0</code> = unknown)</td>
+</tr>
+</tbody></table>
+</div>
+<p>The callsign is <strong>not</strong> in the body — it&#39;s reconstructed from the key.</p>
+<h2>Where the bytes went</h2>
+<p>Field by field, a typical record shrinks dramatically versus a first-cut
+&quot;just write everything&quot; layout:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th align="right">Before</th>
+<th align="right">After</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>callsign</td>
+<td align="right">~7 B</td>
+<td align="right"><strong>0</strong> (from the key)</td>
+</tr>
+<tr>
+<td>index key</td>
+<td align="right">8 B</td>
+<td align="right"><strong>6 B</strong> (base-37)</td>
+</tr>
+<tr>
+<td>index offset/length</td>
+<td align="right">4 B</td>
+<td align="right"><strong>2 B</strong> (length + prefix sum)</td>
+</tr>
+<tr>
+<td>city</td>
+<td align="right">~10 B</td>
+<td align="right"><strong>3 B</strong> (dictionary)</td>
+</tr>
+<tr>
+<td>state</td>
+<td align="right">4 B</td>
+<td align="right"><strong>1 B</strong> (dictionary)</td>
+</tr>
+<tr>
+<td>class + status</td>
+<td align="right">2 B</td>
+<td align="right"><strong>1 B</strong> (packed pair)</td>
+</tr>
+<tr>
+<td>ZIP</td>
+<td align="right">~7 B</td>
+<td align="right"><strong>4 B</strong> (numeric)</td>
+</tr>
+<tr>
+<td>expire</td>
+<td align="right">4 B</td>
+<td align="right"><strong>2 B</strong> (epoch days)</td>
+</tr>
+<tr>
+<td>name</td>
+<td align="right">~18 B</td>
+<td align="right">~18 B (kept inline)</td>
+</tr>
+</tbody></table>
+</div>
+<p>That&#39;s roughly <strong>half the uncompressed size</strong> of the naive record — before xz,
+which then compresses the text-heavy remainder far better than the old zip. The
+three dictionaries cost only a few hundred kilobytes total, shared across all 1.6
+million records.</p>
+<h2>The numbers, measured</h2>
+<p>Theory is nice; here is the real deployed database. The same weekly FCC dump
+(<strong>1,588,146 licenses</strong>), built the old way and the new way:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Build</th>
+<th>Compressor</th>
+<th align="right">Download size</th>
+<th align="right">Bytes/record</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>v1</td>
+<td>zip / DEFLATE</td>
+<td align="right">41,220,780 B (~39.3 MiB)</td>
+<td align="right">~26.0</td>
+</tr>
+<tr>
+<td><strong>v2</strong></td>
+<td><strong>xz / LZMA</strong></td>
+<td align="right"><strong>22,400,780 B (~21.4 MiB)</strong></td>
+<td align="right"><strong>~14.1</strong></td>
+</tr>
+</tbody></table>
+</div>
+<p>That&#39;s a <strong>45.7% smaller download</strong> — a 1.84× reduction, ~17.9 MiB shaved off —
+for the exact same records. The win is the format compaction (packed keys,
+dictionaries, numeric ZIPs, epoch dates, offset-free index, dropped callsign)
+<em>and</em> the xz-over-zip switch working together. On a phone on cellular data,
+that&#39;s the difference an operator actually feels.</p>
+<h2>How a lookup actually runs</h2>
+<p>Putting it together, <code>lookup(&quot;K7VZT-5&quot;)</code>:</p>
+<ol>
+<li><strong>Pack</strong> the callsign to a base-37 integer, stopping at the <code>-</code> (SSID is
+ignored): <code>K7VZT</code>.</li>
+<li><strong>Binary-search</strong> the in-memory keys block for that integer → record index.</li>
+<li><strong>Offset</strong> = prefix-summed lengths → the record&#39;s byte range.</li>
+<li><strong>Read + decode</strong> one record body: name inline; city/state/class/status via
+their dictionary indices; ZIP unpacked from its <code>u32</code>; expiration expanded
+from <code>epochDate + days</code>.</li>
+<li>The callsign itself is <strong>unpacked from the key</strong>.</li>
+</ol>
+<p>One binary search, one small read, a few array indexes. No parsing of 1.6 million
+rows, no external database engine.</p>
+<h2>Reproducibility and versioning</h2>
+<p>Two properties make this safe to ship on a schedule:</p>
+<ul>
+<li><strong>Byte-identical builds.</strong> Given the same FCC data date, the builder emits an
+identical file every time — dictionaries are sorted, the source date is fixed
+from the FCC <code>Last-Modified</code> header, and xz carries no timestamps. The CI job
+only republishes when the FCC data actually changes.</li>
+<li><strong>A version gate.</strong> The header carries <code>formatVersion</code>, and the app validates a
+freshly downloaded file <em>before</em> installing it. An older app simply refuses a
+newer format rather than misreading it — so the format can keep evolving.</li>
+</ul>
+<h2>What&#39;s next: incremental updates via an overlay database</h2>
+<p>The full download is ~21 MiB, and the CI republishes it whenever the FCC posts a
+new weekly dump. But week to week the FCC changes only a <em>sliver</em> of the 1.6
+million records — new grants, renewals (a fresh expiry or status), the odd
+address change, cancellations. Re-shipping the entire file to move a few tens of
+thousands of records is wasteful on a phone&#39;s cellular data. The next iteration
+adds <strong>incremental updates</strong> — and does it without any of the usual patch-format
+machinery.</p>
+<p><strong>The key idea: the diff is itself a <code>.cdb</code>.</strong> Instead of a bespoke patch format
+that the app has to parse, merge, and re-encode, we ship a second, tiny database
+— an <strong>overlay</strong> — in the <em>exact same format</em> as the baseline. The app then does
+two lookups instead of one: it searches the overlay first, and only falls through
+to the baseline on a miss. A hit in the overlay wins. That&#39;s the entire
+mechanism:</p>
+<pre><code>lookup(&quot;K7VZT&quot;)
+  ├─ binary-search the OVERLAY  (tens of thousands of records)  → hit? done.
+  └─ binary-search the BASELINE (1.6 million records)           → fall-through.
+</code></pre>
+<p>Two binary searches instead of one — about 15 comparisons in the overlay plus
+~21 in the baseline, still microseconds. No decode-merge-re-encode step, no
+multi-hundred-megabyte rebuild on the device, and <strong>zero new format</strong>: the
+overlay reuses the reader, the writer, the xz transport, the round-trip test, and
+the download/validate path already in
+<a href="../../src/lib/callsign/callsign_database.dart"><code>callsign_database.dart</code></a> and
+<a href="../../src/lib/services/callsign_lookup_service.dart"><code>callsign_lookup_service.dart</code></a>.</p>
+<p>A few consequences fall out of this design:</p>
+<ul>
+<li><strong>The overlay is cumulative since the baseline.</strong> Each week it&#39;s rebuilt to
+contain <em>every</em> record that changed since the last full baseline, not just the
+last week&#39;s. So a device only ever needs <strong>two files</strong> — the baseline plus the
+latest overlay — no matter how many weeks it skipped. No patch chains, no
+&quot;apply these six diffs in order,&quot; no fallback gymnastics.</li>
+<li><strong>Updates are free; deletes are ignored.</strong> A renewal, status flip, vanity
+reassignment, or address change is just a newer record that the overlay
+supersedes — always fresh, because the overlay wins. The one thing an overlay
+can&#39;t express is a <em>deletion</em>: a licence fully removed from the FCC set keeps
+showing its stale baseline record. For an offline lookup tool that&#39;s cosmetic,
+and it buys enormous simplicity, so deletes are deliberately not tracked. (A
+tombstone list could close the gap later if it ever matters.)</li>
+<li><strong>The baseline and overlay cadences decouple.</strong> The full baseline is
+republished only <em>occasionally</em>; the small overlay is refreshed weekly and
+grows from nothing up to a few MiB as changes accumulate.</li>
+</ul>
+<p><strong>When does the overlay stop being worth it?</strong> As the weeks pass, the cumulative
+overlay grows. At some point re-downloading a bloated overlay is no better than
+just taking a fresh baseline. So the CI job measures the ratio</p>
+<p>$$r = \frac{\text{size}(\text{overlay.xz})}{\text{size}(\text{baseline.xz})}$$</p>
+<p>after each build. While $r$ stays under a threshold (initially <strong>20%</strong>), it
+publishes only the refreshed overlay and leaves the baseline untouched. Once $r$
+crosses the threshold — or on the very first run, when there&#39;s no baseline yet —
+the job <strong>promotes</strong>: the freshly built full database becomes the new baseline
+and the overlay resets to empty. The diff never grows unbounded; it self-heals
+into a new baseline exactly when carrying it stops paying off.</p>
+<p>The 20% figure isn&#39;t arbitrary. For a weekly updater the long-run average
+download works out to $C(\theta) = \tfrac{\theta B}{2} + \tfrac{g}{\theta}$, where
+$B$ is the baseline size and $g$ the overlay&#39;s weekly growth — the first term is
+overlay bloat, the second is amortizing the occasional full baseline. Minimizing
+gives an optimal threshold $\theta^* = \sqrt{2g/B}$, i.e. roughly $\sqrt{2f}$
+where $f$ is the weekly growth as a fraction of the baseline. With the FCC&#39;s
+~2% weekly churn that lands near 20%, promoting a fresh baseline about every ten
+weeks and cutting a weekly updater&#39;s traffic from ~21 MiB to under 5 MiB. The
+cost curve is flat between ~15% and ~30%, so the exact number is forgiving; it&#39;s
+kept as a workflow input so it can be retuned once real overlay growth is
+measured.</p>
+<p><strong>Generating the overlay stays disk- and memory-thrifty</strong>, in the same spirit as
+the streaming full build. The job downloads the current baseline <code>.cdb.xz</code> from
+the rolling release (~21 MiB), decompresses it, and builds the new full database
+to a temporary file — two ~50 MiB files, trivial on a CI runner. It then walks
+the two <em>sorted</em> key blocks in lockstep — a streaming <strong>merge-join</strong> — decoding
+each side through the same reader and emitting an overlay record wherever a key is
+new or its decoded fields differ. One record from each side at a time, so peak
+memory stays flat regardless of the 1.6-million-record total.</p>
+<p><strong>The manifest grows a nested section, backward-compatibly.</strong> Its top-level
+fields keep describing the <em>baseline</em>, so an older app that never heard of
+overlays simply keeps downloading the full baseline as it does today. A new
+<code>overlay</code> object alongside them describes the small file that newer apps also
+fetch:</p>
+<pre><code class="language-jsonc">{
+  &quot;schemaVersion&quot;: 2,
+  &quot;sourceDate&quot;: 20260712, &quot;url&quot;: &quot;.../fcc_amateur.cdb.xz&quot;, &quot;recordCount&quot;: 1588146,
+  &quot;md5&quot;: &quot;…&quot;, &quot;sizeBytes&quot;: 22400780,               // ← the baseline (legacy fields)
+  &quot;overlay&quot;: {
+    &quot;sourceDate&quot;: 20260719, &quot;url&quot;: &quot;.../fcc_amateur_overlay.cdb.xz&quot;,
+    &quot;recordCount&quot;: 20345, &quot;md5&quot;: &quot;…&quot;, &quot;sizeBytes&quot;: 512345
+  }
+}
+</code></pre>
+<p>On the device, the update logic reads simply: if the baseline&#39;s <code>sourceDate</code>
+changed (a promotion), pull the new baseline <em>and</em> a fresh overlay; otherwise, if
+only the overlay&#39;s <code>sourceDate</code> moved, pull just the overlay. A weekly update
+becomes a sub-megabyte download instead of 21 MiB — the same win the xz switch
+delivered, again, for operators who update often.</p>
+<h2>The honest ledger</h2>
+<p>A few deliberate trade-offs worth naming:</p>
+<ul>
+<li>The callsign, ZIP, and dictionary tricks assume <strong>US amateur data shape</strong>
+(alphanumeric callsigns ≤ 8 chars, numeric ZIPs, small state/class/status
+alphabets). Values outside those assumptions degrade gracefully — a non-numeric
+ZIP becomes &quot;none,&quot; an unmapped index reads as empty — but this format is not a
+general-purpose ULS mirror. The same format <em>does</em> stretch to other countries
+with a few targeted encoding changes — see
+<a href="ised-callsign-compaction.md"><em>Compacting the Canadian Callsign Database</em></a>,
+which reuses this exact <code>.cdb</code> behind a single header flag to handle
+alphanumeric postal codes, qualification bitmasks, and non-expiring licences.</li>
+<li>We keep <strong>all</strong> licenses, including expired and cancelled ones. Filtering to
+active-only would be the single largest size cut available, but it&#39;s a product
+decision, not an encoding one — so it stays opt-in for now.</li>
+<li><code>name</code> is left uncompressed inline. A name dictionary was measured and
+discarded: near-zero payoff for real added complexity.</li>
+</ul>
+<p>The result is a file that a phone can download quickly, store compactly, and
+search instantly — 1.6 million hams, offline, in your pocket.</p>
+<hr>
+<p><strong>Related:</strong> <a href="ised-callsign-compaction.md">Compacting the Canadian Callsign Database</a> ·
+<a href="../../src/lib/callsign/callsign_database.dart">callsign database reader/writer</a> ·
+<a href="../../src/tools/build_fcc_db.py">offline builder</a></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/fcc-callsign-compaction.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -7,7 +7,7 @@
   <meta name="description" content="How HTCommander turns a Benshi handheld into a first-class Home Assistant device — battery, GPS, volume, squelch, scan, channels, and incoming APRS messages — using nothing but an MQTT broker and Home Assistant's own auto-discovery. And how to set it up in a couple of minutes." />
   <meta name="theme-color" content="#07090d" />
   <link rel="icon" href="../favicon.ico" />
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>
   <header class="nav" id="nav">
@@ -26,7 +26,7 @@
       </nav>
       <div class="nav__cta">
         <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
-        <a class="btn btn--primary btn--sm" href="../get-started.html#downloads">Download</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html">Download</a>
         <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
@@ -191,7 +191,7 @@ radios after a reboot of either side.</p>
 <h3>State: from the radio to the dashboard</h3>
 <p>Internally, HTCommander is built around a small pub/sub event bus called the
 <strong>DataBroker</strong>. Every part of the app — the radio driver, the UI, the web
-server — talks through it instead of calling each other
+server, the AGWPE server — talks through it instead of calling each other
 directly. When the radio reports a new battery level, GPS fix, volume, or
 channel, that update is dispatched on the DataBroker as a named event.</p>
 <p>The Home Assistant bridge is just another DataBroker subscriber. It listens for
@@ -242,7 +242,7 @@ client is wired behind a small platform facade — the real socket-backed
 implementation on desktop, an inert stub elsewhere — and the bridge itself is
 only ever started on Windows, Linux, and macOS. The mobile builds compile
 cleanly and simply never carry the feature. It&#39;s the same pattern HTCommander
-already uses for its desktop-only Web server.</p>
+already uses for its desktop-only Web and AGWPE servers.</p>
 <hr>
 <h2>Setting it up</h2>
 <h3>1. Have an MQTT broker</h3>
@@ -371,7 +371,7 @@ model.</em></p>
     </div>
   </footer>
 
-  <script src="../assets/js/main.js?v=20260719"></script>
+  <script src="../assets/js/main.js"></script>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });

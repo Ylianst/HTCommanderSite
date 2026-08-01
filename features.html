@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Features — HTCommander</title>
-  <meta name="description" content="Every HTCommander feature explained: channel programming, APRS messaging & maps, Winlink email, packet terminal & BBS, torrent file transfer, a high-performance software modem, packet capture, SSTV, GPS & ADS-B airplane tracking, FM broadcast, Bluetooth audio, offline speech-to-text, multi-language and light/dark themes." />
+  <meta name="description" content="Every HTCommander feature explained: channel programming, APRS messaging & maps, Winlink email, packet terminal & BBS, torrent file transfer, a high-performance software modem, packet capture, SSTV, GPS, satellite tracking & ADS-B airplane tracking, FM broadcast, Bluetooth audio, offline speech-to-text, multi-language and light/dark themes." />
   <meta name="theme-color" content="#07090d" />
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css?v=20260719" />
@@ -268,7 +268,7 @@
   <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
       <h2 class="group-title">Location &amp; listening</h2>
-      <p class="group-sub">GPS · ADS-B · FM broadcast</p>
+      <p class="group-sub">GPS · satellites · ADS-B · FM broadcast</p>
 
       <div class="feature-row">
         <div>
@@ -282,7 +282,13 @@
 
       <div class="feature-row">
         <div>
-          <span class="badge">ADS-B</span>
+          <span class="badge">Satellite</span>
+          <h3>Satellite tracking</h3>
+          <p>Work amateur radio satellites with confidence. HTCommander lists every satellite overhead and coming up, predicts each pass with acquisition time, maximum elevation and antenna azimuth, and shows live azimuth, elevation and range so you know exactly where to aim. Uplink and downlink frequencies are Doppler-corrected in real time as the satellite moves across the sky.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View on GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="assets/features/SatelliteTracking.png" alt="Satellite tracking with pass predictions in HTCommander" loading="lazy" /></div>
+      </div>
           <h3>Live airplane tracking</h3>
           <p>Feed ADS-B data from a dump1090 receiver and watch aircraft move across the same map as your APRS stations — a fun, informative overlay that turns your station into a live sky view.</p>
           <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Map.md" target="_blank" rel="noopener">Read the docs →</a>

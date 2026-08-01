@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radio and Internet, Two Ways: Planning APRS-IS for HTCommander — HTCommander</title>
+  <meta name="description" content="A design note — written before we cut the first line of code — on how HTCommander will join **APRS-IS**, the global internet backbone that carries APRS traffic between millions of stations. This post lays out what APRS-IS is, how a client logs in and moves packets, what a full **IGate** actually has to do, how it maps onto HTCommander's existing plumbing, and the one piece of glue we have to build from scratch: turning the internet's plain-text packets into the same AX.25 frames the app already understands." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Internet Linking</span>
+      <h1>Radio and Internet, Two Ways: Planning APRS-IS for HTCommander</h1>
+      <p>A design note — written before we cut the first line of code — on how HTCommander will join <strong>APRS-IS</strong>, the global internet backbone that carries APRS traffic between millions of stations. This post lays out what APRS-IS is, how a client logs in and moves packets, what a full <strong>IGate</strong> actually has to do, how it maps onto HTCommander&#39;s existing plumbing, and the one piece of glue we have to build from scratch: turning the internet&#39;s plain-text packets into the same AX.25 frames the app already understands.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>What APRS-IS is, and why put it in a radio app</h2>
+<p><a href="https://www.aprs-is.net/" target="_blank" rel="noopener">APRS-IS</a> (the APRS <strong>I</strong>nternet <strong>S</strong>ervice) is the
+worldwide network of servers that ties the APRS world together over IP. Every
+position beacon, weather report, telemetry frame, and text message that a
+gateway hears on the air can be injected into APRS-IS, and from there it fans out
+to every other connected client on the planet — the map on
+<a href="https://aprs.fi" target="_blank" rel="noopener">aprs.fi</a>, the app on someone&#39;s phone, a home weather dashboard,
+or another gateway a thousand kilometres away. It is, in effect, the internet
+side of APRS: a firehose of amateur telemetry you can both <strong>drink from</strong> and
+<strong>pour into</strong>.</p>
+<p>HTCommander already speaks APRS fluently on the RF side. It parses incoming
+packets into structured positions, symbols, messages, telemetry, and weather;
+it builds and sends messages with authentication; it knows callsigns, SSIDs, and
+paths. What it <em>doesn&#39;t</em> do yet is reach the internet half of that world. Adding
+APRS-IS turns the app from a station that only hears what&#39;s on 2 m into one that
+can see the whole network — and, as a gateway, contribute what its radio hears
+back to it.</p>
+<p>Crucially, we already did the hardest research for free. APRS-IS logins require a
+<strong>passcode</strong> computed from your callsign, and the algorithm that generates it is
+deliberately <em>not</em> published on the APRS-IS site — you&#39;re supposed to email the
+author for it. HTCommander already carries a working port of that algorithm
+(<code>AprsUtil.aprsValidationCode</code>), left over from earlier APRS work. That removes
+the one gatekept dependency that usually trips up new APRS-IS clients.</p>
+<hr>
+<h2>The shape of it: another pseudo-radio</h2>
+<p>We&#39;re following a pattern the app already uses. When we added
+<a href="echolink-support.md">EchoLink</a>, we didn&#39;t bolt it onto the physical radio stack —
+we registered it as a <strong>pseudo-radio</strong> with its own numeric device ID (200) that
+publishes state onto the app&#39;s internal event bus (the &quot;Data Broker&quot;) without
+touching Bluetooth or the transmit-lock arbitration. APRS-IS gets the same
+treatment: a self-contained internet service on its <strong>own device ID (201)</strong>,
+wired into the app through the Data Broker, with a clean web stub so browser
+builds compile even though raw TCP sockets don&#39;t exist there.</p>
+<pre class="mermaid">flowchart LR
+  subgraph App[&quot;HTCommander&quot;]
+    UI[&quot;APRS tab / status&quot;]
+    Broker[&quot;Data Broker\n(event bus)&quot;]
+    Aprs[&quot;AprsHandler\n(device 1)&quot;]
+    Mgr[&quot;AprsIsManager\n(device 201)&quot;]
+    Client[&quot;AprsIsClient\n(pure logic)&quot;]
+    Codec[&quot;TNC2 &lt;-&gt; AX.25\ncodec&quot;]
+  end
+  Radio[&quot;Benshi radio\n(RF, device 1)&quot;]
+  Net[&quot;dart:io TCP\n(TCP_NODELAY)&quot;]
+  Server[&quot;APRS-IS server\nrotate.aprs2.net:14580&quot;]
+
+  Radio &lt;--&gt; Broker
+  UI &lt;--&gt; Broker &lt;--&gt; Aprs
+  Broker &lt;--&gt; Mgr &lt;--&gt; Client &lt;--&gt; Codec
+  Mgr &lt;--&gt; Net &lt;--&gt; Server
+</pre>
+<p>The layering mirrors EchoLink almost one-for-one:</p>
+<ul>
+<li><strong><code>AprsIsClient</code></strong> — pure, testable logic with no <code>dart:io</code> in sight: the login
+handshake, line framing, and the gating rules that decide what crosses between
+RF and the internet.</li>
+<li><strong><code>AprsIsNetworkIo</code></strong> — the thin <code>dart:io</code> layer: open the TCP socket, turn off
+Nagle&#39;s algorithm (more on that below), stream lines in and out, and reconnect
+with backoff when the link drops.</li>
+<li><strong><code>AprsIsManager</code></strong> — the bridge to the app: read settings, subscribe to RF
+packets to gate them upward, inject internet packets so they appear in the APRS
+tab, and ask the radio to transmit the messages we gate downward.</li>
+<li><strong><code>tnc2_codec</code></strong> — the one genuinely new piece: translating between the
+internet&#39;s text format and the app&#39;s binary frames.</li>
+</ul>
+<hr>
+<h2>Logging in: a single line of text</h2>
+<p>Connecting to APRS-IS is refreshingly old-school. You open a TCP socket to a
+server — the community-recommended round-robin pool is <code>rotate.aprs2.net</code>, and
+port <strong>14580</strong> is the user-defined <em>filter</em> port — and send a single login line:</p>
+<pre><code>user N0CALL-10 pass 12345 vers HTCommander 0.1.21 filter r/47.6/-122.3/50
+</code></pre>
+<p>That&#39;s the whole authentication handshake. The pieces:</p>
+<ul>
+<li><strong><code>user N0CALL-10</code></strong> — your callsign and SSID.</li>
+<li><strong><code>pass 12345</code></strong> — the passcode from <code>aprsValidationCode()</code>. The special value
+<strong><code>-1</code></strong> means <em>receive-only</em>: you can listen but never transmit. That&#39;s the
+perfect first-run mode for testing.</li>
+<li><strong><code>vers HTCommander 0.1.21</code></strong> — software name and version, so sysops can see
+what&#39;s connecting.</li>
+<li><strong><code>filter …</code></strong> — an optional server-side filter (here, everything within 50 km
+of a point). Since we chose a <strong>user-configurable filter string</strong>, this is
+whatever the operator types in settings.</li>
+</ul>
+<p>The server answers with lines that start with <code>#</code> — a banner, a login
+acknowledgement, and periodic keep-alives. Our line parser treats every
+<code>#</code>-prefixed line as a comment and ignores it. Everything else is a <strong>packet</strong> in
+TNC2 format, terminated by CR/LF, never longer than 512 bytes. One socket
+convention matters for a two-way client: <strong>turn off Nagle&#39;s algorithm</strong>
+(<code>TCP_NODELAY</code>), or the small message packets we send can get buffered and
+delayed by seconds.</p>
+<hr>
+<h2>The one thing we have to build: TNC2 ⟷ AX.25</h2>
+<p>Here&#39;s the impedance mismatch at the heart of the project. APRS-IS speaks
+<strong>TNC2</strong>, a flat text line that looks like this:</p>
+<pre><code>N0CALL-9&gt;APRS,WIDE1-1,WIDE2-1:!4737.14N/12220.09W&gt;Testing
+</code></pre>
+<p>That reads as <em>source</em> <code>&gt;</code> <em>destination</em> <code>,</code> <em>digipeater path</em> <code>:</code> <em>information
+field</em>. HTCommander, on the other hand, works internally in <strong><code>AX25Packet</code></strong>
+objects — the same structured frames it decodes off the air. Everything
+downstream (the parser, the APRS tab, the packet store) expects that object, not
+a string.</p>
+<p>So the bridge is small but load-bearing. We confirmed the app stores addresses in
+AX.25 wire order — <code>addresses[0]</code> is the destination, <code>addresses[1]</code> is the
+source, and the rest are digipeaters — which lines up exactly with how TNC2
+writes <code>SRC&gt;DEST,digis</code>. The codec becomes almost mechanical:</p>
+<ul>
+<li><strong>Inbound</strong> (internet → app): split the line on <code>&gt;</code>, <code>,</code>, and <code>:</code>; parse each
+hop with <code>AX25Address.parse</code>; build <code>AX25Packet.ui([DEST, SRC, …digis], info)</code>;
+and hand it to the existing <code>AprsPacket.parse</code> — which now needs <em>zero</em> changes.</li>
+<li><strong>Outbound</strong> (app → internet): reverse it —
+<code>addresses[1] &gt; addresses[0] , digis : dataStr</code>.</li>
+</ul>
+<pre class="mermaid">flowchart TB
+  Line[&quot;TNC2 text line\nSRC&gt;DEST,path:info&quot;]
+  Addr[&quot;AX25Address.parse\n(each hop)&quot;]
+  Pkt[&quot;AX25Packet.ui\n[DEST, SRC, ...digis]&quot;]
+  Parse[&quot;AprsPacket.parse\n(unchanged)&quot;]
+  Tab[&quot;APRS tab / map / store&quot;]
+
+  Line --&gt; Addr --&gt; Pkt --&gt; Parse --&gt; Tab
+</pre>
+<p>Because the codec funnels internet packets into the <em>same</em> <code>AprsPacket</code> pipeline
+the radio already feeds, an internet position beacon and an over-the-air one land
+in the app looking identical — which is exactly what we want.</p>
+<hr>
+<h2>Being a good IGate: the rules of the gate</h2>
+<p>We opted for a <strong>full IGate</strong> — a bidirectional gateway — rather than a
+listen-only client. An IGate has two jobs, and the second one is where the etiquette
+lives.</p>
+<p><strong>RF → Internet (gating up).</strong> When the radio hears a valid packet, we forward it
+to APRS-IS. But not blindly — the community rules are specific:</p>
+<ul>
+<li>Only gate genuine UI frames (AX.25 control <code>0x03</code>, PID <code>0xF0</code>) that <em>didn&#39;t</em>
+originate on the internet in the first place, and that aren&#39;t generic queries
+(which could trigger a flood of responses).</li>
+<li><strong>Skip anything with <code>TCPIP</code>, <code>TCPXX</code>, <code>NOGATE</code>, or <code>RFONLY</code> in its path</strong> —
+those markers mean &quot;don&#39;t send me back to the internet,&quot; and honouring them is
+what prevents packets looping forever between RF and IP.</li>
+<li>Third-party packets (data type <code>}</code>) get special handling: if the third-party
+header already contains <code>TCPIP</code>/<code>TCPXX</code>, they came <em>from</em> the internet and must
+not go back; otherwise we strip the RF header and gate the inner packet.</li>
+<li>The one edit we&#39;re allowed to make is appending <strong><code>,qAR,MYCALL</code></strong> to the path.
+The <code>qAR</code> &quot;q-construct&quot; tells every downstream server <em>&quot;this entered APRS-IS
+from RF via this gateway.&quot;</em> The data portion is never touched.</li>
+</ul>
+<p><strong>Internet → RF (gating down).</strong> This is where a careless gateway floods the local
+frequency and makes enemies. The rule is restraint: only <strong>message</strong> packets, and
+only when they&#39;re addressed to a station we&#39;ve <em>actually heard on RF recently</em>
+(the convention is within the last hour). To do that we keep a small
+<strong>heard-list</strong> — callsign plus timestamp — updated every time the radio decodes a
+packet. When a message for one of those stations arrives from the internet, we
+gate it down and also forward that station&#39;s <em>next</em> position report so the
+recipient has context. Generic queries never get gated to RF, and we keep the
+transmit path to the minimum hops needed.</p>
+<pre class="mermaid">flowchart LR
+  subgraph RF
+    R[&quot;Benshi radio&quot;]
+  end
+  subgraph Gate[&quot;AprsIsManager (IGate)&quot;]
+    Up[&quot;Gate up?\n(not looped, not query,\nno NOGATE)&quot;]
+    Heard[&quot;Heard-list\n(callsign + time)&quot;]
+    Down[&quot;Gate down?\n(message to a\nlocally-heard station)&quot;]
+  end
+  subgraph IS[&quot;APRS-IS&quot;]
+    S[&quot;Server&quot;]
+  end
+
+  R --&gt;|decoded packet| Up
+  R --&gt;|update| Heard
+  Up --&gt;|append qAR,MYCALL| S
+  S --&gt;|message| Down
+  Heard --&gt; Down
+  Down --&gt;|transmit| R
+</pre>
+<p>Being a full IGate means we need a <strong>verified</strong> login (a real passcode, not
+<code>-1</code>), because only verified connections may inject packets. We&#39;ll ship
+receive-only as the safe default and let the operator opt into gating once
+they&#39;ve entered a valid callsign and confirmed their coverage.</p>
+<hr>
+<h2>Where it plugs into the app</h2>
+<p>Almost everything we need already exists:</p>
+<ul>
+<li><strong>Settings</strong> live on the Data Broker&#39;s device-0 store (persisted via
+<code>SharedPreferences</code>), surfaced in the <strong>Servers</strong> tab of the settings dialog —
+right where EchoLink, Home Assistant, and AGWPE already sit. We&#39;ll add: enabled
+flag, server, port, filter string, a gate-to-RF toggle, and a read-only
+passcode field derived automatically from the callsign.</li>
+<li><strong>The APRS tab</strong> needs no rework: injected internet packets ride the same
+<code>UniqueDataFrame</code> events the <code>AprsHandler</code> already consumes, so they show up in
+the message list and on the map with no new UI code. (An open question we&#39;ll
+settle during implementation: whether to visually distinguish internet-sourced
+packets from RF ones, or let them blend in.)</li>
+<li><strong>Registration</strong> in <code>main.dart</code> uses the same conditional-import trick as
+EchoLink — the real <code>dart:io</code> manager on desktop and mobile, a no-op stub on
+web — so the browser build keeps compiling.</li>
+</ul>
+<hr>
+<h2>What we&#39;ll test, and in what order</h2>
+<p>The plan has a deliberately gentle on-ramp:</p>
+<ol>
+<li><strong>Receive-only first.</strong> Connect to <code>rotate.aprs2.net:14580</code> with passcode
+<code>-1</code>, apply a local filter, and confirm internet packets appear in the APRS
+tab. This exercises the socket, the login, the line framing, and the TNC2
+codec end-to-end without transmitting a single byte.</li>
+<li><strong>Send a message.</strong> With a verified login, send a text message and watch it
+appear on <a href="https://aprs.fi" target="_blank" rel="noopener">aprs.fi</a>. Now the outbound codec and the verified
+connection are proven.</li>
+<li><strong>Gate up.</strong> Confirm a packet the radio hears shows up on aprs.fi tagged
+<code>qAR,MYCALL</code>.</li>
+<li><strong>Gate down.</strong> Confirm a message from the internet, addressed to a station the
+radio just heard, gets transmitted on RF.</li>
+</ol>
+<p>Unit tests cover the parts that don&#39;t need a radio at all: TNC2 round-tripping and
+the login/gating decision logic in <code>AprsIsClient</code>, mirroring the existing EchoLink
+tests.</p>
+<hr>
+<h2>What we already know, and what&#39;s left to decide</h2>
+<p>The encouraging finding from this investigation is that <strong>we don&#39;t need any more
+documentation to start.</strong> The protocol, the filter syntax, the IGate etiquette,
+and the q-construct semantics are all published on
+<a href="https://www.aprs-is.net/" target="_blank" rel="noopener">aprs-is.net</a>, and the one normally-gatekept piece — the
+passcode algorithm — is already in the codebase. The architecture is a known
+quantity too, because EchoLink blazed the pseudo-radio trail we&#39;re following.</p>
+<p>A few choices remain open, and they&#39;re the kind we&#39;ll firm up as the code takes
+shape rather than up front: the exact default server, how strict the
+&quot;recently heard&quot; window should be for down-gating, and whether internet packets
+deserve their own visual treatment in the APRS tab. None of them block the first
+receive-only milestone — which is exactly where we&#39;ll begin.</p>
+<p><em>Next post: the implementation itself, with the parts of the plan that survived
+contact with a live server — and the parts that didn&#39;t.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/aprs-is-integration.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

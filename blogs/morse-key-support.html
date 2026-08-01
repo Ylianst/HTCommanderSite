@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keying by Hand: Morse Key Support in HTCommander — HTCommander</title>
+  <meta name="description" content="How HTCommander lets a skilled CW operator plug in a USB morse key — straight or paddle — and send real, hand-timed Morse over an ordinary FM handheld. This post covers why FM Morse is a different animal from classic CW, how we key an FM carrier that has no notion of &quot;key down,&quot; how a USB key shows up as a keyboard and which keys we bind, the iambic keyer and sidetone, the start/stop logic that keeps FM transmit from stuttering between your dits, and how we decode your own sending back into a chat bubble." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Voice &amp; CW</span>
+      <h1>Keying by Hand: Morse Key Support in HTCommander</h1>
+      <p>How HTCommander lets a skilled CW operator plug in a USB morse key — straight or paddle — and send real, hand-timed Morse over an ordinary FM handheld. This post covers why FM Morse is a different animal from classic CW, how we key an FM carrier that has no notion of &quot;key down,&quot; how a USB key shows up as a keyboard and which keys we bind, the iambic keyer and sidetone, the start/stop logic that keeps FM transmit from stuttering between your dits, and how we decode your own sending back into a chat bubble.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>Why this is not normal CW</h2>
+<p>On a traditional CW rig, &quot;sending Morse&quot; is almost literally what it sounds like:
+your key shorts a line, the transmitter emits an unmodulated carrier at your
+operating frequency, and when you lift the key the carrier stops. The dits and
+dahs <em>are</em> the RF. The receiving operator&#39;s radio beats that carrier against a
+local oscillator (the BFO) to produce the familiar tone in the headphones. It&#39;s
+an on/off-keyed continuous wave — hence <strong>CW</strong>. There is no audio involved on the
+transmit side at all; the shape of your fist is the shape of the emission.</p>
+<p>A Benshi handheld (and the whole class of radios HTCommander talks to) does none
+of that. It is an <strong>FM voice</strong> radio. It has no CW mode, no BFO, no key jack, and
+no way to emit a bare carrier that switches on and off. What it <em>can</em> do is
+transmit audio: you push it a stream of PCM over the Bluetooth SBC link and it
+FM-modulates that audio onto the carrier.</p>
+<p>So to send Morse through it, we don&#39;t key the carrier — we <strong>key a tone inside
+the audio</strong>. HTCommander generates a 700 Hz sine wave, switches that tone on and
+off in the Morse pattern, and transmits it as ordinary FM voice audio. On the
+receiving end, anyone listening on an FM radio simply <em>hears</em> the beeping tone
+directly out of their speaker — no BFO, no CW filter, no zero-beating. It sounds
+exactly like whistling Morse into the microphone, except the &quot;whistle&quot; is a clean
+computer-generated tone with textbook timing.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Classic CW</th>
+<th>FM Morse in HTCommander</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>What is emitted</td>
+<td>On/off-keyed RF carrier</td>
+<td>Constant FM carrier + on/off-keyed <strong>audio tone</strong></td>
+</tr>
+<tr>
+<td>Receiver needs</td>
+<td>BFO / CW mode to hear a tone</td>
+<td>Nothing — plain FM, tone is audible</td>
+</tr>
+<tr>
+<td>&quot;Key down&quot; means</td>
+<td>Carrier on</td>
+<td>Transmitter keyed <strong>and</strong> tone present in audio</td>
+</tr>
+<tr>
+<td>Bandwidth</td>
+<td>Very narrow (CW)</td>
+<td>Full FM voice channel (~12.5–25 kHz)</td>
+</tr>
+<tr>
+<td>Your fist controls</td>
+<td>The RF directly</td>
+<td>An audio gate feeding the modulator</td>
+</tr>
+</tbody></table>
+</div>
+<p>This is closer to <strong>MCW</strong> (Modulated CW) than to true CW, and it&#39;s the honest way
+to do it on a voice-only radio.</p>
+<hr>
+<h2>The hard part: FM has no &quot;key up&quot;</h2>
+<p>The interesting engineering problem isn&#39;t the tone — it&#39;s <em>when to transmit</em>.</p>
+<p>On a CW rig the transmitter follows the key instantly and effortlessly, thousands
+of times a minute, because keying the carrier is a near-instant hardware event.
+An FM handheld is the opposite. Getting it to transmit means keying up the whole
+FM transmitter: PLL lock, TX/RX switch, and — over Bluetooth — spinning up the
+SBC audio stream and pushing it across the link with buffering. That is <em>far</em> too
+slow and too abusive to do once per dit. If we tried to key the FM transmitter on
+every &quot;key down&quot; and unkey it on every &quot;key up,&quot; we&#39;d machine-gun the PTT dozens
+of times a second, mangle the timing, and hammer the radio.</p>
+<p>So HTCommander decouples the two ideas:</p>
+<ul>
+<li><strong>Your key</strong> controls the <em>tone gate</em> — whether the 700 Hz tone is currently
+sounding inside the audio stream.</li>
+<li>A separate state machine controls the <em>FM transmitter</em> — whether the radio is
+keyed up at all.</li>
+</ul>
+<p>The rule is: <strong>key up the FM transmitter once at the start of a &quot;transmission,&quot;
+keep it keyed through the whole exchange (sending silence between elements), and
+only drop it after you stop keying for a configurable idle time.</strong> Between your
+dits and dahs the carrier stays up and we simply transmit the gaps as silence —
+just as if you were whistling Morse continuously into the mic.</p>
+<pre class="mermaid">flowchart LR
+  Key[&quot;USB key\n(key down / up)&quot;] --&gt; Gate[&quot;Tone gate\n700 Hz on/off&quot;]
+  Gate --&gt; Pump[&quot;Sample pump\n~20 ms PCM chunks&quot;]
+  Pump --&gt; Local[&quot;PcmPlayer\n(low-latency sidetone)&quot;]
+  Pump --&gt; SM[&quot;TX state machine\nstart-detect + tail timer&quot;]
+  SM --&gt;|keyed| Radio[&quot;FM transmitter\nTransmitVoicePCM (hold)&quot;]
+</pre>
+<h3>Starting a transmission</h3>
+<p>Because keying the FM transmitter is expensive, we don&#39;t do it the instant you
+brush the key. Instead there&#39;s a deliberate <strong>start gesture</strong> that arms the
+transmitter:</p>
+<ul>
+<li><strong>Straight key:</strong> <em>two quick taps.</em> A distinct little &quot;rat-tat&quot; that you&#39;d
+never do by accident. The transmitter keys up the moment the <strong>second tap is
+released</strong> — so you finish the gesture on an up-stroke, with the key open,
+ready to send.</li>
+<li><strong>Paddle:</strong> <em>press both paddles, then release them together.</em> Squeeze both
+levers and let go at the same time (within ~150 ms). Nothing sounds and the
+keyer does no processing while you&#39;re holding them — the transmission starts
+cleanly on the release, so the squeeze never leaks a stray dit or dah.</li>
+</ul>
+<p>The moment the start gesture completes, the transmitter keys up and the sample
+pump begins streaming audio. From then on your keying produces tone, and the gaps
+produce silence — all inside one continuous FM transmission. The gesture itself is
+<em>swallowed</em>: it never goes out as tone, so your first real element is the first
+thing on the air.</p>
+<h3>Stopping a transmission</h3>
+<p>We can&#39;t watch for a &quot;key up&quot; to end things, because in Morse the key is up most
+of the time. Instead there&#39;s a <strong>tail timeout</strong>: if you don&#39;t key anything for a
+configurable number of milliseconds (your inter-word gap plus a margin), the state
+machine decides you&#39;re done, finishes the audio, and drops the FM transmitter.
+Set it too short and it&#39;ll unkey between words; set it too long and it&#39;ll hang on
+after your last dah. It&#39;s exposed in settings so you can tune it to your fist.</p>
+<hr>
+<h2>USB keys look like keyboards</h2>
+<p>Modern USB morse-key adapters (and many home-brew ones) don&#39;t present as a serial
+device or a sound-card interface — they enumerate as a <strong>USB HID keyboard</strong>. When
+you press the key, the adapter &quot;types&quot; a key down; when you release it, it sends
+the matching key up. That&#39;s wonderfully convenient: HTCommander doesn&#39;t need a
+driver, a COM port, or platform-specific USB code. It just listens for key
+events while the Morse Key panel has focus, exactly the same way the PTT mode
+already watches the space bar.</p>
+<p>The common adapters map to one of two key groups, so those are what we bind:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Physical input</th>
+<th>Bound keys</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Contact / lever A</td>
+<td><strong><code>[</code></strong> (left bracket) <strong>or</strong> <strong>Left Ctrl</strong></td>
+</tr>
+<tr>
+<td>Contact / lever B</td>
+<td><strong><code>]</code></strong> (right bracket) <strong>or</strong> <strong>Right Ctrl</strong></td>
+</tr>
+</tbody></table>
+</div>
+<h3>Key bindings by key type</h3>
+<ul>
+<li><p><strong>Straight key</strong> — a single contact. Maps to <strong>one</strong> key of your choice: <code>[</code>,
+<code>]</code>, Left Ctrl, or Right Ctrl. Key down = tone on, key up = tone off. You
+supply all the timing with your hand; HTCommander just gates the tone.</p>
+</li>
+<li><p><strong>Paddle key</strong> — two levers (dit and dah). Rather than assign two keys
+separately, you pick the <strong>pair</strong> the adapter uses — <strong><code>[</code> and <code>]</code></strong> or <strong>Left
+and Right Ctrl</strong> — and, by convention, the left key is dits and the right key
+is dahs. A <strong>Reverse paddles</strong> checkbox swaps that for a left-handed layout.
+The app turns lever presses into properly-timed dits and dahs for you.</p>
+</li>
+</ul>
+<p>Because these are just key events, you can also test the whole feature with your
+computer keyboard before any hardware arrives — press <code>[</code> and <code>]</code> and it behaves
+exactly like a key plugged in.</p>
+<hr>
+<h2>The paddle keyer</h2>
+<p>A straight key is a pass-through: the tone follows your hand. A paddle is more
+interesting, because a paddle doesn&#39;t send finished elements — it sends
+<em>intentions</em>. Hold the dit lever and you want a stream of dits; hold the dah lever
+and you want dahs. Turning those into correctly-timed Morse is the job of a
+<strong>keyer</strong>, and HTCommander implements an <strong>iambic (Mode B)</strong> keyer:</p>
+<ul>
+<li>Holding one lever repeats that element (dit or dah) with correct <strong>1-unit</strong>
+spacing between elements.</li>
+<li>Squeezing <strong>both</strong> levers alternates dit-dah-dit-dah… for as long as you hold.</li>
+<li>Mode B adds the extra element after you release a squeeze, the behaviour most
+experienced iambic ops expect.</li>
+</ul>
+<p>All element timing derives from a single speed setting in <strong>words per minute
+(WPM)</strong>, using the ITU standard where one &quot;unit&quot; (a dit) is <code>1.2 / WPM</code> seconds:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Length</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dit</td>
+<td>1 unit</td>
+</tr>
+<tr>
+<td>Dah</td>
+<td>3 units</td>
+</tr>
+<tr>
+<td>Gap between elements</td>
+<td>1 unit</td>
+</tr>
+<tr>
+<td>Gap between letters</td>
+<td>3 units</td>
+</tr>
+<tr>
+<td>Gap between words</td>
+<td>7 units</td>
+</tr>
+</tbody></table>
+</div>
+<p>WPM only applies to paddle keys — a straight key is timed entirely by the
+operator, so there&#39;s nothing to set.</p>
+<hr>
+<h2>Hearing yourself: the sidetone</h2>
+<p>Morse is sent by ear as much as by hand, so a responsive <strong>sidetone</strong> is
+essential. Here&#39;s the catch: the audio path <em>to the radio</em> is deliberately
+buffered. HTCommander runs its transmit stream about a second ahead of real time
+to keep the SBC/Bluetooth link fed smoothly. If your only monitor was that
+transmitted audio, you&#39;d hear your own dits a beat late and it would be unusable.</p>
+<p>So the Morse Key handler owns its <strong>own local audio player</strong> and feeds it the
+generated tone directly, with a tiny buffer, independent of the transmit pacing.
+You hear your sending in near-real time no matter how far ahead the radio stream
+is running. In <strong>Live</strong> mode the same PCM goes two places at once: straight to
+your speakers for the sidetone, and into the (buffered) transmit stream for the
+radio — sent with the monitor path switched <em>off</em> on the radio side
+(<code>playLocally: false</code>) precisely so the delayed copy never doubles up on your ear.</p>
+<hr>
+<h2>Under the hood</h2>
+<p>The feature is one handler plus a small pure-Dart model, wired to the rest of the
+app through HTCommander&#39;s internal event bus (the &quot;Data Broker&quot;):</p>
+<ul>
+<li><strong><code>MorseKeyHandler</code></strong> (<a href="../../src/lib/handlers/morse_key_handler.dart">lib/handlers/morse_key_handler.dart</a>)
+— the state machine, the real-time sample pump, and the tone generator. It owns
+the sidetone <code>PcmPlayer</code> and drives the transmitter.</li>
+<li><strong><code>IambicKeyer</code> + <code>MorseKeySettings</code> + <code>MorseDecoder</code></strong> (<a href="../../src/lib/radio/morse_keyer.dart">lib/radio/morse_keyer.dart</a>)
+— deliberately free of Flutter and <code>dart:io</code> so the keyer&#39;s timing/memory logic
+and the decoder can be unit-tested without a radio, a screen, or a sound card.</li>
+<li><strong>The Comms tab</strong> (<a href="../../src/lib/widgets/comms_tab.dart">lib/widgets/comms_tab.dart</a>)
+— adds the <code>morseKey</code> mode, the bottom panel, and the keyboard capture that
+turns key events into Data Broker messages.</li>
+</ul>
+<p>The messages that flow between them:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Direction</th>
+<th>Payload</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>MorseKeyMode</code></td>
+<td>panel → handler</td>
+<td><code>off</code> / <code>test</code> / <code>live</code> + the target radio id</td>
+</tr>
+<tr>
+<td><code>MorseKeyInput</code></td>
+<td>panel → handler</td>
+<td><code>primary</code> / <code>secondary</code>, <code>down: true/false</code></td>
+</tr>
+<tr>
+<td><code>MorseKeySettings</code></td>
+<td>dialog → handler</td>
+<td>the persisted key configuration</td>
+</tr>
+<tr>
+<td><code>MorseKeyState</code></td>
+<td>handler → panel</td>
+<td><code>transmitting</code>, <code>keyDown</code> (for the indicator)</td>
+</tr>
+<tr>
+<td><code>TransmitVoicePCM</code></td>
+<td>handler → radio</td>
+<td>16-bit PCM chunk + <code>hold</code> flag (Live only)</td>
+</tr>
+<tr>
+<td><code>MorseKeyDecoded</code></td>
+<td>handler → Comms</td>
+<td>the decoded text, at the end of a Live run</td>
+</tr>
+</tbody></table>
+</div>
+<h3>Generating the tone</h3>
+<p>The pump runs on a 20 ms timer, but it doesn&#39;t just emit a fixed 20 ms of audio
+each tick — timer callbacks jitter, and drift would wreck your keying. Instead it
+keeps a running sample count against a stopwatch and generates <em>exactly</em> enough
+samples to catch the audio clock up to the wall clock. The output is 16-bit
+signed mono at 32 kHz — the format the radio audio path expects.</p>
+<p>Two details keep it clean:</p>
+<ul>
+<li><strong>Phase continuity.</strong> The 700 Hz sine keeps its phase across chunk boundaries,
+so there&#39;s no discontinuity (and no click) where one 20 ms block meets the next.</li>
+<li><strong>An envelope ramp.</strong> Switching a full-amplitude tone on or off instantly
+produces a broadband click (a key-click, ironically). So each tone edge is
+ramped over ~5 ms with a short attack/decay envelope. The peak amplitude is
+also kept well below full scale so the tone doesn&#39;t over-deviate the FM
+transmitter.</li>
+</ul>
+<p>For a paddle, the pump doesn&#39;t ask &quot;is a key down?&quot; every sample — it consumes
+timed <em>segments</em>. When the current segment runs out it asks the <code>IambicKeyer</code> for
+the next element, lays down that many samples of tone (1 unit for a dit, 3 for a
+dah), then a 1-unit gap, and repeats. That&#39;s what turns lever <em>intentions</em> into
+perfectly-timed elements. A straight key skips all of that: the tone simply
+follows the contact, sample for sample.</p>
+<hr>
+<h2>Off / Test / Live</h2>
+<p>The Morse Key panel sits at the bottom of the <strong>Comms</strong> tab and has one exclusive
+mode selector plus a settings button:</p>
+<ul>
+<li><strong>Off</strong> — the key does nothing. (You&#39;re just in the Comms tab.)</li>
+<li><strong>Test</strong> — the key is live <em>locally only</em>. You hear the sidetone and can see
+the activity indicator, but <strong>nothing is transmitted</strong>. This is how you verify
+your key works, check your mapping, and warm up your fist without going on the
+air.</li>
+<li><strong>Live</strong> — the real thing. Local sidetone <strong>and</strong> FM transmission to the
+connected radio, with the start-gesture and tail-timeout logic managing the
+transmitter.</li>
+</ul>
+<p>You can only be in one of these at a time. The panel shows a live indicator that
+lights up whenever a key is down and whenever the handler is actively generating
+audio, and while a transmission is active the whole panel tints <strong>light red</strong> so
+it&#39;s unmistakable that PCM is going out. The status line doubles as a coach: when
+you&#39;re armed but idle it tells you how to start (<em>&quot;Two quick taps to start&quot;</em> or
+<em>&quot;Release both paddles at the same time to start&quot;</em>), and once you&#39;re keying it
+reads <em>&quot;Testing&quot;</em> or <em>&quot;Transmitting.&quot;</em></p>
+<hr>
+<h2>Reading your own fist: decoding to a chat bubble</h2>
+<p>Here&#39;s a nice side effect of generating the Morse ourselves: we know exactly what
+you keyed, so we can <em>decode it back to text</em>. As you send, a small decoder
+watches the mark (tone-on) and space (tone-off) durations and reconstructs the
+characters — a dit is about one unit, a dah three, a one-unit gap separates
+elements, three units a letter, seven a word. For a paddle the timing is exact
+(it comes straight from the WPM setting); for a straight key the decoder tracks
+your dit length adaptively so a hand-sent fist still resolves.</p>
+<p>When a <strong>Live</strong> transmission ends, if anything decoded, HTCommander drops a
+send-side chat bubble into the Comms tab with the message you just sent — the same
+kind of bubble the text-based Morse mode produces, recorded in history so it
+persists. Test mode still decodes (handy for checking your sending), but doesn&#39;t
+post a bubble, because nothing actually went on the air.</p>
+<hr>
+<h2>The settings dialog</h2>
+<p>The gear icon on the panel opens a dialog to set the key up:</p>
+<ul>
+<li><strong>Key type</strong> — Straight or Paddle.</li>
+<li><strong>Key mapping</strong> — for a straight key, the single key your adapter sends (<code>[</code>,
+<code>]</code>, Left Ctrl, or Right Ctrl); for a paddle, the key <em>pair</em> (<code>[</code> and <code>]</code>, or
+Left and Right Ctrl) plus a <strong>Reverse paddles</strong> checkbox.</li>
+<li><strong>Live key indicator</strong> — an icon that changes state as you press the physical
+key, so you can confirm the adapter and mapping are correct <em>right there in the
+dialog</em>, before you go near the radio.</li>
+<li><strong>Speed (WPM)</strong> — paddle keyers only; sets the dit/dah timing.</li>
+<li><strong>Transmit tail</strong> — how long to keep the FM transmitter keyed after your last
+element before dropping it. Tune this to sit comfortably above your inter-word
+gap.</li>
+</ul>
+<hr>
+<h2>Putting it together</h2>
+<p>The whole point is to let people who are genuinely skilled at CW use that skill on
+a modern FM handheld — no CW rig, no key jack, no soundcard interface. Plug a USB
+key into the computer, pick your key type and mapping, and send. HTCommander turns
+your hand-timed dits and dahs into a clean 700 Hz tone, gates it into the FM audio
+stream, manages the expensive job of keying the transmitter so you don&#39;t have to
+think about it, and gives you a tight local sidetone so it <em>feels</em> like a real
+key — while what actually goes out is plain, everybody-can-hear-it FM Morse.</p>
+<hr>
+<h2>What works, and what&#39;s next</h2>
+<p>Honest ledger, because this series keeps one. What&#39;s in and tested:</p>
+<ul>
+<li>The straight-key and paddle paths, the iambic (Mode B) keyer with dit/dah
+memory, the tone generator, the decoder (paddle-exact and straight-key
+adaptive), and the Off / Test / Live plumbing are all wired, and the keyer,
+settings, and decoder logic are covered by unit tests.</li>
+<li>Both start gestures fire on release (the second straight-key tap, or both
+paddles let go together) and are swallowed, so nothing leaks onto the air
+before your first real element.</li>
+<li>Test mode plays a local sidetone with nothing on the air; Live mode keys the
+radio, monitors locally, and drops a decoded send-side bubble when you finish;
+the tail timeout drops the transmitter.</li>
+</ul>
+<p>What we still want to prove or refine on real hardware:</p>
+<ul>
+<li><strong>Over-the-air feel.</strong> Everything above is validated in software. How it feels
+to a fast fist through a real Bluetooth link and a real FM transmitter is the
+next thing to measure.</li>
+<li><strong>Decoder accuracy on a real fist.</strong> The adaptive straight-key decoder is
+clean on well-formed timing; how forgiving it is of a rusty or heavy hand is
+something only real operators will tell us.</li>
+<li><strong>The Control-key bindings.</strong> <code>[</code> and <code>]</code> are unambiguous; Left/Right Ctrl are
+convenient for adapters that use them, but we want to confirm no OS-level
+shortcut swallows them on every platform.</li>
+<li><strong>Latency tuning.</strong> The sidetone buffer is deliberately small; the exact
+trade-off between click-free audio and the tightest possible ear feedback is
+something to dial in with operators.</li>
+</ul>
+<p>Those are exactly the kinds of findings this series exists to write up — so
+there&#39;ll be a follow-up once a skilled operator has keyed a few real QSOs through
+it.</p>
+<p><em>Off to test, then live. 73.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/morse-key-support.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

@@ -7,7 +7,7 @@
   <meta name="description" content="Field notes and deep dives on the technology behind HTCommander — the DART modem, Benshi firmware updates, DSP experiments and protocol reverse-engineering." />
   <meta name="theme-color" content="#07090d" />
   <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="assets/css/style.css?v=20260719" />
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
   <header class="nav" id="nav">
@@ -26,7 +26,7 @@
       </nav>
       <div class="nav__cta">
         <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
-        <a class="btn btn--primary btn--sm" href="get-started.html#downloads">Download</a>
+        <a class="btn btn--primary btn--sm" href="get-started.html">Download</a>
         <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
@@ -118,6 +118,22 @@
 
   <section class="section--tight">
     <div class="container">
+      <h2 class="group-title">Radio Protocol</h2>
+      <p class="group-sub">The low-level language HTCommander and the radio speak to each other.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/radio-command-protocol.html">
+          <span class="kicker">Radio</span>
+          <h3>Every Command a Benshi Radio Understands: A Complete Protocol Reference</h3>
+          <p>A byte-level reference for the whole control protocol — the two Bluetooth framings, the command envelope and response bit, the full basic/extended opcode set, the bit-packed layout of every important payload (device info, settings, channels, HT status, GPS position, BSS, FM radio, buttons), the notification model, and the two sub-protocols that ride on top: fragmented TNC data carrying AX.25 packets, and the VM firmware-update channel.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
       <h2 class="group-title">Sharing &amp; Interop</h2>
       <p class="group-sub">Making HTCommander features portable between operators and radios.</p>
 
@@ -132,7 +148,7 @@
     </div>
   </section>
 
-  <section class="section--tight" style="background: var(--bg-2);">
+  <section class="section--tight">
     <div class="container">
       <h2 class="group-title">Home Automation &amp; Integrations</h2>
       <p class="group-sub">Connecting HTCommander to the wider ecosystem of tools operators already run.</p>
@@ -148,7 +164,83 @@
     </div>
   </section>
 
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Internet Linking</h2>
+      <p class="group-sub">Bringing internet-linked voice into the same app that drives the radio.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/echolink-support.html">
+          <span class="kicker">Internet</span>
+          <h3>Radio Over the Internet: Adding EchoLink to HTCommander</h3>
+          <p>A full walk through the EchoLink stack in pure Dart — the GSM voice codec, the UDP audio/control ports and TCP directory, the RTCP SDES/BYE handshake that opens a QSO, how voice and chat are wrapped, what callsign suffixes and node numbers mean, a NAT pinhole that quietly eats receive audio, and how to get an account and make your first connection.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/aprs-is-integration.html">
+          <span class="kicker">Internet</span>
+          <h3>Radio and Internet, Two Ways: Planning APRS-IS for HTCommander</h3>
+          <p>A design note written before the first line of code — what APRS-IS is, the single-line passcode login, the TNC2 ⟷ AX.25 codec that lets internet packets reuse the existing APRS pipeline, the full-IGate rules for gating between RF and the internet (q-constructs, NOGATE, the &quot;recently heard&quot; list), and the receive-only-first test plan.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Voice &amp; CW</h2>
+      <p class="group-sub">Sending and shaping audio through the radio — from the microphone to Morse.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/morse-key-support.html">
+          <span class="kicker">Voice</span>
+          <h3>Keying by Hand: Morse Key Support in HTCommander</h3>
+          <p>How a USB morse key — straight or paddle — plugs in and sends real, hand-timed Morse over an ordinary FM handheld: why FM Morse differs from classic CW, how we key an FM transmitter that has no &quot;key up,&quot; the keyboard-style key bindings (<code>[</code> / <code>]</code> or Left / Right Ctrl), the iambic keyer and WPM timing, the low-latency sidetone, and the Off / Test / Live start-and-tail logic.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Satellites</h2>
+      <p class="group-sub">Working amateur radio satellites with a handheld — tracking, passes, and Doppler.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/satellite-tracking.html">
+          <span class="kicker">Satellites</span>
+          <h3>Working the Birds: Amateur Satellite Support in HTCommander</h3>
+          <p>How HTCommander tracks the FM &quot;easy sats&quot; — SGP4 orbit propagation via the <code>satellite_observer</code> package, orbital elements from CelesTrak and transponder frequencies from SatNOGS (with a bundled offline seed), the tab and map ground track/footprint overlay, Doppler-corrected up/downlink from range-rate — and the honest ledger of what&#39;s left: driving the radio&#39;s own native <code>SET_SATELLITE_INFO</code> command, whose payload isn&#39;t decoded yet.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Data &amp; Storage</h2>
+      <p class="group-sub">How HTCommander packs large datasets into small, fast, self-contained files.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/fcc-callsign-compaction.html">
+          <span class="kicker">Data</span>
+          <h3>1.6 Million Hams in Your Pocket: Compacting the FCC Callsign Database</h3>
+          <p>How the FCC&#39;s weekly amateur-license dump becomes a small binary <code>.cdb</code> you can binary-search offline — and the stack of encoding tricks (base-37 packed keys, an offset-free index, epoch-relative dates, state/class/status/city dictionaries, numeric ZIPs, and xz) that shrink every record to the bone.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/ised-callsign-compaction.html">
+          <span class="kicker">Data</span>
+          <h3>90,000 Hams North of the Border: Compacting the Canadian Callsign Database</h3>
+          <p>How the same <code>.cdb</code> format is reused for Canada&#39;s ISED amateur data behind a single header flag — and the three encoding changes the Canadian data forced: alphanumeric postal codes packed in alternating bases, qualifications as a bitmask instead of class/status, and dropping expiry dates that never exist.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
       <h2 class="group-title">App Architecture</h2>
       <p class="group-sub">How HTCommander is built under the hood — the threading, plumbing, and design decisions that keep the radio responsive.</p>
@@ -158,6 +250,22 @@
           <span class="kicker">Architecture</span>
           <h3>Getting Audio Off the Main Thread: Moving the Radio Pipeline to Its Own Isolate</h3>
           <p>Why the whole receive pipeline — SBC decode, software modem, and SSTV — runs on the UI thread today and stutters when the interface is busy, and the plan to move it into a dedicated background isolate with playback fed straight from the worker. Written before the work begins.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Building &amp; Contributing</h2>
+      <p class="group-sub">Getting a full HTCommander development environment running on your own machine.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/building-from-source.html">
+          <span class="kicker">Building</span>
+          <h3>Build It Yourself: Compiling HTCommander on Every Platform</h3>
+          <p>A start-to-finish guide to installing Flutter and building HTCommander from source on Windows, macOS, Linux, Android, iOS, and the web — including the exact system packages each desktop target needs (and the GStreamer, BlueZ, and PulseAudio libraries Linux trips over first).</p>
           <span class="post__more">Read more →</span>
         </a>
       </div>
@@ -201,7 +309,7 @@
           <h4>Legal</h4>
           <ul>
             <li><a href="privacy.html">Privacy policy</a></li>
-            <li><a href="license.html">License (Apache 2.0)</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
           </ul>
         </div>
       </div>
@@ -212,6 +320,6 @@
     </div>
   </footer>
 
-  <script src="assets/js/main.js?v=20260719"></script>
+  <script src="assets/js/main.js"></script>
 </body>
 </html>
