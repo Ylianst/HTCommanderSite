@@ -132,16 +132,13 @@ function nav(prefix) {
         <span><b>HTCommander</b></span>
       </a>
       <nav class="nav__links" id="navLinks">
-        <a href="${prefix}index.html#features">Features</a>
-        <a href="${prefix}index.html#screens">Screens</a>
-        <a href="${prefix}features.html">Deep dive</a>
-        <a href="${prefix}get-started.html">Get started</a>
+        <a href="${prefix}features.html">Features</a>
+        <a href="${prefix}screens.html">Screens</a>
         <a href="${prefix}blog.html">Blog</a>
-        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
       </nav>
       <div class="nav__cta">
         <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
-        <a class="btn btn--primary btn--sm" href="${prefix}get-started.html">Download</a>
+        <a class="btn btn--primary btn--sm" href="${prefix}downloads.html">Download</a>
         <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
@@ -162,8 +159,7 @@ function footer(prefix) {
           <h4>App</h4>
           <ul>
             <li><a href="${prefix}index.html#features">Features</a></li>
-            <li><a href="${prefix}index.html#screens">Screens</a></li>
-            <li><a href="${prefix}get-started.html">Get started</a></li>
+            <li><a href="${prefix}screens.html">Screens</a></li>
             <li><a href="${prefix}features.html">Deep dive</a></li>
           </ul>
         </div>
