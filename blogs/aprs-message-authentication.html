@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signing the Airwaves: Authenticating APRS Messages Without Encryption — HTCommander</title>
+  <meta name="description" content="How HTCommander proves an APRS message really came from who it says — and isn't a replay of an old one — using HMAC-SHA256, a shared password, and six extra characters, all while staying legal on amateur radio." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#screens">Screens</a>
+        <a href="../features.html">Deep dive</a>
+        <a href="../get-started.html">Get started</a>
+        <a href="../blog.html">Blog</a>
+        <a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../get-started.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Messaging &amp; Security</span>
+      <h1>Signing the Airwaves: Authenticating APRS Messages Without Encryption</h1>
+      <p>How HTCommander proves an APRS message really came from who it says — and isn&#39;t a replay of an old one — using HMAC-SHA256, a shared password, and six extra characters, all while staying legal on amateur radio.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The problem</h2>
+<p>APRS messaging has a trust gap. The protocol was never designed to prove who
+sent a packet: the source callsign lives in plain text in the AX.25 header, and
+anyone can put anything there. On the open airwaves that means a message
+claiming to be from <code>KK7VZT-7</code> might be from <code>KK7VZT-7</code>… or from someone with a
+radio and a grudge. And because APRS frames fly around unprotected, a packet you
+sent an hour ago can be captured and <em>replayed</em> to trigger the same action
+twice.</p>
+<p>For casual position beacons, nobody cares. But the moment you use APRS messages
+to <em>do</em> something — flip a relay, arm an alert, command a remote station — you
+want two guarantees:</p>
+<ol>
+<li><strong>Authenticity.</strong> This message really came from the station that shares my
+secret.</li>
+<li><strong>Freshness.</strong> This is a new message, not a recording of an old one.</li>
+</ol>
+<p>The catch: amateur radio rules <strong>forbid encryption</strong> meant to obscure meaning.
+So we can&#39;t just wrap the payload in a cipher. What we <em>can</em> do is leave the
+message in the clear and attach a short <em>proof</em> — a value only someone with the
+shared secret could have computed. That&#39;s a Message Authentication Code, and
+it&#39;s exactly what HTCommander adds.</p>
+<h2>Design goals</h2>
+<p>The scheme is deliberately small and boring, which is what you want from
+security:</p>
+<ul>
+<li><strong>No encryption.</strong> The message text stays fully readable over the air. We only
+<em>append</em> a proof; we never hide anything.</li>
+<li><strong>Backward compatible.</strong> A radio or app that has never heard of authentication
+still shows the message in a readable form. The proof degrades into harmless
+trailing characters.</li>
+<li><strong>Cheap on the wire.</strong> APRS message fields are tiny, so the proof is just
+<strong>six characters</strong>.</li>
+<li><strong>Shared-secret based.</strong> Both stations already know a common password. <em>How</em>
+they agreed on that password — in person, over a secure channel, on a slip of
+paper — is out of scope here.</li>
+<li><strong>Replay-resistant.</strong> The proof is bound to the current time, so an old
+captured packet stops verifying after a few minutes.</li>
+</ul>
+<h2>Where the token goes</h2>
+<p>A plain APRS message with a message ID looks like this:</p>
+<pre><code>:KK7VZT-7 :This is a test{556
+</code></pre>
+<p>The <code>{556</code> at the end is the APRS message ID (used for ACK tracking). We insert
+a six-character token after a <code>}</code> character, <em>before</em> the message ID:</p>
+<pre><code>:KK7VZT-7 :This is a test}YwwuFt{556
+</code></pre>
+<p>Two things make this work nicely:</p>
+<ul>
+<li>Keeping <code>{556</code> at the very end preserves the standard message-ID position, so
+ordinary APRS software still parses the ID and can ACK the message.</li>
+<li>Software that doesn&#39;t understand authentication simply shows
+<code>This is a test}YwwuFt</code> — a little noise on the end, but the message still
+reads.</li>
+</ul>
+<p>ACKs get the same treatment. A normal ACK:</p>
+<pre><code>:KK7VZT-6 :ack556
+</code></pre>
+<p>becomes an authenticated ACK by appending <code>}</code> and a freshly computed token:</p>
+<pre><code>:KK7VZT-6 :ack556}eL8OYs
+</code></pre>
+<h2>Computing the token</h2>
+<p>The token is an HMAC-SHA256 over a string that ties together <em>who</em>, <em>what</em>, and
+<em>when</em>, keyed by the shared secret. Four ingredients go in.</p>
+<p><strong>1. Derive the key from the password.</strong> The shared secret is a UTF-8 string.
+Hash it with SHA-256 to get a fixed-size key:</p>
+<pre><code>SecretKey = SHA256(UTF8(SharedSecret))
+</code></pre>
+<p>Keeping the password in UTF-8 before hashing matters — both ends must encode it
+identically or the keys won&#39;t match.</p>
+<p><strong>2. Grab the current time as a minute counter.</strong> Take the number of whole
+minutes since the Unix epoch (1 January 1970, UTC):</p>
+<pre><code>MinutesUtc = floor(UnixTimeUTC / 60)
+</code></pre>
+<p>A one-minute resolution is coarse on purpose: it gives every message a short
+lifetime without needing the two radios&#39; clocks to agree to the second.</p>
+<p><strong>3. Build the string to sign.</strong> Concatenate the minute counter, the source and
+destination stations (in <code>CALLSIGN-SSID</code> form), and the message. When the
+message carries an ID, the ID is included so the proof is bound to that specific
+message:</p>
+<pre><code>HashMessage = MinutesUtc &quot;:&quot; SourceStation &quot;:&quot; DestinationStation &quot;:&quot; Message &quot;{&quot; MsgId
+</code></pre>
+<p>For a message with no ID, the same string is built without the trailing
+<code>{MsgId</code>. The <strong>SourceStation</strong> is the callsign in the second position of the
+AX.25 header; the <strong>DestinationStation</strong> is the addressee from the APRS message
+body, with its padding spaces trimmed off.</p>
+<p><strong>4. Sign and truncate.</strong> Run HMAC-SHA256 over that string with <code>SecretKey</code>,
+Base64-encode the result, and keep the first six characters:</p>
+<pre><code>Token = Base64(HMAC-SHA256(SecretKey, HashMessage))[0:6]
+</code></pre>
+<p>Six Base64 characters is 36 bits of proof. That&#39;s not a bank vault, but it&#39;s far
+more than enough to stop casual spoofing on a radio channel — an attacker who
+can&#39;t compute the HMAC has to <em>guess</em>, and one in tens of billions per try, with
+a fresh target every minute, is a losing game.</p>
+<h2>A worked example</h2>
+<p>Say <code>KK7VZT-7</code> sends <em>&quot;This is a test&quot;</em> to <code>KK7VZT-6</code> at minute <code>28901234</code>, and
+both share a password. The station builds:</p>
+<pre><code>28901234:KK7VZT-7:KK7VZT-6:This is a test{556
+</code></pre>
+<p>signs it with <code>SHA256(password)</code>, Base64-encodes the HMAC, takes the first six
+characters — <code>YwwuFt</code> — and transmits:</p>
+<pre><code>:KK7VZT-6 :This is a test}YwwuFt{556
+</code></pre>
+<p><code>KK7VZT-6</code> receives it, recomputes the same string from what it sees on the air
+plus its own copy of the password, and compares tokens. Match ⇒ authentic and
+fresh.</p>
+<h2>Freshness without synchronized clocks</h2>
+<p>Because the token is bound to <code>MinutesUtc</code>, a captured packet replayed later
+produces a <em>different</em> expected token and fails. But real radios have drifting
+clocks and real networks add delay, so demanding an exact-minute match would
+reject good messages.</p>
+<p>The fix is a small tolerance window. On receipt, the verifier doesn&#39;t just try
+the current minute — it recomputes the token for a handful of adjacent minutes
+and accepts the message if <strong>any</strong> of them match. HTCommander checks five
+one-minute windows: the current minute, the two before it, and the two after.
+That gives a message roughly a few-minute window to arrive, absorbing clock skew
+and propagation delay, while still slamming the door on a replay that shows up an
+hour later. If conditions routinely delay traffic further, a receiver is free to
+widen how far back it looks.</p>
+<h2>ACKs have to be re-signed</h2>
+<p>Here&#39;s the subtle part that trips people up: <strong>you cannot ACK a message by
+echoing back the token you received.</strong> The token is bound to a specific
+sender→receiver direction and a specific minute. When <code>KK7VZT-6</code> acknowledges
+<code>KK7VZT-7</code>, the source and destination are now <em>swapped</em> and the clock has
+likely ticked, so the ACK needs a brand-new token computed for
+<code>KK7VZT-6 → KK7VZT-7</code> at the ACK&#39;s own timestamp. Only a station that actually
+holds the shared secret can produce that — which means a valid authenticated ACK
+proves the <em>other</em> end is genuine too, closing the loop in both directions.</p>
+<h2>What the operator sees</h2>
+<p>Security nobody can see is security nobody trusts. Software implementing this
+scheme should surface the result plainly: mark each message as <strong>sent or
+received with authentication</strong>, and show whether the check <strong>passed</strong>. A green
+check next to a received command, a broken-lock icon on a message whose token
+didn&#39;t verify — the point is that the human can tell, at a glance, whether the
+message on screen actually came from the station it claims.</p>
+<h2>What&#39;s in scope, and what isn&#39;t</h2>
+<p>This is intentionally a <em>messaging</em> authentication layer, not a full security
+system. A few honest boundaries:</p>
+<ul>
+<li><strong>Key exchange is out of scope.</strong> The whole thing rests on both stations
+already sharing a password. Distributing and rotating that secret safely is a
+separate problem this spec doesn&#39;t try to solve.</li>
+<li><strong>It authenticates, it doesn&#39;t hide.</strong> The message text is in the clear by
+design — that&#39;s what keeps it legal on the amateur bands. Anyone can read your
+message; they just can&#39;t <em>forge</em> it or <em>replay</em> it.</li>
+<li><strong>Six characters is a deliberate trade.</strong> More proof bits would be stronger but
+eat scarce APRS payload. Thirty-six bits was chosen as the sweet spot between
+wire cost and forgery resistance for a radio channel.</li>
+</ul>
+<p>For the amateur operator who wants to send a command over APRS and <em>know</em> it
+will only be honored if it truly came from them, that&#39;s a solid deal: a readable
+message, a six-character signature, and a few minutes of freshness — no
+encryption required.</p>
+<hr>
+<p><strong>Related:</strong> <a href="../Aprs-Auth-Specification.md">APRS Authentication specification</a> ·
+<a href="../APRS-Auth.md">APRS Auth overview</a> ·
+<a href="aprs-is-integration.md">Planning APRS-IS for HTCommander</a></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/aprs-message-authentication.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#screens">Screens</a></li>
+            <li><a href="../get-started.html">Get started</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

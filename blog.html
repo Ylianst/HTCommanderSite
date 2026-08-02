@@ -128,6 +128,12 @@
           <p>A byte-level reference for the whole control protocol — the two Bluetooth framings, the command envelope and response bit, the full basic/extended opcode set, the bit-packed layout of every important payload (device info, settings, channels, HT status, GPS position, BSS, FM radio, buttons), the notification model, and the two sub-protocols that ride on top: fragmented TNC data carrying AX.25 packets, and the VM firmware-update channel.</p>
           <span class="post__more">Read more →</span>
         </a>
+        <a class="post" href="blogs/bss-protocol.html">
+          <span class="kicker">Radio</span>
+          <h3>The Radio&#39;s Secret Handshake: Reverse-Engineering the BSS Protocol</h3>
+          <p>A field note on <strong>BSS</strong>, the undocumented Baofeng/BTech binary format for text, location, and &quot;ring my radio&quot; alerts — the <code>0x01</code> marker that separates it from AX.25, the length-includes-type TLV framing, a packet decoded by hand, the <code>0x85</code> message-ID sentinel, the field catalog and the location-request / call-request verbs, and an honest ledger of the location bytes still on the workbench.</p>
+          <span class="post__more">Read more →</span>
+        </a>
       </div>
     </div>
   </section>
@@ -150,6 +156,22 @@
 
   <section class="section--tight">
     <div class="container">
+      <h2 class="group-title">Messaging &amp; Security</h2>
+      <p class="group-sub">Trusting what comes off the air — proving who sent a message, without breaking the no-encryption rules.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/aprs-message-authentication.html">
+          <span class="kicker">Messaging</span>
+          <h3>Signing the Airwaves: Authenticating APRS Messages Without Encryption</h3>
+          <p>How HTCommander proves an APRS message really came from who it claims — and isn&#39;t a replay of an old one — by appending a six-character HMAC-SHA256 token keyed by a shared password: the wire format that stays backward compatible, the who/what/when string that gets signed, the minute-based freshness window, why ACKs must be re-signed, and where key exchange stays out of scope.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
       <h2 class="group-title">Home Automation &amp; Integrations</h2>
       <p class="group-sub">Connecting HTCommander to the wider ecosystem of tools operators already run.</p>
 
@@ -164,7 +186,7 @@
     </div>
   </section>
 
-  <section class="section--tight" style="background: var(--bg-2);">
+  <section class="section--tight">
     <div class="container">
       <h2 class="group-title">Internet Linking</h2>
       <p class="group-sub">Bringing internet-linked voice into the same app that drives the radio.</p>
@@ -186,7 +208,7 @@
     </div>
   </section>
 
-  <section class="section--tight">
+  <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
       <h2 class="group-title">Voice &amp; CW</h2>
       <p class="group-sub">Sending and shaping audio through the radio — from the microphone to Morse.</p>
@@ -202,7 +224,7 @@
     </div>
   </section>
 
-  <section class="section--tight" style="background: var(--bg-2);">
+  <section class="section--tight">
     <div class="container">
       <h2 class="group-title">Satellites</h2>
       <p class="group-sub">Working amateur radio satellites with a handheld — tracking, passes, and Doppler.</p>
@@ -218,7 +240,7 @@
     </div>
   </section>
 
-  <section class="section--tight">
+  <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
       <h2 class="group-title">Data &amp; Storage</h2>
       <p class="group-sub">How HTCommander packs large datasets into small, fast, self-contained files.</p>
@@ -240,7 +262,7 @@
     </div>
   </section>
 
-  <section class="section--tight" style="background: var(--bg-2);">
+  <section class="section--tight">
     <div class="container">
       <h2 class="group-title">App Architecture</h2>
       <p class="group-sub">How HTCommander is built under the hood — the threading, plumbing, and design decisions that keep the radio responsive.</p>
@@ -256,7 +278,7 @@
     </div>
   </section>
 
-  <section class="section--tight">
+  <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
       <h2 class="group-title">Building &amp; Contributing</h2>
       <p class="group-sub">Getting a full HTCommander development environment running on your own machine.</p>
