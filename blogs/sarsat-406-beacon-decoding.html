@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decoding Distress: 406 MHz SARSAT Beacons in HTCommander — HTCommander</title>
+  <meta name="description" content="How a handheld FM radio can pick a satellite distress beacon out of the air, and how HTCommander turns that half-second burst into a country, a beacon ID, and a position on a map. This post covers what COSPAS-SARSAT is, what a first-generation 406 MHz beacon actually transmits (phase-modulated, not FM), why decoding it on a Benshi is a strange fit, the two demodulators (coherent and FM-demod) and BCH error-correction we built in pure Dart, how we proved it works — synthetically and then on a real beacon recording — and how it surfaces as its own Comms message type and a map marker." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Features</a>
+        <a href="../screens.html">Screens</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Emergency Beacons</span>
+      <h1>Decoding Distress: 406 MHz SARSAT Beacons in HTCommander</h1>
+      <p>How a handheld FM radio can pick a satellite distress beacon out of the air, and how HTCommander turns that half-second burst into a country, a beacon ID, and a position on a map. This post covers what COSPAS-SARSAT is, what a first-generation 406 MHz beacon actually transmits (phase-modulated, not FM), why decoding it on a Benshi is a strange fit, the two demodulators (coherent and FM-demod) and BCH error-correction we built in pure Dart, how we proved it works — synthetically and then on a real beacon recording — and how it surfaces as its own Comms message type and a map marker.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>What is SARSAT?</h2>
+<p><strong>COSPAS-SARSAT</strong> is the international satellite system that finds people in
+distress. The name is a mouthful from two Cold-War-era programs that merged:
+<strong>SARSAT</strong> (Search And Rescue Satellite-Aided Tracking, from the US, Canada, and
+France) and <strong>COSPAS</strong> (the Russian equivalent). Today it is a single global
+network, and it is the reason a life raft in the middle of an ocean can be found.</p>
+<p>The pieces on the ground are <strong>406 MHz distress beacons</strong>. They come in three
+flavours, all doing the same job for different vehicles:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Beacon</th>
+<th>Used by</th>
+<th>Trigger</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>EPIRB</strong></td>
+<td>Ships / life rafts</td>
+<td>Water immersion or manual</td>
+</tr>
+<tr>
+<td><strong>ELT</strong></td>
+<td>Aircraft</td>
+<td>Crash G-force or manual</td>
+</tr>
+<tr>
+<td><strong>PLB</strong></td>
+<td>People (hikers, pilots)</td>
+<td>Manual only</td>
+</tr>
+</tbody></table>
+</div>
+<p>When one activates, it transmits a short digital <strong>burst — about half a second,
+once every ~50 seconds — on 406 MHz</strong>. A constellation of satellites (in low,
+medium, and geostationary orbits) hears that burst, relays it to ground stations,
+and those stations decode the beacon&#39;s identity and, if the beacon has a GPS
+receiver, its position. A rescue coordination centre is alerted with a unique
+15-character beacon ID that maps to a registered owner, and help is dispatched.</p>
+<p>Two important framing facts for what follows:</p>
+<ul>
+<li><strong>406.0–406.1 MHz is a protected, satellite-monitored distress band.</strong> You
+never transmit there. Everything in this post is <strong>receive-only</strong>, and the
+right way to experiment is with the official <em>test</em> beacons and recordings.</li>
+<li>The old analog <strong>121.5 MHz</strong> homing signal is no longer satellite-monitored
+(since 2009). The digital 406 MHz message is the whole game now.</li>
+</ul>
+<hr>
+<h2>What a first-generation beacon actually sends</h2>
+<p>There are two generations of 406 beacon. The classic <strong>first generation (FGB,
+spec C/S T.001)</strong> — sometimes called <em>v1g</em> — is what HTCommander decodes. The
+newer <strong>second generation (SGB, T.018)</strong> uses direct-sequence spread-spectrum
+OQPSK and needs raw IQ from an SDR to demodulate; it is out of scope here (and
+for an FM audio path, out of reach).</p>
+<p>A v1g beacon is deceptively simple on paper and surprisingly awkward in
+practice. The transmission is:</p>
+<ol>
+<li>An <strong>unmodulated carrier</strong> for the first 160 ms (so receivers can lock on).</li>
+<li>Then the message: <strong>144 bits</strong> (long format) or <strong>112 bits</strong> (short) sent at
+<strong>400 bits per second</strong>.</li>
+</ol>
+<p>The tricky part is <em>how</em> those bits are carried. The data is <strong>biphase-L
+(Manchester) encoded</strong> and used to <strong>phase-modulate the carrier by ±1.1 radians</strong>.
+That is <strong>PSK — phase-shift keying — not FM, and not audio tones.</strong> The carrier&#39;s
+phase swings a little more than ±63° with every half-bit. There&#39;s no 1200/2200 Hz
+AFSK, no clean tone to detect; the information lives in the <em>angle</em> of the
+carrier.</p>
+<p>The 144-bit frame is laid out like this:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Bits (1-indexed)</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1–15</td>
+<td>Bit sync — fifteen <code>1</code>s</td>
+</tr>
+<tr>
+<td>16–24</td>
+<td>Frame sync — <code>000101111</code> (normal) or <code>011010000</code> (self-test)</td>
+</tr>
+<tr>
+<td>25</td>
+<td>Format flag (1 = long/144, 0 = short/112)</td>
+</tr>
+<tr>
+<td>26</td>
+<td>Protocol flag</td>
+</tr>
+<tr>
+<td>27–36</td>
+<td>Country code (10 bits)</td>
+</tr>
+<tr>
+<td>37–40</td>
+<td>Protocol code</td>
+</tr>
+<tr>
+<td>26–85</td>
+<td><strong>15-hex beacon ID</strong> (the unique identifier)</td>
+</tr>
+<tr>
+<td>86–106</td>
+<td><strong>BCH-1</strong> error-correction parity (21 bits)</td>
+</tr>
+<tr>
+<td>107–132</td>
+<td>Position / protocol data (PDF-2)</td>
+</tr>
+<tr>
+<td>133–144</td>
+<td><strong>BCH-2</strong> error-correction parity (12 bits)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Those two BCH fields matter enormously. A beacon burst is short, faint, and
+one-shot; the two BCH (&quot;CRC&quot;) codes let a receiver <strong>detect and correct</strong> a
+handful of bit errors and, just as importantly, <em>know for certain</em> when it has a
+clean frame versus noise. We lean on them hard.</p>
+<hr>
+<h2>Why this is a strange fit for a Benshi</h2>
+<p>HTCommander drives Benshi-class FM handhelds (UV-Pro, GA-5WB, VR-N76, …). Two
+things make 406 decoding an odd match — and one surprising thing makes it
+possible at all.</p>
+<p><strong>The frequency is (just) out of band.</strong> 406 MHz sits below the 70 cm amateur
+band. But many of these radios have <strong>wideband receive</strong> that happily covers
+406 MHz, and the app already stores and tunes frequencies as raw Hz. So <em>tuning</em>
+there is plausible on a lot of hardware.</p>
+<p><strong>The modulation is wrong for the radio.</strong> The radio is an FM voice set. It does
+its own FM demodulation internally and streams <strong>SBC-compressed audio</strong> to the
+app over Bluetooth. Feeding a <em>phase-modulated</em> PSK signal through an <em>FM</em>
+demodulator and a lossy voice codec is not how a textbook 406 receiver works — a
+proper one uses SSB/coherent detection or raw IQ from an SDR.</p>
+<p><strong>But it works anyway, within limits.</strong> The community (F4EHY&#39;s decoders, the
+<code>rtl_fm</code> + 12 kHz filter recipe) has long shown that a 406 burst <em>can</em> be pulled
+out of an FM-demodulated audio stream: the phase transitions survive as
+detectable features. It&#39;s the weaker of the two approaches — the reference
+<code>dec406</code> project measures roughly 62% decode rate through FM audio versus ~75%
+with coherent IQ — but it is real. That&#39;s the door HTCommander walks through:
+the beacon is decodable from audio, and audio is exactly what the radio gives us.</p>
+<p>The honest caveat, stated up front: a stock Benshi&#39;s SBC-compressed,
+post-de-emphasis audio sits at the <em>low</em> end of that quality range. This feature
+is a genuine &quot;best-effort&quot; decoder, not a certified receiver.</p>
+<hr>
+<h2>The demodulators, step by step</h2>
+<p>A 406 beacon can reach us in two very different audio <em>shapes</em>, so the
+demodulator (<a href="../../src/lib/sarsat/sarsat_1g_demodulator.dart"><code>sarsat_1g_demodulator.dart</code></a>)
+runs <strong>two independent front-ends</strong> and keeps whichever produces a BCH-valid
+frame.</p>
+<h3>Path 1 — coherent (phase tone)</h3>
+<p>Recorded on an SSB/CW receiver — or a discriminator / <code>rtl_fm</code> feed that keeps
+the tone intact — the beacon looks like exactly what it physically is: a ±1.1 rad
+phase-modulated carrier. We treat it as one:</p>
+<ol>
+<li><strong>DC block.</strong> Remove the mean.</li>
+<li><strong>Carrier estimate.</strong> A ±1.1 rad PSK signal still has a strong <em>residual
+carrier</em> component (it isn&#39;t ±90°, so the carrier is only reduced, not
+suppressed). We sweep candidate frequencies and pick the one whose baseband
+DC magnitude peaks — that&#39;s the carrier.</li>
+<li><strong>Quadrature mix + low-pass.</strong> Multiply by cosine and sine at the estimated
+carrier to drop to baseband I/Q, then a boxcar low-pass sized to null the
+<code>2×carrier</code> image.</li>
+<li><strong>De-rotate.</strong> Rotate the baseband so the residual carrier lands on the real
+axis. Now the modulation sits cleanly around zero, swinging to +1.1 or −1.1
+radians — the phase <em>is</em> the data.</li>
+<li><strong>Matched-filter sync.</strong> Correlate the known 24-bit sync pattern (fifteen
+<code>1</code>s plus the frame sync) against the recovered phase to find exactly where a
+frame starts.</li>
+<li><strong>Biphase-L slice.</strong> At each sync anchor, integrate the phase over each
+half-bit and Manchester-decode to bits, at 400 bps, trying both polarities.</li>
+</ol>
+<p>The one subtlety worth calling out is <strong>timing</strong>. At a 400 bps symbol rate, even
+a tiny error in the assumed samples-per-bit accumulates over a 144-bit frame and
+<em>slips</em> a bit — the front of the frame decodes perfectly and the tail turns to
+mush. Locking the symbol clock precisely (we anchor on the matched-filter sync
+and use the exact samples-per-bit for the file&#39;s sample rate) is what makes the
+whole frame land.</p>
+<h3>Path 2 — FM-demod (autocorrelation)</h3>
+<p>Here&#39;s the catch that Path 1 alone can&#39;t handle: a Benshi (and <code>rtl_fm -M fm</code>)
+hands us <strong>FM-demodulated</strong> audio, where the beacon&#39;s phase transitions arrive as
+a transition-pulse waveform, not a clean tone — and the coherent chain simply
+can&#39;t lock onto it. That&#39;s the audio shape that actually matters for real-world
+reception, so we ported the reference <code>dec406</code> <code>capture_trame</code> slicer: a
+delay-and-multiply <strong>autocorrelation at one-bit lag</strong> that finds the 15-bit sync
+run and reconstructs the frame straight from the transition timing. It decodes
+the FM-demod waveform the coherent path can&#39;t — <strong>and self-test beacons fall out
+of it for free</strong>, because it never hard-codes a frame-sync pattern.</p>
+<p>Both paths hand their candidate 144- (or 112-) bit frame to the same decoder.</p>
+<hr>
+<h2>Error correction and the frame decoder</h2>
+<p>Once we have candidate bits, the decoder
+(<a href="../../src/lib/sarsat/sarsat_1g_decoder.dart"><code>sarsat_1g_decoder.dart</code></a>) does the
+real work, ported bit-for-bit from the reference <code>dec406_v1g.c</code> so the field
+layout and polynomials match exactly:</p>
+<ul>
+<li><strong>BCH-1 / BCH-2 check and correct.</strong> The two codes are computed with the
+standard COSPAS-SARSAT generator polynomials. If a frame doesn&#39;t validate, we
+try flipping up to three bits in the protected span until it does. Because
+BCH-1 has 21 parity bits, a <em>passing</em> frame is proof — a random 21-bit match is
+a one-in-two-million accident, so &quot;BCH OK&quot; means &quot;this is a real beacon
+message,&quot; not noise dressed up as one.</li>
+<li><strong>Field parsing.</strong> Country code, protocol classification (Standard Location,
+User-Location, ELT-DT, National, RLS, Ship Security, Test…), the <strong>15-hex
+beacon ID</strong> (with the protocol-dependent default-position masks the spec
+requires), an identification string (MMSI, aircraft address, serial), and —
+for the location protocols — a <strong>decoded latitude/longitude</strong>.</li>
+</ul>
+<p>The result is a small <code>Sarsat1gFrame</code> object: BCH status, country, protocol,
+hex ID, and position.</p>
+<hr>
+<h2>How we proved it works</h2>
+<p>We had no 406 transmitter on the bench (and you can&#39;t just key one up on a
+protected distress band), so verification started entirely self-contained \u2014 and
+then, when a real recording turned up, gained a genuine on-air check. Four layers,
+all in the test suite
+(<a href="../../src/test/sarsat_1g_test.dart"><code>sarsat_1g_test.dart</code></a>):</p>
+<p><strong>1. Golden frames from an oracle encoder.</strong> The reference BCH isn&#39;t a textbook
+systematic code, so we couldn&#39;t just hand-write parity bits. Instead we built a
+BCH <em>encoder</em> by solving the parity with Gaussian elimination over GF(2), using
+the reference CRC as an oracle — and verified it reproduces the exact parity of a
+known-good published beacon frame (<code>8E3301E2402B002BBA863609670908</code>). With that,
+we can mint valid frames carrying any fields we like — including a Standard
+Location frame at a <em>known</em> 43.75° N, 7.25° E — and assert the decoder reads them
+back correctly.</p>
+<p><strong>2. Error-correction tests.</strong> Inject 1, 2, and 3 bit errors into the protected
+field and confirm the decoder corrects exactly that many and recovers the
+original beacon ID.</p>
+<p><strong>3. A round-trip modulator.</strong> We wrote the <em>inverse</em> of the demodulator — a
+small modulator that renders a frame as an ideal ±1.1 rad biphase-L PSK tone — and
+feed it straight back through the demodulator. It must recover the frame <strong>exactly</strong>,
+at 32 kHz, 37.5 kHz, and 48 kHz sample rates, and it still decodes with additive
+noise (~13 dB SNR). This is the strongest test: it exercises the entire
+audio → carrier → phase → bits → fields chain end-to-end, and it&#39;s fully
+reproducible with no external files.</p>
+<p>There&#39;s even a streaming test that feeds the monitor 256-byte PCM chunks — the
+exact cadence the audio engine delivers — then flushes, to prove the real-time
+buffering path decodes a burst the same way the batch path does.</p>
+<p><strong>4. And then, a real beacon.</strong> Someone supplied a genuine recording of a 406
+self-test beacon (<code>Sarsat.wav</code> — FM-demodulated, 32 kHz mono). Dropped straight
+through the production demodulator it decodes cleanly, with <strong>both BCH fields
+valid</strong>: a France (country 227) ELT-DT self-test beacon, hex ID
+<code>1C72091A2B3FDFF</code>. It&#39;s the case that exercises the FM-demod path <em>and</em> self-test
+sync on a real signal — and it&#39;s now a committed test fixture, so the real-signal
+path is a permanent regression, not a one-off.</p>
+<hr>
+<h2>Wiring it into HTCommander</h2>
+<p>The decoder and demodulator are standalone libraries; a thin <strong>monitor</strong>
+(<a href="../../src/lib/sarsat/sarsat_monitor.dart"><code>sarsat_monitor.dart</code></a>) glues them to
+the live audio pipeline, mirroring how the Morse and SSTV decoders already work.
+It buffers received PCM for the length of a burst and runs the batch demodulator
+on <em>flush</em> (the end of the audio run), emitting a decoded frame for every valid
+message it finds.</p>
+<h3>It turns itself on</h3>
+<p>The first version had a &quot;Decode SARSAT 406&quot; checkbox, then a check on the tuned
+frequency. But a frequency gate turned out to be too rigid: <strong>training beacons
+don&#39;t have to live on 406 MHz</strong> — one operator&#39;s test transmitter runs on
+434 MHz. So instead of a switch or a hard-coded band, the monitor is always
+allocated but only <em>fed audio</em> from a channel the operator has <strong>named
+<code>sarsat</code></strong> (case-insensitive):</p>
+<pre><code class="language-dart">if (usage == null &amp;&amp;
+    !transmit &amp;&amp;
+    channelName.toLowerCase() == &#39;sarsat&#39;) {
+  // ...buffer this burst for decoding...
+}
+</code></pre>
+<p>Make a channel called &quot;SARSAT&quot; on whatever frequency your beacon uses — 406 MHz
+for the real thing, 434 MHz for a trainer — and decoding self-activates while
+that channel is selected. Switch to any other channel and it stops. No setting to
+remember, and no assumption about frequency.</p>
+<h3>It shows up as its own message type</h3>
+<p>When a beacon decodes, it lands in the Comms tab as a distinct message type — a
+red <strong>SOS</strong> icon and a <code>SARSAT</code> label — carrying the hex ID, the country <strong>by
+name</strong> (not just the numeric code), the protocol, and, when present, the
+position. Opening its details breaks the frame down field by field, right down to
+the raw hex.</p>
+<p>Because a beacon repeats every ~50 s, a busy channel would otherwise flood the
+tab, so we <strong>coalesce</strong> repeats of the same beacon ID within a minute into a
+single bubble that counts them: the header reads <strong>“SARSAT ×5”</strong> while the bubble
+keeps the latest decode. And because it flows through the same message model as
+APRS, a beacon that reports coordinates gets the same treatment — a tappable
+<strong>“Show Location…”</strong>, and a red <strong>SOS marker dropped on the Map tab</strong>.</p>
+<p>There&#39;s also a Debug-tab helper to replay a <code>.wav</code> into the app as if it were
+received on VFO A, so the whole decode → message → map path can be exercised from
+a file without a radio on the bench.</p>
+<hr>
+<h2>The honest ledger</h2>
+<p>What works today, and what&#39;s still on the bench:</p>
+<ul>
+<li>✅ <strong>v1g frame decode</strong> — BCH check + up to 3-bit correction, country,
+protocol, 15-hex ID, and position for the common location protocols.</li>
+<li>✅ <strong>Two demodulators</strong> — coherent (phase tone) and FM-demod (autocorrelation),
+verified end-to-end by round-trip <em>and</em> on a real FM-demodulated recording.</li>
+<li>✅ <strong>Surfaces cleanly</strong> — auto-activates on a channel named <code>sarsat</code>, a distinct
+Comms message type with country name and “×N” coalescing, and an SOS map marker.</li>
+<li>⚠️ <strong>Real FM audio, at scale, is still the open question.</strong> One genuine
+FM-demod recording decodes cleanly, but a stock Benshi&#39;s SBC-compressed,
+de-emphasized audio is the weakest link and its reliability across many
+real-world bursts is unproven. A raw discriminator or <code>rtl_fm</code> feed will
+always do better.</li>
+<li>⚠️ <strong>Self-test beacons</strong> are handled by the FM-demod path (which is the one
+that matters for real FM audio); the coherent path&#39;s matched filter still only
+anchors on the <em>normal</em> frame sync.</li>
+<li>⚠️ <strong>Position parsing covers Standard Location and User-Location</strong>; the other
+location protocols (ELT-DT, National, RLS…) are classified but not yet fully
+geo-decoded, so an ELT-DT self-test won&#39;t plot a pin even though everything
+else about it decodes.</li>
+<li>❌ <strong>Second-generation (SGB) beacons</strong> — DSSS/OQPSK, needs IQ, not attempted.</li>
+</ul>
+<p>And the standing rule, worth repeating: this is <strong>receive-only</strong>. 406 MHz is a
+distress band. Decode the official test beacons, learn how the system works, and
+never transmit there.</p>
+<hr>
+<p><strong>Related:</strong> <a href="morse-key-support.md">Keying by Hand: Morse Key Support</a> ·
+<a href="audio-isolate-threading.md">Getting Audio Off the Main Thread</a></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/sarsat-406-beacon-decoding.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../screens.html">Screens</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

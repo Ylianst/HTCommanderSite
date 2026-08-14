@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Technology blog — HTCommander</title>
   <meta name="description" content="Field notes and deep dives on the technology behind HTCommander — the DART modem, Benshi firmware updates, DSP experiments and protocol reverse-engineering." />
-  <meta name="theme-color" content="#e7ebf0" />
+  <meta name="theme-color" content="#07090d" />
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
@@ -185,6 +185,22 @@
 
   <section class="section--tight">
     <div class="container">
+      <h2 class="group-title">Troubleshooting &amp; Support</h2>
+      <p class="group-sub">Getting good diagnostics out of the app when something goes wrong.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/crash-reporting.html">
+          <span class="kicker">Troubleshooting</span>
+          <h3>It Crashed — Now What? How to Report a Crash in HTCommander</h3>
+          <p>A user-facing guide to capturing what went wrong — exporting the Debug tab log, finding the on-disk <code>htcommander_crash.log</code> on every platform, running from a terminal when the app won&#39;t start at all, checking the OS crash reporter, and exactly what to include so a report is actionable on the first try.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
       <h2 class="group-title">Internet Linking</h2>
       <p class="group-sub">Bringing internet-linked voice into the same app that drives the radio.</p>
 
@@ -201,11 +217,23 @@
           <p>A design note written before the first line of code — what APRS-IS is, the single-line passcode login, the TNC2 ⟷ AX.25 codec that lets internet packets reuse the existing APRS pipeline, the full-IGate rules for gating between RF and the internet (q-constructs, NOGATE, the &quot;recently heard&quot; list), and the receive-only-first test plan.</p>
           <span class="post__more">Read more →</span>
         </a>
+        <a class="post" href="blogs/allstarlink-support.html">
+          <span class="kicker">Internet</span>
+          <h3>Dialing In: Adding AllStarLink Support to HTCommander</h3>
+          <p>How we speak Asterisk&#39;s native <strong>IAX2</strong> protocol from pure Dart to connect to an AllStarLink node — the single-UDP-port design, full vs. mini frames, the NEW/AUTHREQ/AUTHREP/ACCEPT/ANSWER call handshake, MD5 challenge-response auth, GSM and μ-law voice, UDP reliability with sequence numbers and the 0x8000 timestamp-resync trick, why we connect client-to-node (DVSwitch/iaxRPT style), and how to configure a node and make your first call.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/allstarlink-node-support.html">
+          <span class="kicker">Internet</span>
+          <h3>Becoming the Node: Hosting an AllStarLink Node in HTCommander</h3>
+          <p>The other direction — turning HTCommander into a <strong>node</strong> others dial <em>into</em>. Running the inbound IAX2 server (the handshake in reverse), sharing one socket between calls and registration by call-number range, IAX2 registration so the network can find you, and the radio relay: bridging 8 kHz call audio to a handheld&#39;s PTT with half-duplex carrier arbitration so local RF always wins. Plus accepting <strong>Web Transceiver</strong> clients safely by validating their portal token the way a real <code>app_rpt</code> node does.</p>
+          <span class="post__more">Read more →</span>
+        </a>
       </div>
     </div>
   </section>
 
-  <section class="section--tight" style="background: var(--bg-2);">
+  <section class="section--tight">
     <div class="container">
       <h2 class="group-title">Voice &amp; CW</h2>
       <p class="group-sub">Sending and shaping audio through the radio — from the microphone to Morse.</p>
@@ -221,7 +249,7 @@
     </div>
   </section>
 
-  <section class="section--tight">
+  <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
       <h2 class="group-title">Satellites</h2>
       <p class="group-sub">Working amateur radio satellites with a handheld — tracking, passes, and Doppler.</p>
@@ -231,6 +259,22 @@
           <span class="kicker">Satellites</span>
           <h3>Working the Birds: Amateur Satellite Support in HTCommander</h3>
           <p>How HTCommander tracks the FM &quot;easy sats&quot; — SGP4 orbit propagation via the <code>satellite_observer</code> package, orbital elements from CelesTrak and transponder frequencies from SatNOGS (with a bundled offline seed), the tab and map ground track/footprint overlay, Doppler-corrected up/downlink from range-rate — and the honest ledger of what&#39;s left: driving the radio&#39;s own native <code>SET_SATELLITE_INFO</code> command, whose payload isn&#39;t decoded yet.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Emergency Beacons</h2>
+      <p class="group-sub">Pulling life-saving signals out of the air — receive-only, on protected bands.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/sarsat-406-beacon-decoding.html">
+          <span class="kicker">Emergency</span>
+          <h3>Decoding Distress: 406 MHz SARSAT Beacons in HTCommander</h3>
+          <p>How a handheld FM radio can pick a satellite distress beacon out of the air: what COSPAS-SARSAT is, why a first-generation 406 MHz beacon is phase-modulated (not FM), the two demodulators (coherent and FM-demod) and BCH error-correction we built in pure Dart, how we proved it works — with a round-trip modulator, an oracle-built BCH encoder, and finally a real beacon recording that decodes with both BCH fields valid — and how decoding activates on a channel named <code>sarsat</code> (so a 406 MHz beacon or a 434 MHz trainer both work), surfacing a country, a 15-hex beacon ID, and a position as its own Comms message type with an SOS map marker.</p>
           <span class="post__more">Read more →</span>
         </a>
       </div>

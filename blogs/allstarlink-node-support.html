@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Becoming the Node: Hosting an AllStarLink Node in HTCommander — HTCommander</title>
+  <meta name="description" content="Our [first AllStarLink post](allstarlink-support.md) taught HTCommander to place an outbound IAX2 call into a node — to be a **client** that dials in. This one is about the other direction: turning HTCommander itself into a **node** that other people dial *into*, and bridging whatever they say straight out over a Benshi handheld's PTT. That means running an inbound IAX2 **server**, registering with the AllStarLink network so the world can find us, arbitrating a half-duplex radio between RF and the internet, and — because we wanted &quot;anyone with the app can connect&quot; done safely — validating AllStarLink Web Transceiver tokens the exact way a real node does. Here's how it all fits together." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Features</a>
+        <a href="../screens.html">Screens</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Internet Linking</span>
+      <h1>Becoming the Node: Hosting an AllStarLink Node in HTCommander</h1>
+      <p>Our <a href="allstarlink-support.md">first AllStarLink post</a> taught HTCommander to place an outbound IAX2 call into a node — to be a <strong>client</strong> that dials in. This one is about the other direction: turning HTCommander itself into a <strong>node</strong> that other people dial <em>into</em>, and bridging whatever they say straight out over a Benshi handheld&#39;s PTT. That means running an inbound IAX2 <strong>server</strong>, registering with the AllStarLink network so the world can find us, arbitrating a half-duplex radio between RF and the internet, and — because we wanted &quot;anyone with the app can connect&quot; done safely — validating AllStarLink Web Transceiver tokens the exact way a real node does. Here&#39;s how it all fits together.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>From client to node</h2>
+<p>In the client post we made a product call: connect <em>to</em> one node the way phone
+apps like DVSwitch Mobile do, and skip the heavy machinery of <em>being</em> a node. The
+protocol core — IAX2 frames, information elements, MD5 auth, GSM/μ-law codecs —
+was identical either way, so we noted that &quot;full node participation can be layered
+on later without touching the protocol core.&quot;</p>
+<p>This is that layer. Hosting a node adds three genuinely new pieces on top of the
+existing IAX2 stack:</p>
+<ol>
+<li>An <strong>inbound server</strong> that answers <code>NEW</code> calls from other nodes instead of
+placing them — with the whole handshake running in reverse.</li>
+<li>A <strong>registration client</strong> so the AllStarLink network publishes our address and
+other nodes can resolve our node number to our IP.</li>
+<li>A <strong>radio relay</strong>: a bridge that cross-connects the internet call to a
+physical radio&#39;s receiver and transmitter, with the half-duplex arbitration a
+real repeater controller does.</li>
+</ol>
+<p>And because a hosted node is exposed to the whole internet, a fourth concern runs
+through all of it: <strong>authentication and access control</strong>.</p>
+<hr>
+<h2>The shape of it: a background handler, device 203</h2>
+<p>The outbound AllStarLink client lives on <strong>device 202</strong> — a pseudo-radio you
+select and talk <em>through</em>. Hosting is a different animal: it isn&#39;t a radio you
+listen to, it&#39;s a service that runs in the background and <em>takes over</em> one of your
+real radios. So it gets its own home.</p>
+<p>Node hosting is an <code>AllStarNodeHandler</code> — a background Data Broker handler in the
+same family as the BBS and Torrent handlers — and it publishes its control and
+status on a new pseudo-device, <strong>203</strong>. It owns exactly one UDP socket and three
+things hanging off it: the server, the registrar, and the audio bridge to a locked
+radio.</p>
+<pre class="mermaid">flowchart TB
+  subgraph Net[&quot;AllStarLink network&quot;]
+    Reg[&quot;Registration server\nregister.allstarlink.org&quot;]
+    Peer1[&quot;Node 1998&quot;]
+    Peer2[&quot;WT client\n(phone / browser)&quot;]
+  end
+  subgraph App[&quot;HTCommander — AllStarNodeHandler (device 203)&quot;]
+    Sock[&quot;One UDP socket\nbound to :4569&quot;]
+    Server[&quot;Iax2Server\n(inbound sessions)&quot;]
+    Registrar[&quot;Iax2Registrar\n(REGREQ keepalive)&quot;]
+    Bridge[&quot;Audio bridge\n+ half-duplex arbiter&quot;]
+  end
+  Radio[&quot;Benshi handheld\n(locked: usage &#39;AllStarLink&#39;)&quot;]
+
+  Reg &lt;--&gt;|REGREQ/REGACK| Sock
+  Peer1 &lt;--&gt;|IAX2| Sock
+  Peer2 &lt;--&gt;|IAX2| Sock
+  Sock --&gt; Registrar
+  Sock --&gt; Server
+  Server &lt;--&gt; Bridge &lt;--&gt; Radio
+</pre>
+<p>When you start hosting, the handler locks the chosen radio to a new usage string,
+<code>AllStarLink</code>, so the rest of the app leaves it alone (more on that lock later),
+opens the socket, spins up the server and registrar, and starts a 20 ms mixer
+tick. Stop hosting and it unwinds all of it — unlock the radio, hang up every
+session, deregister, close the socket.</p>
+<p>Everything below the handler is, again, <strong>pure Dart</strong> and transport-agnostic: the
+server and registrar emit datagrams through callbacks and receive them through
+plain methods, so both are unit-tested without a socket in sight.</p>
+<hr>
+<h2>One socket, two tenants: routing by call number</h2>
+<p>Here&#39;s the first wrinkle unique to hosting. A real node uses UDP 4569 for
+<em>everything</em>, and so must we — but now &quot;everything&quot; includes two very different
+conversations sharing one socket: registration traffic to AllStarLink&#39;s servers,
+and call traffic to and from every linked peer. When a datagram arrives, which one
+gets it?</p>
+<p>IAX2 hands us the answer for free. Every full frame names the <strong>destination call
+number</strong> — the local call number the sender is talking to. So we simply partition
+the call-number space:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Tenant</th>
+<th>Local call numbers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Inbound peer sessions (<code>Iax2Server</code>)</td>
+<td><code>1 … 0x3FFE</code></td>
+</tr>
+<tr>
+<td>Registration leg (<code>Iax2Registrar</code>)</td>
+<td><code>0x4000 …</code></td>
+</tr>
+</tbody></table>
+</div>
+<p>The handler peeks at the destination call number on each inbound datagram: if it&#39;s
+<code>≥ 0x4000</code> it belongs to the registrar, otherwise it&#39;s routed to the server, which
+demultiplexes further by <code>(peer address, call number)</code> into the right session.
+<code>NEW</code> frames — which carry destination call number <code>0</code> because the peer doesn&#39;t
+know its call number yet — always go to the server to start a new session.</p>
+<hr>
+<h2>The handshake, in reverse</h2>
+<p>The client post walked the outbound handshake: we send <code>NEW</code>, the node challenges
+us with <code>AUTHREQ</code>, we answer <code>AUTHREP</code>, it says <code>ACCEPT</code> then <code>ANSWER</code>. Hosting is
+the <em>same conversation from the other chair</em>. Now <strong>we</strong> are the one issuing the
+challenge and deciding who gets in.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Peer as Remote node / WT client
+  participant Node as HTCommander (Iax2Server)
+  Peer-&gt;&gt;Node: NEW  (username, called number, capability, format)
+  Node--&gt;&gt;Peer: AUTHREQ  (auth methods = MD5, random challenge)
+  Peer-&gt;&gt;Node: AUTHREP  (MD5 result = md5(challenge + secret))
+  Note over Node: verify md5(challenge + expected-secret)
+  Node--&gt;&gt;Peer: ACCEPT  (chosen codec: μ-law or GSM)
+  Node--&gt;&gt;Peer: ANSWER  (control frame — we auto-answer)
+  Note over Peer,Node: call is UP — voice bridges to the radio
+  Peer-&gt;&gt;Node: HANGUP   (or we drop it on inactivity)
+</pre>
+<p>A few decisions that only exist on the server side:</p>
+<ul>
+<li><strong>We allocate the call number.</strong> Each <code>NEW</code> gets a fresh local call number from
+the <code>1…0x3FFE</code> pool, and the session is filed under both that number and the
+peer&#39;s <code>(host, port, their call number)</code> so mini frames — which only carry the
+source call number — still route correctly.</li>
+<li><strong>We generate the challenge.</strong> A random numeric string per session; the peer&#39;s
+<code>AUTHREP</code> must be <code>md5(challenge + secret)</code>, and we compare against our own
+computation of the same. Wrong secret → <code>REJECT</code>, and the session never exists.</li>
+<li><strong>We auto-answer.</strong> A repeater node doesn&#39;t &quot;ring&quot;; the moment auth passes we
+send <code>ACCEPT</code> (naming the codec we picked from the caller&#39;s <code>CAPABILITY</code>,
+preferring μ-law then GSM) immediately followed by <code>ANSWER</code>, and the call is up.</li>
+<li><strong>We keep the reliability machinery</strong>, but per-session: each session has its own
+sequence counters, its own map of unacknowledged frames, its own retransmit
+timer, and an inactivity watchdog that hangs up a peer that goes silent for
+60 seconds. One misbehaving link can&#39;t wedge the others.</li>
+</ul>
+<p>The server caps concurrent sessions and supports optional allow/deny lists of node
+numbers — the cheap, important guardrails for something that now listens to the
+open internet.</p>
+<hr>
+<h2>Getting found: IAX2 registration</h2>
+<p>An inbound server is useless if nobody can find it. AllStarLink resolves a node
+number to an IP through DNS (<code>&lt;node&gt;.nodes.allstarlink.org</code>), and those DNS
+records are populated from a <strong>registration</strong> database. To appear in it, a node
+periodically tells AllStarLink &quot;I&#39;m node 2000, here&#39;s my password, here&#39;s where I
+am&quot; — and the network records the address it <em>sees</em> the packet coming from
+(which neatly handles NAT).</p>
+<p>ASL3 defaults to an HTTP registration endpoint whose wire format isn&#39;t publicly
+documented, but the <strong>classic IAX2 registration</strong> — <code>register =&gt; node:password@register.allstarlink.org</code> — is right there in RFC 5456 and still
+supported. It reuses the exact frame and IE code we already had, so that&#39;s what we
+implemented.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Node as HTCommander (Iax2Registrar)
+  participant Reg as register.allstarlink.org
+  Node-&gt;&gt;Reg: REGREQ  (username = node number, refresh)
+  Reg--&gt;&gt;Node: REGAUTH (auth methods = MD5, challenge)
+  Node-&gt;&gt;Reg: REGREQ  (username, md5(challenge + password), refresh)
+  Reg--&gt;&gt;Node: REGACK  (refresh interval, APPARENTADDR = our public IP:port)
+  Note over Node: schedule refresh a little before it expires
+</pre>
+<p>It&#39;s the same MD5 challenge-response as a call, just with <code>REGREQ</code>/<code>REGAUTH</code>/
+<code>REGACK</code> instead of <code>NEW</code>/<code>AUTHREQ</code>/<code>ACCEPT</code>. The <code>REGACK</code> even hands back an
+<code>APPARENTADDR</code> information element — a <code>sockaddr_in</code> telling us the public IP and
+port the server saw — which we decode and surface so you can confirm your node is
+reachable. A timer re-registers shortly before the lease expires; a <code>REGREJ</code> (bad
+password) or a silent server flips the status to <em>failed</em> and backs off.</p>
+<p>Because registration shares the node&#39;s socket, it registers <em>from</em> port 4569 —
+which is exactly the port inbound calls need to arrive on. The address AllStarLink
+publishes is therefore the one that works.</p>
+<hr>
+<h2>The whole point: bridging the internet to RF</h2>
+<p>Signaling and registration are plumbing. The reason any of this exists is to take
+audio off an internet call and put it out over a radio — and take what the radio
+hears and send it back. This is what <code>app_rpt</code> does on a real node, and it&#39;s the
+part with the most physics in it.</p>
+<p>The radio side already speaks a clean event language inside HTCommander. A locked
+radio publishes its received audio as <code>AudioData*</code> events at 32 kHz, tagged with
+the lock usage; transmitting is a matter of dispatching <code>TransmitVoicePCM</code> back to
+it. So the bridge is two resamplers and a mixer wired between the server and those
+events:</p>
+<pre class="mermaid">flowchart LR
+  subgraph RXtoNet[&quot;Radio RX → network&quot;]
+    A[&quot;Radio audio\n32 kHz, usage &#39;AllStarLink&#39;&quot;] --&gt; B[&quot;Resample 32k → 8k&quot;]
+    B --&gt; C[&quot;Slice into 20 ms\n160-sample frames&quot;]
+    C --&gt; D[&quot;broadcast to every\nlinked session&quot;]
+  end
+  subgraph NetToRadio[&quot;Network → radio TX&quot;]
+    E[&quot;Per-session 8 kHz audio&quot;] --&gt; F[&quot;Mix (sum + clip)\nevery 20 ms&quot;]
+    F --&gt; G[&quot;Resample 8k → 32k&quot;]
+    G --&gt; H[&quot;TransmitVoicePCM\n(keys the radio)&quot;]
+  end
+</pre>
+<p>Received radio audio is resampled down to the node&#39;s 8 kHz, chopped into the
+20 ms frames IAX2 wants, and broadcast to every connected peer. In the other
+direction, a 20 ms <strong>mixer tick</strong> pulls a frame from each talking session, sums
+them (with clipping), resamples up to the engine&#39;s 32 kHz, and streams it to the
+radio as a held PTT. Multiple people talking at once mix into one transmission —
+exactly what a repeater does.</p>
+<h3>Half-duplex is the hard part</h3>
+<p>A repeater is full-duplex — it can listen and transmit at the same time. A
+handheld cannot. It&#39;s <strong>half-duplex</strong>: while it&#39;s transmitting it&#39;s deaf, and you
+must never key it on top of a local user who&#39;s mid-sentence. Getting this wrong
+gives you the two classic failure modes — a feedback loop, or a local operator
+who gets stepped on by the internet.</p>
+<p>We arbitrate with the radio&#39;s own carrier detect. The radio reports <code>isInRx</code> in
+its status — true when it hears a signal on the air. That&#39;s the priority signal:</p>
+<ul>
+<li><strong>Local RF wins, always.</strong> While <code>isInRx</code> is true, the mixer tick refuses to key
+the radio and drops buffered network audio. A local operator is never
+interrupted by the link.</li>
+<li><strong>Network audio keys the radio only when the air is clear.</strong> When RF is idle and
+a session has audio, we key PTT and stream; when the talkers stop, a short tail
+timer (~300 ms) unkeys, so the transmitter doesn&#39;t chatter between syllables.</li>
+<li><strong>Carrier state is signaled both ways.</strong> When the radio starts and stops
+receiving, we send IAX2 <code>KEY</code>/<code>UNKEY</code> control frames (the <code>app_rpt</code> PTT
+indications) to the linked peers, so the rest of the network sees our node key
+up just like any other.</li>
+</ul>
+<p>That &quot;local RF wins&quot; rule, plus the fact that keying the radio makes it deaf
+(so it can&#39;t hear — and re-transmit — the very audio we&#39;re playing into it), is
+what keeps the bridge from howling.</p>
+<h3>The lock</h3>
+<p>To dedicate a radio to relaying, the handler claims it with HTCommander&#39;s radio
+<strong>lock</strong> mechanism under a new usage, <code>AllStarLink</code>. The lock is how features like
+BBS, Terminal, and Torrent take exclusive control of a radio; the Comms tab already
+respects it and disables manual PTT on a locked radio. Reusing it means the moment
+you start hosting, the radio is off-limits to everything else and fully owned by
+the node — no new arbitration code required.</p>
+<hr>
+<h2>&quot;Allow anyone&quot;: Web Transceiver, done safely</h2>
+<p>There are two ways to let people connect. The first is to hand out your <strong>node
+password</strong> — fine for a friend, awkward for the public. The second is the
+mechanism AllStarLink built for exactly this: the <strong>Web Transceiver</strong> (WT).</p>
+<p>WT clients don&#39;t have your password. They authenticate with a <em>public</em> shared
+secret (<code>allstar-public</code> / <code>allstar</code>) that every WT-enabled node accepts — and the
+real access control is a <strong>token</strong> each client fetches from the AllStarLink portal
+by logging in with their own account. The client presents that token as its IAX2
+CallerID name; the node validates it, and only lets the call through if it&#39;s good.</p>
+<p>We added an <strong>Allow Web Transceiver connections</strong> switch that turns this on. When
+a caller uses the public username, the server authenticates them against the public
+secret instead of your node password. But that public secret is, by design, known
+to everyone — so on its own it would let <em>anyone</em> in. The token is what makes it
+safe, and it turns out a real node validates it with a plain HTTP GET:</p>
+<pre><code>GET https://register.allstarlink.org/cgi-bin/authwebphone.pl?&lt;token&gt;
+</code></pre>
+<p>That&#39;s lifted straight from the <code>[allstar-public]</code> dialplan every ASL node ships:
+it CURLs that URL with the caller&#39;s token and hangs up only if the reply begins
+with <code>?</code>. We do exactly the same.</p>
+<pre class="mermaid">sequenceDiagram
+  participant WT as WT client
+  participant Node as HTCommander
+  participant Portal as AllStarLink portal
+  WT-&gt;&gt;Node: NEW (username = allstar-public, CallerID name = token)
+  Node--&gt;&gt;WT: AUTHREQ (challenge)
+  WT-&gt;&gt;Node: AUTHREP (md5(challenge + &quot;allstar&quot;))
+  Note over Node: MD5 passes — but is the token real?
+  Node-&gt;&gt;Portal: GET authwebphone.pl?&lt;token&gt;
+  Portal--&gt;&gt;Node: reply (starts with &#39;?&#39; = invalid)
+  alt token valid
+    Node--&gt;&gt;WT: ACCEPT + ANSWER
+  else token invalid
+    Node--&gt;&gt;WT: REJECT
+  end
+</pre>
+<p>Two implementation details made this behave well:</p>
+<ul>
+<li><strong>Auth is now two-phase and async.</strong> MD5 is synchronous; the token check is a
+network round-trip. So after MD5 passes for a WT session, the server sends a bare
+<code>ACK</code> to stop the peer retransmitting its <code>AUTHREP</code>, kicks off the async
+validation, and only <em>then</em> sends <code>ACCEPT</code> or <code>REJECT</code> when the portal answers. A
+guard flag stops a retransmitted <code>AUTHREP</code> from launching a second lookup, and
+the result is ignored if the session was torn down while we waited.</li>
+<li><strong>We match the node&#39;s fail-open stance.</strong> The dialplan rejects only on an
+explicit <code>?</code>; an empty or failed response lets the call through. We do the same —
+reject on <code>?</code>, but treat a portal outage as <em>allow</em>, so a hiccup at AllStarLink
+doesn&#39;t lock out every legitimate user. (Flipping this to fail-closed is a
+one-line change if a node owner prefers it.)</li>
+</ul>
+<p>The upshot: flip one switch and anyone with a valid AllStarLink account can reach
+your radio through the official Web Transceiver — and nobody without one can.</p>
+<hr>
+<h2>Using it</h2>
+<p>Two places, mirroring how the feature splits:</p>
+<p><strong>Settings → AllStarLink → Host a Node</strong> holds the identity and network config:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Node Number</strong></td>
+<td>Your AllStarLink node number</td>
+</tr>
+<tr>
+<td><strong>Node Password</strong></td>
+<td>The password from your node&#39;s portal page</td>
+</tr>
+<tr>
+<td><strong>IAX Port</strong></td>
+<td>The UDP port to bind (defaults to 4569)</td>
+</tr>
+<tr>
+<td><strong>Registration</strong></td>
+<td>AllStarLink (IAX), or <em>None</em> for a private node</td>
+</tr>
+<tr>
+<td><strong>Allow Web Transceiver</strong></td>
+<td>Accept token-validated public WT clients</td>
+</tr>
+</tbody></table>
+</div>
+<p><strong>The Comms tab</strong> is where you actually go on the air. Select a connected
+handheld, tap the new <strong>node</strong> button in the header, confirm the control-operator
+notice, and HTCommander locks that radio, registers, and starts relaying. The
+button glows while hosting and shows how many nodes are linked; tap it again to
+stop. Because a hosted node listens on the internet, you&#39;ll need to forward UDP
+4569 to the machine for inbound links to reach you — the one bit of network setup
+the protocol can&#39;t do for you.</p>
+<p>A word on responsibility: relaying internet audio onto RF means <em>you</em> are the
+control operator for everything that goes out. HTCommander shows a one-time notice
+to that effect before it keys your radio for the first time — the same reminder any
+repeater trustee lives by.</p>
+<hr>
+<h2>Testing a server with no internet in the room</h2>
+<p>The same discipline that made the client testable pays off double here. Because
+<code>Iax2Server</code> and <code>Iax2Registrar</code> talk through callbacks, a test can <em>be</em> the
+remote node: feed the server a crafted <code>NEW</code> and assert it challenges with an
+<code>AUTHREQ</code>; feed a correct <code>AUTHREP</code> and assert <code>ACCEPT</code> + <code>ANSWER</code> and a live
+session; feed a <em>wrong</em> secret and assert <code>REJECT</code> and zero sessions; feed a voice
+frame and assert PCM comes out the audio callback; feed a <code>HANGUP</code> and assert a
+clean teardown. The registrar test plays the registration server through the whole
+<code>REGREQ → REGAUTH → REGREQ → REGACK</code> dance.</p>
+<p>Web Transceiver validation drops in as a swappable async function, so two tests
+pin the important behaviors without touching the network: a validator that returns
+<em>false</em> must produce a <code>REJECT</code> <em>after</em> the async check resolves, and one that
+returns <em>true</em> must accept. No live node, no portal, no repeater across town.</p>
+<hr>
+<h2>What&#39;s next</h2>
+<p>Hosting a node opens a long runway of <code>app_rpt</code> behavior we haven&#39;t built yet:</p>
+<ul>
+<li><strong>DTMF node control</strong> — letting a connected user key <code>*3&lt;node&gt;</code> to link and
+unlink <em>other</em> nodes through us, the way a real controller does.</li>
+<li><strong>Outbound linking from node mode</strong> — so your hosted node can reach <em>out</em> to
+other nodes and hubs, not only accept inbound links.</li>
+<li><strong>HTTP registration</strong> and <strong>IAX2 call tokens</strong>, once their wire formats are
+pinned down, for full parity with ASL3 defaults.</li>
+<li><strong>Node status on the radio panel</strong> — a live roster of who&#39;s linked, right on the
+LCD.</li>
+</ul>
+<p>But the core is in place: HTCommander will now stand up as an AllStarLink node,
+register itself with the network, answer calls from anywhere in the world, prove
+who&#39;s allowed in — and put every one of them out over a handheld&#39;s PTT, all in
+pure Dart on top of the same audio pipeline that started this whole series.</p>
+<hr>
+<p><em>See also: <a href="allstarlink-support.md">Dialing In: Adding AllStarLink Support to HTCommander</a>
+· <a href="echolink-support.md">Radio Over the Internet: Adding EchoLink to HTCommander</a></em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/allstarlink-node-support.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../screens.html">Screens</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

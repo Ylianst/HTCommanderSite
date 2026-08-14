@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>It Crashed — Now What? How to Report a Crash in HTCommander — HTCommander</title>
+  <meta name="description" content="A practical guide for anyone who hit a bug and wants to help fix it. It covers the fastest way to capture what went wrong — from the built-in Debug tab export to the on-disk crash log that survives an app that won't even start — on Windows, macOS, Linux, Android, and iOS, plus exactly what to include so a report is actionable on the first try." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Features</a>
+        <a href="../screens.html">Screens</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Troubleshooting &amp; Support</span>
+      <h1>It Crashed — Now What? How to Report a Crash in HTCommander</h1>
+      <p>A practical guide for anyone who hit a bug and wants to help fix it. It covers the fastest way to capture what went wrong — from the built-in Debug tab export to the on-disk crash log that survives an app that won&#39;t even start — on Windows, macOS, Linux, Android, and iOS, plus exactly what to include so a report is actionable on the first try.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>Why this matters</h2>
+<p>A bug report that says <em>&quot;it crashed&quot;</em> and a bug report that includes a crash log
+are two very different things. The first starts a guessing game; the second often
+points straight at the faulting line. HTCommander talks to real radio hardware
+over Bluetooth and serial, juggles audio devices, and runs background network
+services — there are a lot of moving parts, and the details of <em>your</em> machine
+matter. The good news: the app is built to hand you those details. This post
+shows you where to find them.</p>
+<p>There are three ways to get diagnostics out of HTCommander, in rough order of
+how broken things are:</p>
+<ol>
+<li><strong>The app runs</strong> → file a report straight from the app, or export the Debug
+log.</li>
+<li><strong>The app crashes, but launched at least once</strong> → grab the on-disk crash log.</li>
+<li><strong>The app won&#39;t start at all</strong> → run it from a terminal and/or read the crash
+log the previous launch left behind.</li>
+</ol>
+<p>Let&#39;s walk through each.</p>
+<hr>
+<h2>0. The one-click way: &quot;Report a Crash…&quot;</h2>
+<p>If the app is running, the fastest path is the built-in reporter. It&#39;s in two
+places:</p>
+<ul>
+<li>The <strong>About</strong> dialog (<strong>Help → About</strong>) has a <strong>Report a Crash…</strong> button.</li>
+<li>The <strong>Debug</strong> tab menu has a <strong>Report a Crash…</strong> item.</li>
+</ul>
+<p>Either one opens your web browser to a <strong>pre-filled GitHub issue</strong> — already
+populated with the app version, your platform, and the most recent log lines
+(including any crash stack traces). You just describe what you were doing and
+click submit.</p>
+<p>A few things worth knowing:</p>
+<ul>
+<li><strong>It uses your own GitHub account.</strong> Nothing is sent by the app itself and
+there&#39;s no telemetry or tracking server — the report is only filed when <em>you</em>
+press submit on GitHub. If you don&#39;t have a GitHub account, use one of the log
+export options below and send the file another way.</li>
+<li><strong>Please attach the full crash log file.</strong> The pre-filled text only carries the
+<em>tail</em> of the log (to keep the link a sane length). The issue text tells you
+exactly where <code>htcommander_crash.log</code> lives on your machine — drag-and-drop that
+file into the GitHub issue before submitting so we get the complete stack
+traces.</li>
+</ul>
+<p>If you&#39;d rather not use GitHub, read on — everything the button does can be done
+by hand.</p>
+<hr>
+<h2>1. The app runs: export the Debug log</h2>
+<p>HTCommander captures its own application log from the moment it launches — you
+don&#39;t need to have the Debug tab open beforehand for messages to be recorded. It
+even writes a startup banner with the version and platform, e.g.
+<code>HTCommander 0.1.31 started on windows</code>.</p>
+<p>To send it to us:</p>
+<ol>
+<li>Open the <strong>Debug</strong> tab.</li>
+<li>Click the tab&#39;s <strong>menu</strong> (the menu icon at the top-right of the tab).</li>
+<li>Choose <strong>Save to File…</strong>.</li>
+<li>Save the <code>debug_log_YYYY-MM-DD_HHMMSS.txt</code> file it offers and attach it to your
+report.</li>
+</ol>
+<p>Every line is timestamped, and failures are marked <code>[Error]</code>, so this is usually
+the single most useful thing you can send when the app is still usable.</p>
+<hr>
+<h2>2. The on-disk crash log</h2>
+<p>Some failures happen before there&#39;s any UI to click — a bad audio driver, a
+missing system library, a crash during startup. For those, HTCommander writes
+uncaught errors to a plain-text <strong>crash log file on disk</strong>, independently of the
+Debug tab. Even if the window never appears, this file is written as early as the
+app can resolve a place to put it.</p>
+<p>The file is called <strong><code>htcommander_crash.log</code></strong> and lives in the platform&#39;s
+application-support directory:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Where to find <code>htcommander_crash.log</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Windows</strong></td>
+<td><code>%APPDATA%\com.example\htcommander\</code> — paste <code>%APPDATA%</code> into the Explorer address bar and open <code>com.example\htcommander</code></td>
+</tr>
+<tr>
+<td><strong>macOS</strong></td>
+<td><code>~/Library/Application Support/com.meshcentral.htcommander/</code> — in Finder, use <strong>Go → Go to Folder…</strong> and paste the path</td>
+</tr>
+<tr>
+<td><strong>Linux</strong></td>
+<td><code>~/.local/share/htcommander/</code> (or <code>$XDG_DATA_HOME/htcommander/</code> if set)</td>
+</tr>
+<tr>
+<td><strong>Android</strong></td>
+<td>the app&#39;s private support directory (retrievable over <code>adb</code>, see below)</td>
+</tr>
+<tr>
+<td><strong>iOS</strong></td>
+<td>the app sandbox&#39;s Application Support directory (via a device backup or Xcode&#39;s device container tools)</td>
+</tr>
+</tbody></table>
+</div>
+<blockquote>
+<p><strong>Tip (Windows):</strong> the quickest way is to press <strong>Win + R</strong>, type
+<code>%APPDATA%</code>, press Enter, then look for the HTCommander folder. Sort by <em>Date
+modified</em> to find the most recent <code>htcommander_crash.log</code>.</p>
+</blockquote>
+<p>The log rotates automatically once it grows past half a megabyte (the previous
+contents move to <code>htcommander_crash.log.1</code>), so if a crash just happened, the
+newest details are always at the <strong>bottom</strong> of <code>htcommander_crash.log</code>. Each
+entry is timestamped and, for errors, includes the full stack trace — exactly
+what we need.</p>
+<p>On <strong>Android</strong>, if you have USB debugging enabled, you can pull the file from a
+computer:</p>
+<pre><code class="language-bash">adb exec-out run-as &lt;app.package.id&gt; cat files/htcommander_crash.log &gt; htcommander_crash.log
+</code></pre>
+<p>(The package id is on the app&#39;s Play/settings page; if <code>run-as</code> is blocked on a
+release build, use the live-log method in the next section instead.)</p>
+<hr>
+<h2>3. The app won&#39;t start at all</h2>
+<p>If double-clicking does nothing, or the window flashes and vanishes, the crash is
+happening at launch. Two things help here.</p>
+<h3>Read the crash log from the failed launch</h3>
+<p>Even a launch that never draws a window usually gets far enough to write to
+<code>htcommander_crash.log</code>. Check the location for your platform in the table above —
+the last entries will describe what went wrong. This is the whole point of the
+on-disk log: it survives a UI that never appeared.</p>
+<h3>Run it from a terminal to capture live output</h3>
+<p>Running the executable from a terminal keeps the window from closing instantly on
+a crash and captures the raw error output the OS would otherwise swallow.</p>
+<p><strong>Windows</strong> (PowerShell, from the folder containing the app&#39;s <code>.exe</code>):</p>
+<pre><code class="language-powershell">.\htcommander.exe *&gt; htcommander_output.txt
+</code></pre>
+<p>The <code>*&gt;</code> redirects both normal and error output into a file you can attach.</p>
+<p><strong>macOS / Linux</strong> (from the folder containing the binary):</p>
+<pre><code class="language-bash">./htcommander 2&gt;&amp;1 | tee htcommander_output.txt
+</code></pre>
+<p><strong>Android</strong> (live device log while you reproduce the crash):</p>
+<pre><code class="language-bash">adb logcat -c            # clear the log
+adb logcat &gt; logcat.txt  # start capturing, then launch the app and reproduce
+</code></pre>
+<h3>Check the OS crash reporter</h3>
+<p>For a hard native crash (an access violation, a missing DLL), the operating
+system often logs it separately:</p>
+<ul>
+<li><strong>Windows:</strong> open <strong>Event Viewer → Windows Logs → Application</strong> and look for an
+<em>Application Error</em> entry naming <code>htcommander.exe</code>. Right-click it →
+<strong>Save Selected Events…</strong> and send the <code>.evtx</code>. This tells us the faulting
+module and exception code. A very common cause of &quot;won&#39;t start&quot; on Windows is a
+missing <strong>Visual C++ Redistributable</strong> or an incomplete extraction of the app
+folder — if you see a <code>VCRUNTIME140.dll not found</code>-style dialog, a screenshot of
+it is enough.</li>
+<li><strong>macOS:</strong> the <strong>Console</strong> app under <strong>Crash Reports</strong> (or <em>Reports</em>) will have a
+matching entry you can copy out.</li>
+</ul>
+<hr>
+<h2>What to include in a good report</h2>
+<p>You don&#39;t need all of this, but the more you include, the faster it gets fixed:</p>
+<ul>
+<li><strong>What you were doing</strong> when it happened (connecting a radio? starting audio?
+opening a specific tab?), and whether it&#39;s repeatable.</li>
+<li>The <strong>crash log file</strong> (<code>htcommander_crash.log</code>) and/or the <strong>Debug tab export</strong>.</li>
+<li>The <strong>terminal output</strong> file if the app wouldn&#39;t start.</li>
+<li>Your <strong>OS and version</strong> (e.g. &quot;Windows 11 23H2&quot;, &quot;macOS 14.5&quot;, &quot;Ubuntu 24.04&quot;),
+and the <strong>HTCommander version</strong> (shown in <strong>About</strong>, and in the log&#39;s startup
+banner).</li>
+<li>Which <strong>radio</strong> and <strong>connection type</strong> (Bluetooth / USB serial) were in use, if
+relevant.</li>
+<li>A <strong>screenshot</strong> of any error dialog.</li>
+</ul>
+<p>File it on the
+<a href="https://github.com/Ylianst/HTCommander/issues" target="_blank" rel="noopener">GitHub issues page</a> — the
+in-app <strong>Report a Crash…</strong> button (see section 0) opens a pre-filled issue for
+you — attach the log(s), and we&#39;ll take it from there. Thank you — every log
+makes the next release more solid.</p>
+<hr>
+<p><strong>Related:</strong> <a href="building-from-source.md">Building HTCommander from Source</a> ·
+<a href="radio-command-protocol.md">A Complete Protocol Reference</a></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/crash-reporting.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../screens.html">Screens</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
