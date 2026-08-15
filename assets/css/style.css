@@ -720,6 +720,7 @@ a.radio-chip:hover { border-color: var(--accent); color: var(--accent); }
   background: var(--bg-3);
 }
 .post-figure figcaption { margin-top: 10px; font-size: 0.85rem; color: var(--text-faint); text-align: center; }
+.feature-page .post-figure img { border: none; border-radius: 0; box-shadow: none; background: transparent; }
 
 .article .mermaid {
   background: var(--bg-3);
