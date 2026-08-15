@@ -45,7 +45,7 @@
       <article class="article">
 
         <figure class="post-figure">
-          <img src="https://github.com/Ylianst/HTCommander/blob/main/docs/images/ht-aprs.png?raw=true" alt="APRS tab in HTCommander" loading="lazy" />
+          <img src="../assets/features/Aprs.png" alt="APRS tab in HTCommander" loading="lazy" />
         </figure>
 
         <h2>The heart of the app</h2>
@@ -57,22 +57,13 @@
         <p>In <strong>File → Settings → APRS</strong> you can add extra APRS routes. Once more than one route is configured, a drop-down appears in the upper-right of the APRS tab so you can choose which route to use when sending. That lets your messages hit the right digipeaters to reach their destination.</p>
 
         <h2 id="sms">Text ordinary phones over SMS</h2>
-        <figure class="post-figure">
-          <img src="https://github.com/Ylianst/HTCommander/blob/main/docs/images/ht-aprs-sms.png?raw=true" alt="Sending an APRS SMS message in HTCommander" loading="lazy" />
-        </figure>
         <p>With a callsign configured and transmit enabled, you can send SMS text messages to ordinary mobile phones over APRS — perfect when you need to reach someone and have no cell coverage. The recipient must opt in first: they visit <a href="https://aprs.wiki/" target="_blank" rel="noopener">aprs.wiki</a>, and confirm with an SMS reply.</p>
         <p>Once they've opted in, open the menu in the upper-right of the APRS tab, choose <strong>SMS Message…</strong>, then enter the phone number and message. Note that both the number and message travel unencrypted and unauthenticated.</p>
 
         <h2 id="weather">Weather reports on demand</h2>
-        <figure class="post-figure">
-          <img src="https://github.com/Ylianst/HTCommander/blob/main/docs/images/ht-aprs-weather.png?raw=true" alt="Requesting an APRS weather report in HTCommander" loading="lazy" />
-        </figure>
         <p>With a callsign and transmit enabled you can also request a weather report for a location and time. From the upper-right menu choose <strong>Weather Report…</strong>, enter the location and pick a time and report type. This uses the <a href="https://sites.google.com/site/ki6wjp/wxbot" target="_blank" rel="noopener">WxBot</a> service.</p>
 
         <h2 id="authentication">Authenticated messages</h2>
-        <figure class="post-figure">
-          <img src="https://github.com/Ylianst/HTCommander/blob/main/docs/images/ht-auth-aprs-messages.png?raw=true" alt="Authenticated APRS messages shown in green in HTCommander" loading="lazy" />
-        </figure>
         <p>HTCommander can send <strong>authenticated</strong> APRS messages. Two or more stations share a password entered in the HTCommander address book. When you message that station, a 6-digit authentication code is appended. If the receiver has the same password, it verifies the message and displays it in <strong>green</strong>; a mismatch shows in light orange.</p>
         <p>The password is never sent over the air — it only generates the code, which is derived from the message, the password and the current time. Because the code changes every minute, replayed messages fail the check, so keep the stations' clocks in sync. Encryption isn't permitted in amateur radio, but authentication is — this feature provides authentication only. If you rely on it, use a long, strong password, since someone capturing many messages could try to brute-force a weak one.</p>
         <blockquote>
