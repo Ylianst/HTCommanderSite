@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catching Weather Balloons: Radiosonde Decoding in HTCommander — HTCommander</title>
+  <meta name="description" content="Twice a day, from hundreds of stations around the world, a weather balloon climbs 35 km into the stratosphere carrying a small transmitter that chirps its GPS position, temperature, and humidity back to the ground. This post is about teaching a Benshi handheld to listen in: what a radiosonde is, the six very different sonde families HTCommander now decodes from a single channel, the modems and error-correction we built in pure Dart to pull each one apart, why one popular sonde is impossible to position offline — and how the whole thing switches itself on the moment you name a channel `Radiosonde`." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Features</a>
+        <a href="../screens.html">Screens</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Weather Balloons</span>
+      <h1>Catching Weather Balloons: Radiosonde Decoding in HTCommander</h1>
+      <p>Twice a day, from hundreds of stations around the world, a weather balloon climbs 35 km into the stratosphere carrying a small transmitter that chirps its GPS position, temperature, and humidity back to the ground. This post is about teaching a Benshi handheld to listen in: what a radiosonde is, the six very different sonde families HTCommander now decodes from a single channel, the modems and error-correction we built in pure Dart to pull each one apart, why one popular sonde is impossible to position offline — and how the whole thing switches itself on the moment you name a channel <code>Radiosonde</code>.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>Setting up your radio to receive radiosondes</h2>
+<p>Before any decoding runs, HTCommander needs to <em>hear</em> a sonde on a channel it
+recognizes. The rule is the same one used for SARSAT beacons, and it&#39;s simple:</p>
+<blockquote>
+<p><strong>Name the channel <code>Radiosonde</code>.</strong> Case doesn&#39;t matter — <code>Radiosonde</code>,
+<code>radiosonde</code>, and <code>RADIOSONDE</code> all work. HTCommander watches for audio arriving
+on a channel whose name is &quot;radiosonde&quot; and feeds only that channel into the
+sonde decoders.</p>
+</blockquote>
+<p>The channel needs a receive-oriented configuration:</p>
+<ul>
+<li><strong>Receive frequency</strong> — wherever your local sonde is transmitting, somewhere in
+the <strong>400–406 MHz</strong> meteorological band (403 MHz is a common launch frequency).
+Many Benshi-class radios have wideband receive that covers this band.</li>
+<li><strong>Wide FM</strong> — radiosondes use a wider deviation than 12.5 kHz voice; wideband
+demodulation generally recovers the signal best.</li>
+<li><strong>Flat / no de-emphasis</strong> — the decoders want the raw demodulated waveform, not
+audio shaped for a human ear.</li>
+<li><strong>Receive-only</strong> — this is a licensed meteorological band; you listen, you don&#39;t
+transmit.</li>
+<li><strong>Mute</strong> — so the data bursts don&#39;t buzz out of the speaker while you work.</li>
+</ul>
+<h3>Finding a sonde to hear</h3>
+<p>Radiosondes launch on a schedule — most stations release one around <strong>00:00 and
+12:00 UTC</strong>, and the balloon is in the air (and in radio range) for a couple of
+hours as it climbs and then drifts back down under a parachute. To find one near
+you and its exact frequency, the community trackers
+<a href="https://sondehub.org/" target="_blank" rel="noopener">SondeHub</a> and <a href="https://radiosondy.info/" target="_blank" rel="noopener">radiosondy.info</a>
+show live launches, frequencies, and predicted landing sites. Tune your
+<code>Radiosonde</code> channel to that frequency during a launch window and the decoding
+below runs automatically.</p>
+<hr>
+<h2>What is a radiosonde?</h2>
+<p>A <strong>radiosonde</strong> is the disposable instrument package on a weather balloon. It&#39;s
+the single most important source of upper-air data feeding the world&#39;s weather
+models. The routine goes like this:</p>
+<ol>
+<li>A meteorological station fills a latex balloon with hydrogen or helium and
+ties on a <strong>sonde</strong> — a foam box the size of a paperback with a GPS receiver,
+temperature and humidity sensors, a battery, and a small <strong>UHF transmitter</strong>.</li>
+<li>The balloon rises at ~5 m/s to around <strong>35 km</strong>, sending a telemetry frame
+every second or two: <strong>GPS position and altitude</strong>, plus <strong>PTU</strong> (Pressure,
+Temperature, Humidity).</li>
+<li>The balloon expands until it bursts. The sonde parachutes back down,
+transmitting the whole way.</li>
+<li>On the ground, a hobby of <strong>sonde chasing</strong> has grown up around recovering the
+landed sondes — which is a big part of why decoding them on a handheld is fun.</li>
+</ol>
+<p>Everything HTCommander does here is <strong>receive-only</strong>. We&#39;re eavesdropping on a
+public transmission, turning a telemetry burst into a position on the map.</p>
+<hr>
+<h2>What HTCommander supports</h2>
+<p>The catch with radiosondes is that there is no single standard. Different
+manufacturers — Vaisala, Graw, Meteomodem, InterMet, Lockheed Martin — each use
+their own modulation, framing, and error-correction. HTCommander decodes <strong>six
+families</strong>, ported from the reference C decoders in the
+<a href="https://github.com/projecthorus/radiosonde_auto_rx" target="_blank" rel="noopener"><code>radiosonde_auto_rx</code></a> /
+<a href="https://github.com/rs1729/RS" target="_blank" rel="noopener">rs1729 RS</a> projects (author zilog80) into pure
+Dart:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Maker</th>
+<th>Modem</th>
+<th>Error correction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>RS41</strong></td>
+<td>Vaisala</td>
+<td>GFSK 4800 baud, NRZ</td>
+<td>Reed–Solomon(255,231) ×2</td>
+</tr>
+<tr>
+<td><strong>DFM</strong> (06/09/17)</td>
+<td>Graw</td>
+<td>2-FSK, Manchester, 2500 baud</td>
+<td>Hamming(8,4)</td>
+</tr>
+<tr>
+<td><strong>M10</strong></td>
+<td>Meteomodem</td>
+<td>Manchester + differential, 9615 baud</td>
+<td>linear checksum</td>
+</tr>
+<tr>
+<td><strong>M20</strong></td>
+<td>Meteomodem</td>
+<td>Manchester + differential, 9600 baud</td>
+<td>linear checksum</td>
+</tr>
+<tr>
+<td><strong>iMet-1-RS / iMet-4</strong></td>
+<td>InterMet</td>
+<td>Bell-202 AFSK 1200 baud, 8N1</td>
+<td>CRC-16-CCITT</td>
+</tr>
+<tr>
+<td><strong>LMS6</strong></td>
+<td>Lockheed Martin</td>
+<td>NRZ 4800 baud</td>
+<td>convolutional + Reed–Solomon(255,223)</td>
+</tr>
+</tbody></table>
+</div>
+<p>The one common thread: they all reduce, after FM demodulation, to a stream of
+telemetry frames carrying a <strong>GPS position</strong>. That&#39;s what we extract — latitude,
+longitude, altitude, velocity, satellites, time, and (where available) the sonde
+serial number.</p>
+<p><strong>Not supported: RS92.</strong> Vaisala&#39;s older RS92 doesn&#39;t transmit a computed
+position — it sends <em>raw GPS pseudoranges</em>, and you need live broadcast
+<strong>ephemeris</strong> (the satellites&#39; orbital parameters, fetched from the internet) to
+solve them into a lat/lon. Offline, from audio alone, there&#39;s simply nothing to
+turn into a coordinate, so RS92 is out of scope.</p>
+<hr>
+<h2>One channel, six modems</h2>
+<p>You don&#39;t pick a sonde type. The <strong>monitor</strong>
+(<a href="../../src/lib/radiosonde/radiosonde_monitor.dart"><code>radiosonde_monitor.dart</code></a>)
+buffers received audio and, on each flush, runs the buffer through <em>every</em>
+decoder in turn. Each family has its own demodulator + frame parser; whichever
+one produces a frame that passes its own error-correction wins. A DFM sonde and
+an RS41 sonde look nothing alike on the air, but from your side it&#39;s the same
+channel — you tune to the frequency, and the right decoder lights up.</p>
+<p>Most of the demodulators share the same skeleton, honed first on the DFM decoder
+and reused across the FM-baseband families:</p>
+<ol>
+<li><strong>DC-block and normalize</strong> the incoming PCM, and build a prefix-sum array so
+any window&#39;s mean is an O(1) lookup.</li>
+<li><strong>Find the frame</strong> with a matched filter: correlate the sonde&#39;s fixed sync
+pattern against the signal to locate frame starts <em>and</em> recover polarity
+(whether the FM demod came out inverted).</li>
+<li><strong>Refine the symbol rate</strong> from the measured spacing between successive sync
+hits — real transmissions drift, and a symbol clock that&#39;s off by 0.1% will
+slip a bit halfway through a long frame.</li>
+<li><strong>Integrate-and-dump</strong> each symbol and slice it to a bit.</li>
+</ol>
+<p>What differs — and what made each family its own project — is everything <em>after</em>
+the bits.</p>
+<hr>
+<h2>The families, and what makes each interesting</h2>
+<h3>RS41 — Reed–Solomon and a whitening mask</h3>
+<p>Vaisala&#39;s RS41 is the most common sonde in the world, and the most robust. It&#39;s
+plain 4800-baud NRZ GFSK, but the payload is <strong>scrambled</strong> with a fixed 64-byte
+XOR &quot;whitening&quot; mask (so the transmitted signal has plenty of transitions to keep
+a receiver&#39;s clock locked), and it&#39;s protected by <strong>two interleaved
+Reed–Solomon(255,231) codewords</strong> — one over the even bytes, one over the odd —
+that between them can fix a dozen byte errors per frame. The position is a full
+<strong>ECEF</strong> vector (Earth-Centered, Earth-Fixed X/Y/Z in centimetres), which we run
+through the WGS-84 ellipsoid math to get lat/lon/alt, plus an ECEF velocity we
+rotate into ground speed, heading, and climb rate. Decoder:
+<a href="../../src/lib/radiosonde/rs41_decoder.dart"><code>rs41_decoder.dart</code></a>.</p>
+<h3>DFM — Manchester and Hamming</h3>
+<p>Graw&#39;s DFM sondes (06/09/17) are 2-FSK, Manchester-coded at 2500 baud. Each frame
+is bit-interleaved and protected by a <strong>Hamming(8,4)</strong> code, and the interesting
+wrinkle is that the sonde&#39;s serial number and calibration are <em>spread across many
+frames</em> — so the decoder
+(<a href="../../src/lib/radiosonde/dfm_decoder.dart"><code>dfm_decoder.dart</code></a>) keeps state and
+assembles a complete fix once the GPS sub-packets have all arrived. This was the
+first family we built, and its demodulator became the template for the rest.</p>
+<h3>M10 &amp; M20 — differential Manchester, and a checksum you have to reverse-engineer</h3>
+<p>Meteomodem&#39;s M10 runs at 9615 baud with <strong>Manchester coding plus a differential
+(NRZI-style) layer</strong> on top — which has the neat side effect of making the
+recovered bitstream <strong>immune to signal inversion</strong>. M20 is the same modem at
+9600 baud with a more compact, differently-laid-out frame. Both are guarded not
+by a standard CRC but by a <strong>custom bit-twiddling linear checksum</strong>, ported
+verbatim. Because the two share a modem, our M10 demodulator is parameterized
+(sync bytes, frame length, baud) and the M20 support is the same code with
+different constants. Decoders:
+<a href="../../src/lib/radiosonde/m10_decoder.dart"><code>m10_decoder.dart</code></a>,
+<a href="../../src/lib/radiosonde/m20_decoder.dart"><code>m20_decoder.dart</code></a>.</p>
+<h3>iMet — a different beast entirely: AFSK</h3>
+<p>InterMet&#39;s iMet-1-RS is the odd one out. It doesn&#39;t send an FM-baseband bit
+stream at all — it&#39;s <strong>Bell-202 AFSK</strong>, the same 1200-baud tones as APRS
+(1200 Hz for a <code>1</code>, 2200 Hz for a <code>0</code>), framed as ordinary <strong>8N1 async serial</strong>
+bytes. So its demodulator
+(<a href="../../src/lib/radiosonde/imet_demodulator.dart"><code>imet_demodulator.dart</code></a>) is a
+tone detector: a recursive sliding-DFT compares the energy at the mark and space
+frequencies per sample, then the bit stream is rebuilt from tone transitions and
+de-framed byte by byte. The bytes carry SOH-delimited packets — a <strong>GPS packet</strong>
+with IEEE-754 float latitude/longitude and time-of-day, plus PTU and optional
+ozone-sensor packets — each checked with a <strong>CRC-16-CCITT</strong>. (A subtle bug we hit
+and fixed: the last byte of a frame has no trailing transition, so the bit
+reconstruction has to <em>flush</em> the final run or the closing CRC byte goes missing.)</p>
+<h3>LMS6 — the deep end: convolutional coding plus Reed–Solomon</h3>
+<p>Lockheed Martin&#39;s LMS6 stacks two layers of error-correction. The 4800-baud NRZ
+bits are a <strong>rate-1/2, constraint-length-7 convolutional code</strong> (transmitted with
+every other bit inverted — the <code>(c0, inv(c1))</code> trick), which wraps a
+<strong>Reed–Solomon(255,223) CCSDS</strong> block. Decoding is the whole pipeline in reverse:
+undo the odd-bit inversion, <strong>deconvolve</strong> the convolutional code, pack bytes,
+verify a 5-byte block sync, run the RS correction (over the byte-reversed
+codeword the format uses), check a CRC-16, and finally read a big-endian GPS
+frame. Making this work meant extending our Reed–Solomon core to the CCSDS
+variant (a different field polynomial and a non-trivial primitive-root offset)
+and writing a convolutional codec from scratch. Decoder:
+<a href="../../src/lib/radiosonde/lms6_decoder.dart"><code>lms6_decoder.dart</code></a>, codec:
+<a href="../../src/lib/radiosonde/convolutional.dart"><code>convolutional.dart</code></a>.</p>
+<hr>
+<h2>The shared toolbox: error correction</h2>
+<p>Three families lean on the same <strong>Reed–Solomon</strong> engine
+(<a href="../../src/lib/radiosonde/reed_solomon.dart"><code>reed_solomon.dart</code></a>) — a GF(2⁸)
+decoder (syndromes → Berlekamp–Massey → Chien search → Forney) that RS41 uses in
+its standard form and LMS6 uses in the CCSDS configuration. The others each bring
+their own guard: Hamming(8,4) for DFM, CRC-16-CCITT for iMet, the custom linear
+checksum for M10/M20. In every case the check does double duty: it corrects (or
+at least <em>detects</em>) bit errors, and — just as important for a weak, one-shot
+signal — it tells the decoder <strong>for certain</strong> when it&#39;s holding a real frame
+versus noise that happened to look frame-shaped. Nothing reaches the map without
+passing its family&#39;s check.</p>
+<hr>
+<h2>How we proved it works — and an honest caveat</h2>
+<p>Verification here is <strong>synthetic round-trip</strong>. For each family we wrote the
+<em>inverse</em> of the decoder — a small modulator that renders a known frame (with
+valid error-correction and CRC) as ideal audio — and fed it straight back through
+the production demodulator, asserting it recovers the exact position, serial, and
+time we put in. Those tests also inject byte errors to confirm the Reed–Solomon
+and convolutional layers actually correct them, and exercise inversion-immunity
+(M10) and the AFSK tone path (iMet). It&#39;s all in the test suite —
+<a href="../../src/test/rs41_test.dart"><code>rs41_test.dart</code></a>,
+<a href="../../src/test/dfm_test.dart"><code>dfm_test.dart</code></a>,
+<a href="../../src/test/m10_test.dart"><code>m10_test.dart</code></a>,
+<a href="../../src/test/m20_test.dart"><code>m20_test.dart</code></a>,
+<a href="../../src/test/imet_test.dart"><code>imet_test.dart</code></a>,
+<a href="../../src/test/lms6_test.dart"><code>lms6_test.dart</code></a>, and
+<a href="../../src/test/reed_solomon_test.dart"><code>reed_solomon_test.dart</code></a> — 25 tests in
+all, and the whole thing analyzes clean.</p>
+<p>The honest part: a round-trip test proves the DSP, framing, error-correction, and
+field-parsing are all <em>internally consistent</em> and ported faithfully from the
+reference decoders — but it does <strong>not</strong> by itself prove bit-for-bit
+compatibility with a real over-the-air sonde. The constants (sync words, masks,
+field offsets, polynomials) were taken straight from the reference C, so the
+odds are good; but the strongest possible test — dropping a real recording
+through the production path — is the one piece still outstanding. If you can
+capture a 32 kHz mono WAV of a live sonde, it becomes a permanent regression
+fixture, exactly as the SARSAT self-test recording did.</p>
+<hr>
+<h2>How it shows up in HTCommander</h2>
+<p>When a sonde decodes, it lands in the <strong>Comms tab</strong> as its own message type — a
+light-blue icon and a <code>Radiosonde</code> label — carrying the sonde family
+(<code>RS41</code>, <code>DFM09</code>, <code>M20</code>, <code>iMet</code>, <code>LMS6</code>, …), the serial, position, altitude, and,
+when present, temperature. Opening the message details breaks the frame down
+field by field. Repeated fixes from the same sonde <strong>coalesce</strong> into a single,
+updating bubble rather than spamming the history.</p>
+<p>On the <strong>Map tab</strong>, each sonde with a position gets a marker that tracks its
+latest fix, so you can watch a balloon climb, drift, and descend across the map in
+real time — and, if you&#39;re the chasing type, see where it&#39;s headed.</p>
+<p>It all self-activates the moment audio arrives on your <code>Radiosonde</code> channel and
+goes quiet when you switch away — no checkbox, no per-type setting, no assumption
+about frequency. Name the channel, tune to a launch, and watch the stratosphere
+report in.</p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/radiosonde-decoding.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../screens.html">Screens</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

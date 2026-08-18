@@ -700,7 +700,7 @@ radio sends it unsolicited; a reply always mirrors the request opcode with
 <td align="right">66</td>
 <td><code>DO_PROG_FUNC</code></td>
 <td align="center">R</td>
-<td>Trigger a PF effect remotely</td>
+<td>Trigger a PF effect remotely. Payload = one effect byte (a <code>PFEffectType</code>); e.g. <code>TOGGLE_AB_CH</code> (18) switches the selected VFO</td>
 </tr>
 <tr>
 <td align="right">67</td>
@@ -965,6 +965,12 @@ a recurring theme in this protocol.</p>
 <p><code>currChId</code> is reassembled as <code>(upper &lt;&lt; 4) | lower</code>. This status arrives both as
 a direct <code>GET_HT_STATUS</code> reply and inline inside the <code>htStatusChanged</code>
 notification.</p>
+<p><code>doubleChannel</code> is more than an on/off flag: it reports the <strong>currently selected
+VFO</strong> in dual-channel mode — <code>0</code> = off (single channel), <code>1</code> = VFO A, <code>2</code> =
+VFO B, <code>3</code> = VFO C. It updates live as the radio switches VFOs (a <code>Toggle A/B</code>
+button press, or the remote <code>DO_PROG_FUNC</code>/<code>TOGGLE_AB_CH</code> below), so it is the
+reliable source for &quot;which VFO is the operator on right now?&quot;. <code>currChId</code> is a
+different thing — the channel id the radio is <em>receiving</em> on this instant.</p>
 <h3>READ_RF_CH (13) / WRITE_RF_CH (14) → <code>RadioChannelInfo</code></h3>
 <p>A channel is a 25-byte record (offset 5 onward in a reply; offset 0 onward in a
 <code>WRITE_RF_CH</code> payload). The frequency fields cleverly pack the <strong>modulation</strong> in
@@ -1040,6 +1046,10 @@ split across byte boundaries. A few representative examples (see
 <td><code>byte6 &amp; 0x80</code></td>
 </tr>
 <tr>
+<td><code>doubleChannel</code></td>
+<td><code>(byte6 &amp; 0x30)&gt;&gt;4</code> (selected VFO: <code>0</code>=off, <code>1</code>=A, <code>2</code>=B, <code>3</code>=C)</td>
+</tr>
+<tr>
 <td><code>squelchLevel</code></td>
 <td><code>byte6 &amp; 0x0F</code></td>
 </tr>
@@ -1054,6 +1064,10 @@ split across byte boundaries. A few representative examples (see
 <tr>
 <td><code>autoShareLocCh</code></td>
 <td><code>(byte10 &amp; 0x1F)</code> | <code>((byte16 &amp; 0x07)&lt;&lt;5)</code></td>
+</tr>
+<tr>
+<td><code>wxMode</code></td>
+<td><code>byte15 &gt;&gt; 6</code> (NOAA weather-alert mode: <code>0</code>=off, <code>1</code>=monitor, <code>2</code>=alert)</td>
 </tr>
 <tr>
 <td><code>vfo1ModFreqX</code></td>
@@ -1072,6 +1086,96 @@ the 4-byte header + status byte) and overwrites only the bytes it needs to chang
 copy-on-write wrapper the app calls. This preserves every field the app does not
 model. After a write, the radio may or may not push a <code>htSettingsChanged</code>
 notification, so the app re-reads settings to be safe.</p>
+<h4>Weather mode (<code>wxMode</code>) — a <em>preference</em>, not a live state</h4>
+<p><code>wxMode</code> occupies the top 2 bits of raw byte 15 and selects the radio&#39;s NOAA
+weather-alert behaviour. It is <strong>mutually exclusive</strong> — only one mode can be on:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th><code>wxMode</code></th>
+<th>byte 15 example</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>0</code></td>
+<td><code>0x0C</code></td>
+<td>Off</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>0x4C</code></td>
+<td>Monitor</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td><code>0x8C</code></td>
+<td>Alert</td>
+</tr>
+</tbody></table>
+</div>
+<p>The critical subtlety: <code>wxMode</code> is a <strong>persisted preference</strong>, <em>not</em> an
+indication that the radio is currently tuned to a weather channel. A radio can
+sit on a normal channel with Alert/Monitor enabled, keeping <code>wxMode</code> non-zero
+indefinitely. Deciding &quot;am I displaying weather right now?&quot; from <code>wxMode</code> is
+therefore a bug — the VFO display would show a bogus tuned frequency and hide
+VFO B. The reliable <em>live</em> indicator is the HT status current channel id
+(<code>currChId &gt;= 254</code>, the NOAA sub-band), or the <code>freqModeStatusChanged</code>
+notification.</p>
+<p>To change the mode, <code>toByteArrayWith(wxMode: …)</code> overlays the top 2 bits of the
+copied byte 15 (write-buffer index 10), preserving <code>noaaCh</code> and VFO1 TX power in
+the lower bits. The <code>htSettingsChanged</code> notification re-parses cleanly because
+its notification-type byte (<code>0x06</code>) lands at the same frame offset as a read
+reply&#39;s status byte, so the settings payload (byte 5 onward) stays aligned.</p>
+<h4>Dual channel (<code>doubleChannel</code>) — encodes the <em>selected VFO</em>, not on/off</h4>
+<p>Like the HT status field of the same name, the settings <code>doubleChannel</code>
+(<code>(byte6 &amp; 0x30)&gt;&gt;4</code>) is <strong>not</strong> a plain on/off boolean. It carries the selected
+VFO:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th><code>doubleChannel</code></th>
+<th>byte 6 example</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>0</code></td>
+<td><code>0x04</code></td>
+<td>Off (single channel)</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>0x54</code></td>
+<td>Dual channel, VFO A selected</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td><code>0x64</code></td>
+<td>Dual channel, VFO B selected</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td>—</td>
+<td>Dual channel, VFO C selected</td>
+</tr>
+</tbody></table>
+</div>
+<p>The critical subtlety: treating <code>doubleChannel == 1</code> as &quot;dual channel is on&quot; is a
+bug. The moment the operator selects VFO B the field becomes <code>2</code>, so an <code>== 1</code>
+test wrongly reports single-channel and the UI hides VFO B. Test <strong><code>!= 0</code></strong>
+instead. Confirmed from live captures: switching A→B flipped settings byte 6
+<code>0x54</code>→<code>0x64</code> and the HT status flags byte <code>0x84</code>→<code>0x88</code> in lock-step.</p>
+<p>Because the field is writable, this doubles as a <strong>&quot;select VFO&quot;</strong> control:
+writing settings with <code>doubleChannel</code> set to <code>1</code> (or <code>2</code>) selects VFO A (or B)
+directly — a deterministic alternative to the <code>TOGGLE_AB_CH</code> toggle. HTCommander
+uses exactly this for tapping a VFO in the radio panel: <code>selectVfo(vfoIndex)</code>
+calls <code>toByteArrayWith(doubleChannel: vfoIndex)</code>, so the requested VFO is always
+the one that ends up selected regardless of the current state. The
+<code>TOGGLE_AB_CH</code> programmable-function effect (via <code>DO_PROG_FUNC</code>, see below)
+remains available as a blind A↔B flip.</p>
 <h3>GET_POSITION (76) / SET_POSITION (32) → <code>RadioPosition</code></h3>
 <p>An 18-byte position payload (offset 5 onward in a reply). Latitude and longitude
 are <strong>24-bit signed</strong> values in an unusual unit:</p>
@@ -1203,6 +1307,13 @@ byte1 = effectType
 <code>sendLocation</code>, …). <code>SET_PF</code> sends one effect byte per slot in the same order.
 Because the radio commits the write asynchronously, the app waits ~800 ms before
 re-reading so the cached table reflects the settled state.</p>
+<p>The same <code>PFEffectType</code> codes can be triggered <em>remotely</em> — as if the button had
+been pressed — with <code>DO_PROG_FUNC</code> (66), whose payload is a single effect byte.
+<code>switchVfo()</code> uses this to blind-toggle the selected VFO with <code>TOGGLE_AB_CH</code> (18).
+For tapping a specific VFO, though, HTCommander prefers the deterministic path:
+<code>selectVfo(vfoIndex)</code> writes the settings <code>doubleChannel</code> field to the target VFO
+(see the dual-channel note above), so the requested VFO is always the one that
+ends up selected — no dependence on the app&#39;s view of the current selection.</p>
 <h3>Region names: READ_REGION_NAME (73) / WRITE_REGION_NAME (59) / SET_REGION (60)</h3>
 <ul>
 <li><code>READ_REGION_NAME</code> request <code>[index]</code>; reply <code>[status, index, UTF-8 name…]</code>.</li>

@@ -43,6 +43,37 @@
   <section class="section--tight">
     <div class="container">
       <article class="article">
+<h2>Setting up your radio to receive SARSAT</h2>
+<p>Before any of the decoding below can run, HTCommander needs to <em>hear</em> 406 MHz
+audio on a channel it recognizes as the beacon channel. The rule is simple:</p>
+<blockquote>
+<p><strong>Name the channel <code>SARSAT</code>.</strong> Case doesn&#39;t matter — <code>SARSAT</code>, <code>sarsat</code>, and
+<code>Sarsat</code> all work. HTCommander watches for audio arriving on a channel whose
+name is &quot;sarsat&quot; and feeds only that channel into the beacon demodulator.</p>
+</blockquote>
+<p>The channel itself needs a specific radio configuration:</p>
+<ul>
+<li><strong>Receive frequency 406 MHz</strong> (the distress band).</li>
+<li><strong>Narrow band</strong> (12.5 kHz).</li>
+<li><strong>No transmit</strong> — 406.0–406.1 MHz is a protected, satellite-monitored distress
+band. This channel must be receive-only.</li>
+<li><strong>No de-emphasis</strong> (flat / bypassed audio) — the decoder wants the raw
+demodulated signal, not audio shaped for voice.</li>
+<li><strong>Mute</strong> — so the beacon bursts don&#39;t blast out of the speaker while you work.</li>
+</ul>
+<h3>The easy way: copy-paste a channel-share string</h3>
+<p>Rather than dial all of that in by hand, copy the following
+<a href="channel-share-string.md">channel-share string</a> and drop it into HTCommander&#39;s
+Comm or APRS tab, then drag the resulting yellow channel block onto a channel
+slot in your radio:</p>
+<pre><code>HTC:1:SARSAT:406:0:::1R*33
+</code></pre>
+<p>That single token programs the whole channel: named <strong>SARSAT</strong>, receiving on
+<strong>406 MHz</strong>, simplex, no tones, <strong>narrow FM</strong>, <strong>transmit disabled</strong>, <strong>flat
+audio</strong> (de-emphasis bypass), and <strong>muted</strong> — exactly the configuration above.
+Once the radio is on that channel and hearing a beacon burst, everything in the
+rest of this post kicks in automatically.</p>
+<hr>
 <h2>What is SARSAT?</h2>
 <p><strong>COSPAS-SARSAT</strong> is the international satellite system that finds people in
 distress. The name is a mouthful from two Cold-War-era programs that merged:
@@ -288,9 +319,11 @@ buffering path decodes a burst the same way the batch path does.</p>
 self-test beacon (<code>Sarsat.wav</code> — FM-demodulated, 32 kHz mono). Dropped straight
 through the production demodulator it decodes cleanly, with <strong>both BCH fields
 valid</strong>: a France (country 227) ELT-DT self-test beacon, hex ID
-<code>1C72091A2B3FDFF</code>. It&#39;s the case that exercises the FM-demod path <em>and</em> self-test
-sync on a real signal — and it&#39;s now a committed test fixture, so the real-signal
-path is a permanent regression, not a one-off.</p>
+<code>1C72091A2B3FDFF</code>, aircraft address <code>123456</code>, at <strong>42.954° N, 1.364° E</strong> — a
+position we cross-checked field-for-field against an independent online T.001
+decoder. It&#39;s the case that exercises the FM-demod path <em>and</em> self-test sync on a
+real signal — and it&#39;s now a committed test fixture, so the real-signal path is a
+permanent regression, not a one-off.</p>
 <hr>
 <h2>Wiring it into HTCommander</h2>
 <p>The decoder and demodulator are standalone libraries; a thin <strong>monitor</strong>
@@ -349,10 +382,9 @@ always do better.</li>
 <li>⚠️ <strong>Self-test beacons</strong> are handled by the FM-demod path (which is the one
 that matters for real FM audio); the coherent path&#39;s matched filter still only
 anchors on the <em>normal</em> frame sync.</li>
-<li>⚠️ <strong>Position parsing covers Standard Location and User-Location</strong>; the other
-location protocols (ELT-DT, National, RLS…) are classified but not yet fully
-geo-decoded, so an ELT-DT self-test won&#39;t plot a pin even though everything
-else about it decodes.</li>
+<li>⚠️ <strong>Position parsing covers Standard Location, User-Location, and ELT(DT)</strong>
+(base position plus the fine minute/second PDF-2 offsets); National and RLS
+location protocols are classified but not yet geo-decoded.</li>
 <li>❌ <strong>Second-generation (SGB) beacons</strong> — DSSS/OQPSK, needs IQ, not attempted.</li>
 </ul>
 <p>And the standing rule, worth repeating: this is <strong>receive-only</strong>. 406 MHz is a

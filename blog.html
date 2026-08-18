@@ -283,6 +283,22 @@
 
   <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
+      <h2 class="group-title">Weather Balloons</h2>
+      <p class="group-sub">Turning a handheld into an upper-air receiver — decoding the radiosondes that launch worldwide twice a day.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/radiosonde-decoding.html">
+          <span class="kicker">Weather</span>
+          <h3>Catching Weather Balloons: Radiosonde Decoding in HTCommander</h3>
+          <p>How HTCommander decodes six different radiosonde families from one channel — Vaisala <strong>RS41</strong>, Graw <strong>DFM</strong>, Meteomodem <strong>M10/M20</strong>, InterMet <strong>iMet</strong>, and Lockheed Martin <strong>LMS6</strong> — each with its own modem (GFSK, Manchester, differential Manchester, Bell-202 AFSK, convolutional-coded NRZ) and error-correction (Reed–Solomon, Hamming, CRC, a custom checksum) ported to pure Dart; why the older <strong>RS92</strong> can&#39;t be positioned offline; how it&#39;s proved with synthetic round-trip tests; and how decoding self-activates on a channel named <code>Radiosonde</code>, plotting each balloon&#39;s climb and descent on the map.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
       <h2 class="group-title">Data &amp; Storage</h2>
       <p class="group-sub">How HTCommander packs large datasets into small, fast, self-contained files.</p>
 
@@ -303,7 +319,7 @@
     </div>
   </section>
 
-  <section class="section--tight">
+  <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
       <h2 class="group-title">App Architecture</h2>
       <p class="group-sub">How HTCommander is built under the hood — the threading, plumbing, and design decisions that keep the radio responsive.</p>
@@ -319,7 +335,7 @@
     </div>
   </section>
 
-  <section class="section--tight" style="background: var(--bg-2);">
+  <section class="section--tight">
     <div class="container">
       <h2 class="group-title">Building &amp; Contributing</h2>
       <p class="group-sub">Getting a full HTCommander development environment running on your own machine.</p>
