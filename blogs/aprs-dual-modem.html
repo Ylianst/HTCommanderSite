@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Two Modems Are Better Than One: Running a Software APRS Modem Alongside the Radio's — HTCommander</title>
+  <meta name="description" content="How HTCommander decodes APRS twice — once with the radio's built-in hardware TNC and once with a software modem that adds FEC and CRC error recovery — and quietly pulls in the packets the radio alone would have thrown away." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Features</a>
+        <a href="../screens.html">Screens</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">APRS</span>
+      <h1>Two Modems Are Better Than One: Running a Software APRS Modem Alongside the Radio's</h1>
+      <p>How HTCommander decodes APRS twice — once with the radio&#39;s built-in hardware TNC and once with a software modem that adds FEC and CRC error recovery — and quietly pulls in the packets the radio alone would have thrown away.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The problem: the radio&#39;s TNC drops packets</h2>
+<p>Most APRS apps talk to a handheld the same way: over KISS. The radio&#39;s built-in
+hardware modem (its TNC) listens to the air, decodes every AX.25 packet it can,
+and hands the finished data frames to the app over Bluetooth. The app never
+touches the raw audio — it only ever sees the packets the radio already decoded.</p>
+<figure class="post-figure">
+  <img src="images/normal-aprs-decode-path.png" alt="In normal apps, only the radio&#39;s hardware modem decodes APRS">
+  <figcaption>In normal apps, only the radio&#39;s hardware modem decodes APRS</figcaption>
+</figure>
+<p>That works, but the radio&#39;s TNC isn&#39;t a great modem. It has two real
+limitations:</p>
+<ul>
+<li><strong>No forward error correction.</strong> It doesn&#39;t understand FX.25, so a packet sent
+with FEC is decoded as if the FEC bytes were just noise — and if the payload
+took a hit, it&#39;s gone.</li>
+<li><strong>No CRC error recovery.</strong> AX.25 frames carry a CRC. The radio&#39;s TNC treats it
+as pass/fail: if a single bit is wrong, the CRC fails and the whole packet is
+discarded. It never tries to work out <em>which</em> bit flipped and put it back.</li>
+</ul>
+<p>On top of that, a small hardware modem simply <em>misses</em> packets — weak signals,
+timing edges, a bit of fading — and every miss is a position report or message
+you never see. Over an afternoon of listening, the lost-packet count adds up
+fast.</p>
+<h2>The idea: decode the same signal twice</h2>
+<p>The radio is already sending HTCommander something the KISS world ignores: the
+<strong>audio</strong>. When you enable the audio channel, the radio streams the received
+audio to the app over Bluetooth (compressed with SBC). HTCommander was built to
+run its own <strong>software modem</strong> on that audio stream — the same DSP pipeline it
+uses for DART and PSK — and it can run a full <strong>AFSK 1200</strong> APRS demodulator
+there too.</p>
+<p>So the same over-the-air signal gets decoded twice, in parallel:</p>
+<figure class="post-figure">
+  <img src="images/dual-modem-aprs-decode-path.png" alt="In HTCommander, two modems decode the same signal in parallel">
+  <figcaption>In HTCommander, two modems decode the same signal in parallel</figcaption>
+</figure>
+<ul>
+<li>The <strong>hardware modem</strong> in the radio decodes the packet and sends the finished
+data frame over Bluetooth, exactly as before.</li>
+<li>The <strong>software modem</strong> in HTCommander decodes the SBC audio stream itself — and
+because it&#39;s a real software modem, it can do the two things the radio can&#39;t:
+<strong>FX.25 forward error correction</strong> and <strong>CRC-based single/multi-bit recovery</strong>.</li>
+</ul>
+<p>The hardware modem is almost always faster — it&#39;s decoding in real time on
+dedicated silicon — so when it succeeds, its packet arrives first and wins. But
+when the radio&#39;s TNC comes up empty (no FEC, a failed CRC, or a missed packet
+entirely), the software modem gets its shot at the same audio and often pulls the
+packet out anyway.</p>
+<h2>Making the two agree: deduplication</h2>
+<p>Running two decoders on one signal means the <em>same</em> packet can be decoded twice —
+once by each modem. HTCommander wraps both sources behind a small
+<strong>deduplicator</strong> so you never see doubles. It keys each finished frame by its raw
+bytes and suppresses any identical frame seen again inside a short window (a few
+seconds); the first copy through wins and the rest are dropped. Because the
+hardware modem is faster, it usually gets there first — and only the packets it
+<em>couldn&#39;t</em> decode fall through to be filled in by the software modem.</p>
+<p>The net effect: you get the union of what both modems can hear, with none of the
+duplicates.</p>
+<h2>Turning it on</h2>
+<p>Two settings enable the feature. Both live under the <strong>Audio</strong> menu:</p>
+<ol>
+<li><strong>Audio Enabled</strong> — the software modem needs the audio stream. Enabling audio
+is enough; the channel does <em>not</em> have to be un-muted. Even when the channel
+is marked muted, HTCommander still receives the audio data (it just doesn&#39;t
+play it out your speakers), which is exactly what the modem needs.</li>
+<li><strong>APRS Modem → AFSK 1200</strong> — this switches on the software APRS demodulator.
+Leave <strong>FX.25 FEC</strong> enabled too, so the software modem can use forward error
+correction on packets that carry it.</li>
+</ol>
+<figure class="post-figure">
+  <img src="images/htcommand-aprs-dual-modem-setup.png" alt="Enabling the software APRS modem from the Audio menu">
+  <figcaption>Enabling the software APRS modem from the Audio menu</figcaption>
+</figure>
+<p>That&#39;s it. From now on both modems are running, and the deduplicator quietly
+merges their output.</p>
+<h2>Seeing it work: the Packets tab</h2>
+<p>The proof is in the <strong>Packets</strong> tab, and it&#39;s designed so you can tell the two
+modems apart at a glance:</p>
+<ul>
+<li>A <strong>single arrow</strong> next to a packet means the <strong>hardware modem</strong> decoded it —
+the radio&#39;s TNC got there first.</li>
+<li>A <strong>double arrow</strong> means the <strong>software modem</strong> decoded it — a packet you would
+<em>not</em> have seen with a KISS app.</li>
+</ul>
+<p>Click any packet to open its decode details. The <strong>Encoding</strong> line tells you
+which modem handled it and how much repair it took — for example
+<code>Software AFSK 1200 baud, AX.25, 1 Correction</code> means the software modem decoded
+it and had to flip one bit to make the CRC check out. If FX.25 forward error
+correction was in play, you&#39;ll see that too, along with how many symbols it
+recovered.</p>
+<p>Leave the feature running for a while, then scan the Packets tab and count the
+double arrows. Every one of them is a packet the radio&#39;s own modem missed or
+rejected — a position, a message, or a beacon you&#39;d have lost with a normal
+setup. In practice it&#39;s a surprising number, and it costs you nothing but a
+setting: a real boost in how much your radio actually hears.</p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/aprs-dual-modem.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../screens.html">Screens</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
