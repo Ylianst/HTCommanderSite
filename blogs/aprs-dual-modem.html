@@ -52,8 +52,8 @@ touches the raw audio — it only ever sees the packets the radio already decode
   <img src="images/normal-aprs-decode-path.png" alt="In normal apps, only the radio&#39;s hardware modem decodes APRS">
   <figcaption>In normal apps, only the radio&#39;s hardware modem decodes APRS</figcaption>
 </figure>
-<p>That works, but the radio&#39;s TNC isn&#39;t a great modem. It has two real
-limitations:</p>
+<p>That works, but the radio&#39;s TNC is a modest modem — and for good reason: it runs
+on a handheld&#39;s limited compute. It has two real limitations:</p>
 <ul>
 <li><strong>No forward error correction.</strong> It doesn&#39;t understand FX.25, so a packet sent
 with FEC is decoded as if the FEC bytes were just noise — and if the payload
@@ -66,6 +66,18 @@ discarded. It never tries to work out <em>which</em> bit flipped and put it back
 timing edges, a bit of fading — and every miss is a position report or message
 you never see. Over an afternoon of listening, the lost-packet count adds up
 fast.</p>
+<p><strong>This isn&#39;t a bug in the radio.</strong> It&#39;s easy to look at the dropped packets and
+conclude the radio&#39;s modem is broken, but that&#39;s not what&#39;s going on. A handheld
+simply doesn&#39;t have the processing power or memory to throw at the AX.25/APRS
+problem that a mobile or desktop device does, and there&#39;s no reason to expect
+that to change. The heavy lifting that recovers marginal packets — FX.25 forward
+error correction, or brute-forcing a failed CRC by flipping bits until the frame
+checks out — is a big compute ask on both the send and receive side, and that&#39;s a
+lot to demand of a small radio. In reality the radio decodes AFSK 1200 packets
+just fine within its capacity; expecting a Direwolf-class modem to run inside a
+handheld would not be a fair ask. The point of the software modem isn&#39;t to fix
+the radio — it&#39;s to let a device that <em>does</em> have the compute pick up the packets
+the radio couldn&#39;t.</p>
 <h2>The idea: decode the same signal twice</h2>
 <p>The radio is already sending HTCommander something the KISS world ignores: the
 <strong>audio</strong>. When you enable the audio channel, the radio streams the received

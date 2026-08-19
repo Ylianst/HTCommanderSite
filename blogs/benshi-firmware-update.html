@@ -256,7 +256,7 @@ booted into it provisionally and is waiting to be told it&#39;s good.</p>
     App-&gt;&gt;Radio: UPDATE_SYNC_REQ (md5_tail)
     Radio--&gt;&gt;App: UPDATE_SYNC_CFM (update_state = IN_PROGRESS = 3)
     App-&gt;&gt;Radio: UPDATE_START_REQ
-    Radio--&gt;&gt;App: UPDATE_START_CFM (code = GOTO_NEXT_STATE)
+    Radio--&gt;&gt;App: UPDATE_START_CFM (code = OK)
     App-&gt;&gt;Radio: UPDATE_IN_PROGRESS_RES (action=0x00)
     Radio--&gt;&gt;App: UPDATE_COMPLETE_IND
     App-&gt;&gt;Radio: VM_DISCONNECT
@@ -271,10 +271,12 @@ applied the trial, this reply now reports <strong><code>update_state = 3</code> 
 took effect</em>. Seeing <code>update_state = 3</code> here is the positive proof that the
 reboot booted the new trial image; if it&#39;s missing, Phase 1 didn&#39;t commit.</p>
 </li>
-<li><p><strong><code>UPDATE_START_REQ</code> → <code>UPDATE_START_CFM</code></strong> — this time the code <strong>must</strong> be
-<code>GOTO_NEXT_STATE</code>. That&#39;s the radio saying &quot;I&#39;ve booted the new image and I&#39;m
-ready to commit.&quot; If it isn&#39;t <code>GOTO_NEXT_STATE</code>, the radio probably hasn&#39;t
-finished rebooting yet.</p>
+<li><p><strong><code>UPDATE_START_REQ</code> → <code>UPDATE_START_CFM</code></strong> — the radio confirms it is ready
+to commit. The <code>benlink</code> reference documents this code as <code>GOTO_NEXT_STATE</code>,
+but a real UV-Pro (firmware 9.0.x) answers <code>OK</code> here — see the captured
+session in <code>src/tools/btsnoop_decoder/</code>. <code>FirmwareUpdater.confirm</code> accepts
+either; the actual proof that the reboot succeeded is <code>update_state = 3</code> in
+step 9.</p>
 </li>
 <li><p><strong><code>UPDATE_IN_PROGRESS_RES</code> → <code>UPDATE_COMPLETE_IND</code></strong> — the app tells the radio
 to finalize (the <code>UPDATE_IN_PROGRESS_RES</code> body is a <code>0x00</code> action byte); the
