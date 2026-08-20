@@ -42,6 +42,282 @@
 
   <section class="section--tight">
     <div class="container">
+      <h2 class="group-title">Sharing &amp; Interop</h2>
+      <p class="group-sub">Making HTCommander features portable between operators and radios.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/channel-share-string.html">
+          <span class="kicker">Interop</span>
+          <h3>A Channel You Can Text: The Channel-Share String</h3>
+          <p>A compact, human-readable one-line format that encodes a whole radio channel — frequency, offset, tones, bandwidth, modulation, and flags — so you can drag a channel into a chat, send it (even over the air), and have the recipient drop it straight into their radio.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">APRS</h2>
+      <p class="group-sub">Getting more out of APRS on a handheld — hearing packets the radio&#39;s own modem would have thrown away.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/aprs-dual-modem.html">
+          <span class="kicker">APRS</span>
+          <h3>Two Modems Are Better Than One: Running a Software APRS Modem Alongside the Radio&#39;s</h3>
+          <p>How HTCommander decodes APRS twice — once with the radio&#39;s built-in hardware TNC and once with a software AFSK 1200 modem on the SBC audio stream that adds FX.25 forward error correction and CRC-based bit recovery, the deduplicator that merges both sources without doubles, how to turn it on from the Audio menu, and how the single- vs. double-arrow marks in the Packets tab show which modem caught each packet.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Messaging &amp; Security</h2>
+      <p class="group-sub">Trusting what comes off the air — proving who sent a message, without breaking the no-encryption rules.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/aprs-message-authentication.html">
+          <span class="kicker">Messaging</span>
+          <h3>Signing the Airwaves: Authenticating APRS Messages Without Encryption</h3>
+          <p>How HTCommander proves an APRS message really came from who it claims — and isn&#39;t a replay of an old one — by appending a six-character HMAC-SHA256 token keyed by a shared password: the wire format that stays backward compatible, the who/what/when string that gets signed, the minute-based freshness window, why ACKs must be re-signed, and where key exchange stays out of scope.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Home Automation &amp; Integrations</h2>
+      <p class="group-sub">Connecting HTCommander to the wider ecosystem of tools operators already run.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/home-assistant-mqtt.html">
+          <span class="kicker">Integration</span>
+          <h3>Your Radio, on the Dashboard: Home Assistant Integration over MQTT</h3>
+          <p>How HTCommander publishes each connected radio to Home Assistant as its own device — battery, GPS, volume, squelch, scan, channels, and incoming APRS — using an MQTT broker and Home Assistant&#39;s auto-discovery, plus a step-by-step setup guide. Desktop-only (Windows / Linux / macOS).</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Troubleshooting &amp; Support</h2>
+      <p class="group-sub">Getting good diagnostics out of the app when something goes wrong.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/crash-reporting.html">
+          <span class="kicker">Troubleshooting</span>
+          <h3>It Crashed — Now What? How to Report a Crash in HTCommander</h3>
+          <p>A user-facing guide to capturing what went wrong — exporting the Debug tab log, finding the on-disk <code>htcommander_crash.log</code> on every platform, running from a terminal when the app won&#39;t start at all, checking the OS crash reporter, and exactly what to include so a report is actionable on the first try.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Internet Linking</h2>
+      <p class="group-sub">Bringing internet-linked voice into the same app that drives the radio.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/echolink-support.html">
+          <span class="kicker">Internet</span>
+          <h3>Radio Over the Internet: Adding EchoLink to HTCommander</h3>
+          <p>A full walk through the EchoLink stack in pure Dart — the GSM voice codec, the UDP audio/control ports and TCP directory, the RTCP SDES/BYE handshake that opens a QSO, how voice and chat are wrapped, what callsign suffixes and node numbers mean, a NAT pinhole that quietly eats receive audio, and how to get an account and make your first connection.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/aprs-is-integration.html">
+          <span class="kicker">Internet</span>
+          <h3>Radio and Internet, Two Ways: Planning APRS-IS for HTCommander</h3>
+          <p>A design note written before the first line of code — what APRS-IS is, the single-line passcode login, the TNC2 ⟷ AX.25 codec that lets internet packets reuse the existing APRS pipeline, the full-IGate rules for gating between RF and the internet (q-constructs, NOGATE, the &quot;recently heard&quot; list), and the receive-only-first test plan.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/allstarlink-support.html">
+          <span class="kicker">Internet</span>
+          <h3>Dialing In: Adding AllStarLink Support to HTCommander</h3>
+          <p>How we speak Asterisk&#39;s native <strong>IAX2</strong> protocol from pure Dart to connect to an AllStarLink node — the single-UDP-port design, full vs. mini frames, the NEW/AUTHREQ/AUTHREP/ACCEPT/ANSWER call handshake, MD5 challenge-response auth, GSM and μ-law voice, UDP reliability with sequence numbers and the 0x8000 timestamp-resync trick, why we connect client-to-node (DVSwitch/iaxRPT style), and how to configure a node and make your first call.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/allstarlink-node-support.html">
+          <span class="kicker">Internet</span>
+          <h3>Becoming the Node: Hosting an AllStarLink Node in HTCommander</h3>
+          <p>The other direction — turning HTCommander into a <strong>node</strong> others dial <em>into</em>. Running the inbound IAX2 server (the handshake in reverse), sharing one socket between calls and registration by call-number range, IAX2 registration so the network can find you, and the radio relay: bridging 8 kHz call audio to a handheld&#39;s PTT with half-duplex carrier arbitration so local RF always wins. Plus accepting <strong>Web Transceiver</strong> clients safely by validating their portal token the way a real <code>app_rpt</code> node does.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Voice &amp; CW</h2>
+      <p class="group-sub">Sending and shaping audio through the radio — from the microphone to Morse.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/morse-key-support.html">
+          <span class="kicker">Voice</span>
+          <h3>Keying by Hand: Morse Key Support in HTCommander</h3>
+          <p>How a USB morse key — straight or paddle — plugs in and sends real, hand-timed Morse over an ordinary FM handheld: why FM Morse differs from classic CW, how we key an FM transmitter that has no &quot;key up,&quot; the keyboard-style key bindings (<code>[</code> / <code>]</code> or Left / Right Ctrl), the iambic keyer and WPM timing, the low-latency sidetone, and the Off / Test / Live start-and-tail logic.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Satellites</h2>
+      <p class="group-sub">Working amateur radio satellites with a handheld — tracking, passes, and Doppler.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/satellite-tracking.html">
+          <span class="kicker">Satellites</span>
+          <h3>Working the Birds: Amateur Satellite Support in HTCommander</h3>
+          <p>How HTCommander tracks the FM &quot;easy sats&quot; — SGP4 orbit propagation via the <code>satellite_observer</code> package, orbital elements from CelesTrak and transponder frequencies from SatNOGS (with a bundled offline seed), the tab and map ground track/footprint overlay, Doppler-corrected up/downlink from range-rate — and the honest ledger of what&#39;s left: driving the radio&#39;s own native <code>SET_SATELLITE_INFO</code> command, whose payload isn&#39;t decoded yet.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Emergency Beacons</h2>
+      <p class="group-sub">Pulling life-saving signals out of the air — receive-only, on protected bands.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/sarsat-406-beacon-decoding.html">
+          <span class="kicker">Emergency</span>
+          <h3>Decoding Distress: 406 MHz SARSAT Beacons in HTCommander</h3>
+          <p>How a handheld FM radio can pick a satellite distress beacon out of the air: what COSPAS-SARSAT is, why a first-generation 406 MHz beacon is phase-modulated (not FM), the two demodulators (coherent and FM-demod) and BCH error-correction we built in pure Dart, how we proved it works — with a round-trip modulator, an oracle-built BCH encoder, and finally a real beacon recording that decodes with both BCH fields valid — and how decoding activates on a channel named <code>sarsat</code> (so a 406 MHz beacon or a 434 MHz trainer both work), surfacing a country, a 15-hex beacon ID, and a position as its own Comms message type with an SOS map marker.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Weather Balloons</h2>
+      <p class="group-sub">Turning a handheld into an upper-air receiver — decoding the radiosondes that launch worldwide twice a day.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/radiosonde-decoding.html">
+          <span class="kicker">Weather</span>
+          <h3>Catching Weather Balloons: Radiosonde Decoding in HTCommander</h3>
+          <p>How HTCommander decodes six different radiosonde families from one channel — Vaisala <strong>RS41</strong>, Graw <strong>DFM</strong>, Meteomodem <strong>M10/M20</strong>, InterMet <strong>iMet</strong>, and Lockheed Martin <strong>LMS6</strong> — each with its own modem (GFSK, Manchester, differential Manchester, Bell-202 AFSK, convolutional-coded NRZ) and error-correction (Reed–Solomon, Hamming, CRC, a custom checksum) ported to pure Dart; why the older <strong>RS92</strong> can&#39;t be positioned offline; how it&#39;s proved with synthetic round-trip tests; and how decoding self-activates on a channel named <code>Radiosonde</code>, plotting each balloon&#39;s climb and descent on the map.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Radio Protocol</h2>
+      <p class="group-sub">The low-level language HTCommander and the radio speak to each other.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/radio-command-protocol.html">
+          <span class="kicker">Radio</span>
+          <h3>Every Command a Benshi Radio Understands: A Complete Protocol Reference</h3>
+          <p>A byte-level reference for the whole control protocol — the two Bluetooth framings, the command envelope and response bit, the full basic/extended opcode set, the bit-packed layout of every important payload (device info, settings, channels, HT status, GPS position, BSS, FM radio, buttons), the notification model, and the two sub-protocols that ride on top: fragmented TNC data carrying AX.25 packets, and the VM firmware-update channel.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/bss-protocol.html">
+          <span class="kicker">Radio</span>
+          <h3>The Radio&#39;s Secret Handshake: Reverse-Engineering the BSS Protocol</h3>
+          <p>A field note on <strong>BSS</strong>, the undocumented Baofeng/BTech binary format for text, location, and &quot;ring my radio&quot; alerts — the <code>0x01</code> marker that separates it from AX.25, the length-includes-type TLV framing, a packet decoded by hand, the <code>0x85</code> message-ID sentinel, the field catalog and the location-request / call-request verbs, and an honest ledger of the location bytes still on the workbench.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Firmware Updates</h2>
+      <p class="group-sub">FIguring out the radio&#39;s firmware-update path — from the cloud check that finds an update to the two-phase Bluetooth flash that writes it into the radio.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/benshi-firmware-update.html">
+          <span class="kicker">Firmware</span>
+          <h3>How a Benshi Radio Updates Its Firmware, Step by Step</h3>
+          <p>A walk through the firmware-update path — from the cloud update check and patch-based download to the device-paced, two-phase GAIA transfer that streams a new image into the radio over Bluetooth.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/benshi-firmware-server.html">
+          <span class="kicker">Firmware</span>
+          <h3>Where Does the Firmware Come From? Inside the Benshi Update Server</h3>
+          <p>A field report on the online side — the gRPC check, the patch-based download, and the honest ledger of what we&#39;ve proven and the DID puzzle we still can&#39;t crack.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Data &amp; Storage</h2>
+      <p class="group-sub">How HTCommander packs large datasets into small, fast, self-contained files.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/fcc-callsign-compaction.html">
+          <span class="kicker">Data</span>
+          <h3>1.6 Million Hams in Your Pocket: Compacting the FCC Callsign Database</h3>
+          <p>How the FCC&#39;s weekly amateur-license dump becomes a small binary <code>.cdb</code> you can binary-search offline — and the stack of encoding tricks (base-37 packed keys, an offset-free index, epoch-relative dates, state/class/status/city dictionaries, numeric ZIPs, and xz) that shrink every record to the bone.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/ised-callsign-compaction.html">
+          <span class="kicker">Data</span>
+          <h3>90,000 Hams North of the Border: Compacting the Canadian Callsign Database</h3>
+          <p>How the same <code>.cdb</code> format is reused for Canada&#39;s ISED amateur data behind a single header flag — and the three encoding changes the Canadian data forced: alphanumeric postal codes packed in alternating bases, qualifications as a bitmask instead of class/status, and dropping expiry dates that never exist.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">App Architecture</h2>
+      <p class="group-sub">How HTCommander is built under the hood — the threading, plumbing, and design decisions that keep the radio responsive.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/audio-isolate-threading.html">
+          <span class="kicker">Architecture</span>
+          <h3>Getting Audio Off the Main Thread: Moving the Radio Pipeline to Its Own Isolate</h3>
+          <p>Why the whole receive pipeline — SBC decode, software modem, and SSTV — runs on the UI thread today and stutters when the interface is busy, and the plan to move it into a dedicated background isolate with playback fed straight from the worker. Written before the work begins.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Building &amp; Contributing</h2>
+      <p class="group-sub">Getting a full HTCommander development environment running on your own machine.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/building-from-source.html">
+          <span class="kicker">Building</span>
+          <h3>Build It Yourself: Compiling HTCommander on Every Platform</h3>
+          <p>A start-to-finish guide to installing Flutter and building HTCommander from source on Windows, macOS, Linux, Android, iOS, and the web — including the exact system packages each desktop target needs (and the GStreamer, BlueZ, and PulseAudio libraries Linux trips over first).</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
       <h2 class="group-title">DART Modem</h2>
       <p class="group-sub">Building and tuning <strong>DART</strong> (Data Adaptive Rate Transport), an adaptive OFDM modem for sending data over ordinary VHF/UHF <strong>FM voice</strong> radios (2 m / 70 cm) across a Bluetooth (SBC) audio link. Best read in order — each post builds on the last, walking from the first over-the-air observation down to the root-cause diagnosis and fix.</p>
 
@@ -86,282 +362,6 @@
           <span class="kicker">Part 7</span>
           <h3>Whitening the Signal: Why a Modem Scrambles Its Own Data</h3>
           <p>Why repetitive data (a frame full of zeros) wrecks spectrum, PAPR, and phase tracking — and why the fix is to make the data look like noise first. Compares the self-synchronizing G3RUH scrambler against an additive frame-synchronous one, and lays out the LDPC-friendly PN15 whitener DART will adopt.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight" style="background: var(--bg-2);">
-    <div class="container">
-      <h2 class="group-title">Firmware Updates</h2>
-      <p class="group-sub">FIguring out the radio&#39;s firmware-update path — from the cloud check that finds an update to the two-phase Bluetooth flash that writes it into the radio.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/benshi-firmware-update.html">
-          <span class="kicker">Firmware</span>
-          <h3>How a Benshi Radio Updates Its Firmware, Step by Step</h3>
-          <p>A walk through the firmware-update path — from the cloud update check and patch-based download to the device-paced, two-phase GAIA transfer that streams a new image into the radio over Bluetooth.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-        <a class="post" href="blogs/benshi-firmware-server.html">
-          <span class="kicker">Firmware</span>
-          <h3>Where Does the Firmware Come From? Inside the Benshi Update Server</h3>
-          <p>A field report on the online side — the gRPC check, the patch-based download, and the honest ledger of what we&#39;ve proven and the DID puzzle we still can&#39;t crack.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight">
-    <div class="container">
-      <h2 class="group-title">Radio Protocol</h2>
-      <p class="group-sub">The low-level language HTCommander and the radio speak to each other.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/radio-command-protocol.html">
-          <span class="kicker">Radio</span>
-          <h3>Every Command a Benshi Radio Understands: A Complete Protocol Reference</h3>
-          <p>A byte-level reference for the whole control protocol — the two Bluetooth framings, the command envelope and response bit, the full basic/extended opcode set, the bit-packed layout of every important payload (device info, settings, channels, HT status, GPS position, BSS, FM radio, buttons), the notification model, and the two sub-protocols that ride on top: fragmented TNC data carrying AX.25 packets, and the VM firmware-update channel.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-        <a class="post" href="blogs/bss-protocol.html">
-          <span class="kicker">Radio</span>
-          <h3>The Radio&#39;s Secret Handshake: Reverse-Engineering the BSS Protocol</h3>
-          <p>A field note on <strong>BSS</strong>, the undocumented Baofeng/BTech binary format for text, location, and &quot;ring my radio&quot; alerts — the <code>0x01</code> marker that separates it from AX.25, the length-includes-type TLV framing, a packet decoded by hand, the <code>0x85</code> message-ID sentinel, the field catalog and the location-request / call-request verbs, and an honest ledger of the location bytes still on the workbench.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight" style="background: var(--bg-2);">
-    <div class="container">
-      <h2 class="group-title">Sharing &amp; Interop</h2>
-      <p class="group-sub">Making HTCommander features portable between operators and radios.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/channel-share-string.html">
-          <span class="kicker">Interop</span>
-          <h3>A Channel You Can Text: The Channel-Share String</h3>
-          <p>A compact, human-readable one-line format that encodes a whole radio channel — frequency, offset, tones, bandwidth, modulation, and flags — so you can drag a channel into a chat, send it (even over the air), and have the recipient drop it straight into their radio.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight">
-    <div class="container">
-      <h2 class="group-title">APRS</h2>
-      <p class="group-sub">Getting more out of APRS on a handheld — hearing packets the radio&#39;s own modem would have thrown away.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/aprs-dual-modem.html">
-          <span class="kicker">APRS</span>
-          <h3>Two Modems Are Better Than One: Running a Software APRS Modem Alongside the Radio&#39;s</h3>
-          <p>How HTCommander decodes APRS twice — once with the radio&#39;s built-in hardware TNC and once with a software AFSK 1200 modem on the SBC audio stream that adds FX.25 forward error correction and CRC-based bit recovery, the deduplicator that merges both sources without doubles, how to turn it on from the Audio menu, and how the single- vs. double-arrow marks in the Packets tab show which modem caught each packet.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight" style="background: var(--bg-2);">
-    <div class="container">
-      <h2 class="group-title">Messaging &amp; Security</h2>
-      <p class="group-sub">Trusting what comes off the air — proving who sent a message, without breaking the no-encryption rules.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/aprs-message-authentication.html">
-          <span class="kicker">Messaging</span>
-          <h3>Signing the Airwaves: Authenticating APRS Messages Without Encryption</h3>
-          <p>How HTCommander proves an APRS message really came from who it claims — and isn&#39;t a replay of an old one — by appending a six-character HMAC-SHA256 token keyed by a shared password: the wire format that stays backward compatible, the who/what/when string that gets signed, the minute-based freshness window, why ACKs must be re-signed, and where key exchange stays out of scope.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight">
-    <div class="container">
-      <h2 class="group-title">Home Automation &amp; Integrations</h2>
-      <p class="group-sub">Connecting HTCommander to the wider ecosystem of tools operators already run.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/home-assistant-mqtt.html">
-          <span class="kicker">Integration</span>
-          <h3>Your Radio, on the Dashboard: Home Assistant Integration over MQTT</h3>
-          <p>How HTCommander publishes each connected radio to Home Assistant as its own device — battery, GPS, volume, squelch, scan, channels, and incoming APRS — using an MQTT broker and Home Assistant&#39;s auto-discovery, plus a step-by-step setup guide. Desktop-only (Windows / Linux / macOS).</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight" style="background: var(--bg-2);">
-    <div class="container">
-      <h2 class="group-title">Troubleshooting &amp; Support</h2>
-      <p class="group-sub">Getting good diagnostics out of the app when something goes wrong.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/crash-reporting.html">
-          <span class="kicker">Troubleshooting</span>
-          <h3>It Crashed — Now What? How to Report a Crash in HTCommander</h3>
-          <p>A user-facing guide to capturing what went wrong — exporting the Debug tab log, finding the on-disk <code>htcommander_crash.log</code> on every platform, running from a terminal when the app won&#39;t start at all, checking the OS crash reporter, and exactly what to include so a report is actionable on the first try.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight">
-    <div class="container">
-      <h2 class="group-title">Internet Linking</h2>
-      <p class="group-sub">Bringing internet-linked voice into the same app that drives the radio.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/echolink-support.html">
-          <span class="kicker">Internet</span>
-          <h3>Radio Over the Internet: Adding EchoLink to HTCommander</h3>
-          <p>A full walk through the EchoLink stack in pure Dart — the GSM voice codec, the UDP audio/control ports and TCP directory, the RTCP SDES/BYE handshake that opens a QSO, how voice and chat are wrapped, what callsign suffixes and node numbers mean, a NAT pinhole that quietly eats receive audio, and how to get an account and make your first connection.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-        <a class="post" href="blogs/aprs-is-integration.html">
-          <span class="kicker">Internet</span>
-          <h3>Radio and Internet, Two Ways: Planning APRS-IS for HTCommander</h3>
-          <p>A design note written before the first line of code — what APRS-IS is, the single-line passcode login, the TNC2 ⟷ AX.25 codec that lets internet packets reuse the existing APRS pipeline, the full-IGate rules for gating between RF and the internet (q-constructs, NOGATE, the &quot;recently heard&quot; list), and the receive-only-first test plan.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-        <a class="post" href="blogs/allstarlink-support.html">
-          <span class="kicker">Internet</span>
-          <h3>Dialing In: Adding AllStarLink Support to HTCommander</h3>
-          <p>How we speak Asterisk&#39;s native <strong>IAX2</strong> protocol from pure Dart to connect to an AllStarLink node — the single-UDP-port design, full vs. mini frames, the NEW/AUTHREQ/AUTHREP/ACCEPT/ANSWER call handshake, MD5 challenge-response auth, GSM and μ-law voice, UDP reliability with sequence numbers and the 0x8000 timestamp-resync trick, why we connect client-to-node (DVSwitch/iaxRPT style), and how to configure a node and make your first call.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-        <a class="post" href="blogs/allstarlink-node-support.html">
-          <span class="kicker">Internet</span>
-          <h3>Becoming the Node: Hosting an AllStarLink Node in HTCommander</h3>
-          <p>The other direction — turning HTCommander into a <strong>node</strong> others dial <em>into</em>. Running the inbound IAX2 server (the handshake in reverse), sharing one socket between calls and registration by call-number range, IAX2 registration so the network can find you, and the radio relay: bridging 8 kHz call audio to a handheld&#39;s PTT with half-duplex carrier arbitration so local RF always wins. Plus accepting <strong>Web Transceiver</strong> clients safely by validating their portal token the way a real <code>app_rpt</code> node does.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight" style="background: var(--bg-2);">
-    <div class="container">
-      <h2 class="group-title">Voice &amp; CW</h2>
-      <p class="group-sub">Sending and shaping audio through the radio — from the microphone to Morse.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/morse-key-support.html">
-          <span class="kicker">Voice</span>
-          <h3>Keying by Hand: Morse Key Support in HTCommander</h3>
-          <p>How a USB morse key — straight or paddle — plugs in and sends real, hand-timed Morse over an ordinary FM handheld: why FM Morse differs from classic CW, how we key an FM transmitter that has no &quot;key up,&quot; the keyboard-style key bindings (<code>[</code> / <code>]</code> or Left / Right Ctrl), the iambic keyer and WPM timing, the low-latency sidetone, and the Off / Test / Live start-and-tail logic.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight">
-    <div class="container">
-      <h2 class="group-title">Satellites</h2>
-      <p class="group-sub">Working amateur radio satellites with a handheld — tracking, passes, and Doppler.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/satellite-tracking.html">
-          <span class="kicker">Satellites</span>
-          <h3>Working the Birds: Amateur Satellite Support in HTCommander</h3>
-          <p>How HTCommander tracks the FM &quot;easy sats&quot; — SGP4 orbit propagation via the <code>satellite_observer</code> package, orbital elements from CelesTrak and transponder frequencies from SatNOGS (with a bundled offline seed), the tab and map ground track/footprint overlay, Doppler-corrected up/downlink from range-rate — and the honest ledger of what&#39;s left: driving the radio&#39;s own native <code>SET_SATELLITE_INFO</code> command, whose payload isn&#39;t decoded yet.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight" style="background: var(--bg-2);">
-    <div class="container">
-      <h2 class="group-title">Emergency Beacons</h2>
-      <p class="group-sub">Pulling life-saving signals out of the air — receive-only, on protected bands.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/sarsat-406-beacon-decoding.html">
-          <span class="kicker">Emergency</span>
-          <h3>Decoding Distress: 406 MHz SARSAT Beacons in HTCommander</h3>
-          <p>How a handheld FM radio can pick a satellite distress beacon out of the air: what COSPAS-SARSAT is, why a first-generation 406 MHz beacon is phase-modulated (not FM), the two demodulators (coherent and FM-demod) and BCH error-correction we built in pure Dart, how we proved it works — with a round-trip modulator, an oracle-built BCH encoder, and finally a real beacon recording that decodes with both BCH fields valid — and how decoding activates on a channel named <code>sarsat</code> (so a 406 MHz beacon or a 434 MHz trainer both work), surfacing a country, a 15-hex beacon ID, and a position as its own Comms message type with an SOS map marker.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight">
-    <div class="container">
-      <h2 class="group-title">Weather Balloons</h2>
-      <p class="group-sub">Turning a handheld into an upper-air receiver — decoding the radiosondes that launch worldwide twice a day.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/radiosonde-decoding.html">
-          <span class="kicker">Weather</span>
-          <h3>Catching Weather Balloons: Radiosonde Decoding in HTCommander</h3>
-          <p>How HTCommander decodes six different radiosonde families from one channel — Vaisala <strong>RS41</strong>, Graw <strong>DFM</strong>, Meteomodem <strong>M10/M20</strong>, InterMet <strong>iMet</strong>, and Lockheed Martin <strong>LMS6</strong> — each with its own modem (GFSK, Manchester, differential Manchester, Bell-202 AFSK, convolutional-coded NRZ) and error-correction (Reed–Solomon, Hamming, CRC, a custom checksum) ported to pure Dart; why the older <strong>RS92</strong> can&#39;t be positioned offline; how it&#39;s proved with synthetic round-trip tests; and how decoding self-activates on a channel named <code>Radiosonde</code>, plotting each balloon&#39;s climb and descent on the map.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight" style="background: var(--bg-2);">
-    <div class="container">
-      <h2 class="group-title">Data &amp; Storage</h2>
-      <p class="group-sub">How HTCommander packs large datasets into small, fast, self-contained files.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/fcc-callsign-compaction.html">
-          <span class="kicker">Data</span>
-          <h3>1.6 Million Hams in Your Pocket: Compacting the FCC Callsign Database</h3>
-          <p>How the FCC&#39;s weekly amateur-license dump becomes a small binary <code>.cdb</code> you can binary-search offline — and the stack of encoding tricks (base-37 packed keys, an offset-free index, epoch-relative dates, state/class/status/city dictionaries, numeric ZIPs, and xz) that shrink every record to the bone.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-        <a class="post" href="blogs/ised-callsign-compaction.html">
-          <span class="kicker">Data</span>
-          <h3>90,000 Hams North of the Border: Compacting the Canadian Callsign Database</h3>
-          <p>How the same <code>.cdb</code> format is reused for Canada&#39;s ISED amateur data behind a single header flag — and the three encoding changes the Canadian data forced: alphanumeric postal codes packed in alternating bases, qualifications as a bitmask instead of class/status, and dropping expiry dates that never exist.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight">
-    <div class="container">
-      <h2 class="group-title">App Architecture</h2>
-      <p class="group-sub">How HTCommander is built under the hood — the threading, plumbing, and design decisions that keep the radio responsive.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/audio-isolate-threading.html">
-          <span class="kicker">Architecture</span>
-          <h3>Getting Audio Off the Main Thread: Moving the Radio Pipeline to Its Own Isolate</h3>
-          <p>Why the whole receive pipeline — SBC decode, software modem, and SSTV — runs on the UI thread today and stutters when the interface is busy, and the plan to move it into a dedicated background isolate with playback fed straight from the worker. Written before the work begins.</p>
-          <span class="post__more">Read more →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight" style="background: var(--bg-2);">
-    <div class="container">
-      <h2 class="group-title">Building &amp; Contributing</h2>
-      <p class="group-sub">Getting a full HTCommander development environment running on your own machine.</p>
-
-      <div class="grid grid--blog mt-40">
-        <a class="post" href="blogs/building-from-source.html">
-          <span class="kicker">Building</span>
-          <h3>Build It Yourself: Compiling HTCommander on Every Platform</h3>
-          <p>A start-to-finish guide to installing Flutter and building HTCommander from source on Windows, macOS, Linux, Android, iOS, and the web — including the exact system packages each desktop target needs (and the GStreamer, BlueZ, and PulseAudio libraries Linux trips over first).</p>
           <span class="post__more">Read more →</span>
         </a>
       </div>
