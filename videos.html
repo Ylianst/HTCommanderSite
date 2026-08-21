@@ -69,6 +69,14 @@
     }
     .video__body h3 { font-size: 1.05rem; margin: 0; line-height: 1.35; }
     .video__body p { font-size: 0.88rem; margin: 0; color: var(--text-dim, #9aa4b2); }
+    .video-divider {
+      grid-column: 1 / -1;
+      margin-top: 24px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+    }
+    .video-divider h2 { font-size: 1.5rem; margin-bottom: 8px; }
+    .video-divider p { margin: 0; }
     @media (max-width: 900px) { .grid--videos { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 620px) { .grid--videos { grid-template-columns: 1fr; } }
   </style>
@@ -186,6 +194,47 @@
             <span class="kicker">Demo · iGate · EchoLink · Satellite</span>
             <h3>HTCommander now with iGate, EchoLink, and Satellite</h3>
             <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <div class="video-divider">
+          <h2>Older HTCommander for Windows</h2>
+          <p>These videos feature the previous C# Windows-only version of HTCommander.</p>
+        </div>
+
+        <button class="video" data-id="McIHckn4Kr4" aria-label="Play: VR-N76 &amp; UV-PRO | 3rd Party Apps &amp; HT Commander">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/McIHckn4Kr4/hqdefault.jpg" alt="VR-N76 and UV-PRO third-party apps and HT Commander" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Legacy · Windows</span>
+            <h3>VR-N76 &amp; UV-PRO | 3rd Party Apps &amp; HT Commander</h3>
+            <p>The Comms Channel</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="JJ6E7fRQD7o" aria-label="Play: HTCommander - Introduction (VGC N76 &amp; BTECH UV-PRO)">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/JJ6E7fRQD7o/hqdefault.jpg" alt="HTCommander introduction for VGC N76 and BTECH UV-PRO" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Legacy · Windows</span>
+            <h3>HTCommander — Introduction (VGC N76 &amp; BTECH UV-PRO)</h3>
+            <p>AAlliieennX</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="hGDAr2O57i8" aria-label="Play: HTCommander for Windows">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/hGDAr2O57i8/hqdefault.jpg" alt="HTCommander for Windows" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Legacy · Windows</span>
+            <h3>HTCommander for Windows</h3>
+            <p>Community video</p>
           </span>
         </button>
 
