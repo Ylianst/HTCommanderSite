@@ -1805,8 +1805,8 @@ extended group is routed separately in <code>_handleCommand</code> → <code>_ha
 precisely because these opcodes fall outside <code>RadioBasicCommand</code>. The full
 firmware-update state machine — image assembly, chunking, and flashing — is a
 story of its own, told in
-<a href="benshi-firmware-update.md">How a Benshi Radio Updates Its Firmware, Step by Step</a>
-and <a href="benshi-firmware-server.md">Where Does the Firmware Come From?</a>.</p>
+<a href="benshi-firmware-update.html">How a Benshi Radio Updates Its Firmware, Step by Step</a>
+and <a href="benshi-firmware-server.html">Where Does the Firmware Come From?</a>.</p>
 <p>Encoding for extended commands reuses <code>buildRawCommand</code> with the 16-bit opcode
 laid down big-endian, then wraps in GAIA serial framing (or sends raw for GATT).</p>
 <hr>

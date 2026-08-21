@@ -565,7 +565,7 @@ alphabets). Values outside those assumptions degrade gracefully — a non-numeri
 ZIP becomes &quot;none,&quot; an unmapped index reads as empty — but this format is not a
 general-purpose ULS mirror. The same format <em>does</em> stretch to other countries
 with a few targeted encoding changes — see
-<a href="ised-callsign-compaction.md"><em>Compacting the Canadian Callsign Database</em></a>,
+<a href="ised-callsign-compaction.html"><em>Compacting the Canadian Callsign Database</em></a>,
 which reuses this exact <code>.cdb</code> behind a single header flag to handle
 alphanumeric postal codes, qualification bitmasks, and non-expiring licences.</li>
 <li>We keep <strong>all</strong> licenses, including expired and cancelled ones. Filtering to
@@ -577,7 +577,7 @@ discarded: near-zero payoff for real added complexity.</li>
 <p>The result is a file that a phone can download quickly, store compactly, and
 search instantly — 1.6 million hams, offline, in your pocket.</p>
 <hr>
-<p><strong>Related:</strong> <a href="ised-callsign-compaction.md">Compacting the Canadian Callsign Database</a> ·
+<p><strong>Related:</strong> <a href="ised-callsign-compaction.html">Compacting the Canadian Callsign Database</a> ·
 <a href="../../src/lib/callsign/callsign_database.dart">callsign database reader/writer</a> ·
 <a href="../../src/tools/build_fcc_db.py">offline builder</a></p>
 

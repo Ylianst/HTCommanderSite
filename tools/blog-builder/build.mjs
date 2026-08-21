@@ -35,6 +35,7 @@ const OUT_DIR = process.env.BLOG_OUT ? resolve(process.env.BLOG_OUT) : resolve(S
 const BLOG_INDEX = resolve(SITE_ROOT, 'blog.html');
 
 const GH_BLOB = 'https://github.com/Ylianst/HTCommander/blob/main/docs/blogs';
+const GH_DOCS = 'https://github.com/Ylianst/HTCommander/blob/main/docs';
 
 marked.setOptions({ gfm: true, breaks: false });
 
@@ -56,6 +57,16 @@ function externalLinks(html) {
     /<a href="(https?:\/\/[^"]*)"(?![^>]*\btarget=)/g,
     '<a href="$1" target="_blank" rel="noopener"'
   );
+}
+
+/** Point relative markdown links at their generated page or GitHub source. */
+function markdownLinks(html) {
+  return html.replace(/href="([^"#]+)\.md(#[^"]*)?"/g, (_, path, hash = '') => {
+    if (path.startsWith('../')) {
+      return `href="${GH_DOCS}/${path.slice(3)}.md${hash}"`;
+    }
+    return `href="${path}.html${hash}"`;
+  });
 }
 
 /* ---------- markdown body -> styled HTML ---------- */
@@ -81,7 +92,7 @@ function renderBody(md) {
     .replace(/<table>/g, '<div class="table-wrap">\n<table>')
     .replace(/<\/table>/g, '</table>\n</div>');
 
-  return externalLinks(html);
+  return externalLinks(markdownLinks(html));
 }
 
 /**

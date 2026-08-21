@@ -45,7 +45,7 @@
       <article class="article">
 <h2>Standing on the FCC post&#39;s shoulders</h2>
 <p>This is a companion to
-<a href="fcc-callsign-compaction.md"><em>1.6 Million Hams in Your Pocket: Compacting the FCC Callsign Database</em></a>.
+<a href="fcc-callsign-compaction.html"><em>1.6 Million Hams in Your Pocket: Compacting the FCC Callsign Database</em></a>.
 That post explains the <code>.cdb</code> (&quot;Callsign DataBase&quot;) format in full — a sorted,
 binary-searchable index next to a seek-into records block, with a stack of
 encoding tricks (base-37 packed keys, an offset-free index, dictionaries for
@@ -233,7 +233,7 @@ never overlap), and each ships its own manifest and its own rolling release
 asset. A problem north of the border stays north of the border.</p>
 <h2>Incremental updates come along for free</h2>
 <p>The FCC post describes an upcoming
-<a href="fcc-callsign-compaction.md#whats-next-incremental-updates-via-an-overlay-database"><strong>overlay</strong> mechanism</a>
+<a href="fcc-callsign-compaction.html#whats-next-incremental-updates-via-an-overlay-database"><strong>overlay</strong> mechanism</a>
 for shipping weekly changes without re-downloading the whole database: a small
 second <code>.cdb</code> — same format — that the app searches <em>first</em>, falling through to
 the baseline on a miss. Because Canada already rides the identical format and
@@ -279,7 +279,7 @@ binary format and one binary-search reader — each downloadable in about a seco
 searchable instantly, and fully offline in your pocket.</p>
 <hr>
 <p><strong>Related:</strong>
-<a href="fcc-callsign-compaction.md">FCC callsign compaction</a> ·
+<a href="fcc-callsign-compaction.html">FCC callsign compaction</a> ·
 <a href="../../src/lib/callsign/callsign_database.dart">callsign database reader/writer</a> ·
 <a href="../../src/tools/build_ised_db.py">Canadian offline builder</a></p>
 

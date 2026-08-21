@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Radio on the Dashboard: Android Auto Support in HTCommander — HTCommander</title>
+  <meta name="description" content="HTCommander can now put the controls you need most on an Android Auto display: connect to a paired radio, change channels and regions, manage scan and dual-watch, and glance at recent messages without navigating the full phone app. Here is what Android Auto is, how HTCommander fits into it, and the limits that keep the experience deliberately focused." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Features</a>
+        <a href="../screens.html">Screens</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">In the Car</span>
+      <h1>Your Radio on the Dashboard: Android Auto Support in HTCommander</h1>
+      <p>HTCommander can now put the controls you need most on an Android Auto display: connect to a paired radio, change channels and regions, manage scan and dual-watch, and glance at recent messages without navigating the full phone app. Here is what Android Auto is, how HTCommander fits into it, and the limits that keep the experience deliberately focused.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>What Android Auto is</h2>
+<p><a href="https://www.android.com/auto/" target="_blank" rel="noopener">Android Auto</a> projects a driving-friendly
+experience from an Android phone onto a compatible vehicle display. The phone
+still runs HTCommander, talks to the radio over Bluetooth, and holds the app&#39;s
+state; the car provides the larger screen and its touch, rotary, or other input
+controls.</p>
+<p>This is different from <strong>Android Automotive OS</strong>, where Android is built into
+the vehicle and apps run directly on the car. HTCommander&#39;s integration is for
+phone-projected Android Auto. You need an Android phone with HTCommander
+installed and a vehicle or aftermarket head unit that supports Android Auto.</p>
+<p>It is also not ordinary screen mirroring. Google only permits approved,
+task-focused interfaces in the car. HTCommander appears as an IoT/device-control
+app and uses the standard templates supplied by the Android for Cars App
+Library. Those templates keep controls large, navigation shallow, and the
+amount of information on screen within the limits chosen by Android Auto and
+the vehicle.</p>
+<h2>Connecting a radio from the car</h2>
+<p>If HTCommander already has a preferred radio connected, the Android Auto screen
+opens directly to that radio. Its friendly name appears at the top and the car
+interface follows its current state.</p>
+<p>If no radio is connected, HTCommander looks for compatible radios that have
+already been paired with the phone. You can refresh the list, choose a radio,
+and connect without first opening the full phone interface. Connection progress
+and failures are shown in the list, and larger lists are split across pages to
+respect the head unit&#39;s item limit.</p>
+<p>Pairing a new radio and granting Android permissions still belong on the phone.
+The car screen can reconnect a known radio, but it is not a replacement for the
+initial setup flow.</p>
+<h2>Radio controls on the dashboard</h2>
+<p>Once connected, the main screen mirrors a small, live slice of the preferred
+radio&#39;s state. It offers:</p>
+<ul>
+<li><strong>VFO A channel selection.</strong> The current channel name is shown with its
+receive frequency. Open the row to browse named channels and assign one to
+VFO A with a tap.</li>
+<li><strong>VFO B channel selection.</strong> When scan or dual-watch makes the second VFO
+relevant, its channel appears as a separate row with the same picker.</li>
+<li><strong>Scan.</strong> A native switch starts or stops channel scanning.</li>
+<li><strong>Dual-watch.</strong> A second switch enables or disables monitoring both VFOs.</li>
+<li><strong>Regions.</strong> The active radio region is shown on the main screen and can be
+changed from a short picker.</li>
+</ul>
+<p>The channel picker marks the active choice as <strong>Current</strong>, displays frequencies
+for the other channels, and paginates long channel lists according to the
+capacity reported by the particular head unit. A selection is sent back to the
+radio through the same internal command path used by the phone app, so the car
+display updates as the radio state changes.</p>
+<pre class="mermaid">flowchart LR
+  Car[&quot;Android Auto display&lt;br/&gt;Google car templates&quot;]
+  Phone[&quot;HTCommander on phone&lt;br/&gt;radio state and commands&quot;]
+  Radio[&quot;Paired handheld&lt;br/&gt;Bluetooth&quot;]
+
+  Car &lt;--&gt;|&quot;controls + car-safe state&quot;| Phone
+  Phone &lt;--&gt;|&quot;radio protocol + audio&quot;| Radio
+</pre>
+<p>The important boundary is in the middle: Android Auto never connects directly
+to the handheld. HTCommander on the phone remains the bridge between the car
+and the radio.</p>
+<h2>Messages without opening the phone</h2>
+<p>The <strong>Messages</strong> action opens a read-only, newest-first view of recent traffic
+addressed to your station. It combines:</p>
+<ul>
+<li>APRS and other decoded on-air text directed to your callsign; and</li>
+<li>Winlink Inbox mail, represented by sender and subject.</li>
+</ul>
+<p>Each row identifies the sender, message type, and arrival time. HTCommander
+keeps the car-side snapshot deliberately small: at most the 25 most recent
+matching items are mirrored, and the head unit may show fewer at once if its
+template limit is lower.</p>
+<p>New directed on-air messages can also be read aloud while an Android Auto
+session is active. The announcement includes the sender when one is available,
+and back-to-back messages are queued instead of interrupting each other. Speech
+stops when the car session disconnects. Winlink subjects appear in the list but
+are not announced as incoming on-air messages.</p>
+<p>The destination filter matters. The car view is not a firehose of every packet
+HTCommander has decoded; it shows received messages addressed to your configured
+callsign (including its station ID/SSID forms), plus mail in the Winlink Inbox.</p>
+<h2>The deliberate limits</h2>
+<p>Android Auto is designed to reduce visual and manual distraction, and that
+shapes this feature more than screen size does.</p>
+<p><strong>It is a focused remote, not the whole HTCommander app.</strong> The dashboard does
+not expose maps, packet inspection, channel editing, firmware updates, audio
+tools, settings, or the rest of the phone and desktop interface. It also does
+not provide push-to-talk or voice controls.</p>
+<p><strong>Messages are read-only.</strong> You can review recent addressed text and Winlink
+subjects, and incoming on-air text can be spoken, but composing, replying,
+acknowledging, or opening a full Winlink message is not offered on the car
+screen. Those tasks require the phone app when safely parked.</p>
+<p><strong>One preferred radio drives the display.</strong> HTCommander can know about multiple
+radios, but the car controls the currently preferred connected radio. Choosing
+a paired radio while disconnected makes that connection the active one.</p>
+<p><strong>A phone and Bluetooth connection are still required.</strong> Android Auto does not
+turn the head unit into a standalone radio controller. The phone must run
+HTCommander, have the required Bluetooth access, and remain close enough to the
+handheld. Initial radio pairing and permission prompts must be handled on the
+phone.</p>
+<p><strong>The vehicle controls presentation and interaction limits.</strong> Exact colors,
+spacing, list capacity, navigation chrome, and which controls are available
+while moving can vary by Android Auto version and head unit. HTCommander asks
+for standard list, row, action, and toggle templates; Android Auto decides how
+to render them and may restrict interaction while driving.</p>
+<p><strong>Android only.</strong> This integration is for Android Auto. It does not add Apple
+CarPlay support, and it is not an Android Automotive OS app installed directly
+on the vehicle.</p>
+<h2>Why this shape works</h2>
+<p>The goal is not to transplant a complex radio application onto a dashboard. It
+is to make the few actions that matter during a drive predictable: connect the
+radio you already paired, see what channel it is on, change that channel,
+control scanning, and receive a short directed message without reaching for the
+phone.</p>
+<p>That narrow scope is what makes Android Auto useful here. The full HTCommander
+interface remains available when parked; on the road, the dashboard gets a
+small control surface built around quick choices and current state.</p>
+<hr>
+<p><strong>Related:</strong> <a href="https://github.com/Ylianst/HTCommander/blob/main/docs/Android-Auto-Testing.md" target="_blank" rel="noopener">Testing HTCommander with Android Auto</a> ·
+<a href="aprs-dual-modem.html">Two Modems Are Better Than One: Running a Software APRS Modem Alongside the Radio&#39;s</a></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/android-auto-support.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../screens.html">Screens</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>
