@@ -262,6 +262,35 @@
           </span>
         </button>
 
+        <div class="video-divider">
+          <h2>HTCommander Playlists</h2>
+          <p>Watch the complete HTCommander series and quick introductions.</p>
+        </div>
+
+        <button class="video" data-id="OC4dvPhCUbQ" data-list="PLCEgW9rVi_7Q" aria-label="Play playlist: HTCommander">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/OC4dvPhCUbQ/hqdefault.jpg" alt="HTCommander playlist" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Playlist · Full Series</span>
+            <h3>HTCommander</h3>
+            <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="l_OI8vwn0lM" aria-label="Play: HTCommander Short - Introduction">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/l_OI8vwn0lM/hqdefault.jpg" alt="HTCommander Short - Introduction" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Playlist · Shorts</span>
+            <h3>HTCommander Short - Introduction</h3>
+            <p>HTCommander</p>
+          </span>
+        </button>
+
       </div>
     </div>
   </section>
@@ -316,9 +345,12 @@
       if (!card || card.dataset.loaded) return;
       var id = card.dataset.id;
       if (!id) return;
+      var list = card.dataset.list;
       var frame = card.querySelector('.video__frame');
       var iframe = document.createElement('iframe');
-      iframe.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0';
+      iframe.src = list
+        ? 'https://www.youtube-nocookie.com/embed/videoseries?list=' + encodeURIComponent(list) + '&autoplay=1&rel=0'
+        : 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0';
       iframe.title = card.getAttribute('aria-label') ? card.getAttribute('aria-label').replace(/^Play:\s*/, '') : 'YouTube video';
       iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       iframe.allowFullscreen = true;
