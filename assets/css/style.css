@@ -276,7 +276,8 @@ section { position: relative; }
 /* ---------- Feature gallery (manual browse) ---------- */
 .gallery {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 20px;
 }
 .gallery__viewport {
@@ -476,13 +477,9 @@ section { position: relative; }
 
 .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
 .shot {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--bg-3);
-  box-shadow: var(--shadow-soft);
+  background: transparent;
 }
-.shot img { width: 100%; height: auto; display: block; object-fit: contain; background: var(--bg-3); }
+.shot img { width: 100%; height: auto; display: block; object-fit: contain; background: var(--bg-3); border-radius: var(--radius-sm); }
 /* Reserve the correct box per platform so screenshots are never cropped */
 #g-windows .shot img { aspect-ratio: 978 / 683; }
 #g-macos   .shot img { aspect-ratio: 2880 / 1800; }
@@ -492,10 +489,10 @@ section { position: relative; }
 /* Tall portrait phone shots get more columns so they don't render oversized */
 #g-android .shots, #g-iphone .shots { grid-template-columns: repeat(4, 1fr); }
 .shot figcaption {
-  padding: 10px 14px;
+  padding: 10px 6px 0;
   font-size: 0.82rem;
-  color: var(--text-faint);
-  border-top: 1px solid var(--border);
+  color: #000;
+  text-align: center;
   font-weight: 500;
 }
 
