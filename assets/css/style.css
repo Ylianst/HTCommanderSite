@@ -479,7 +479,7 @@ section { position: relative; }
 .shot {
   background: transparent;
 }
-.shot img { width: 100%; height: auto; display: block; object-fit: contain; background: var(--bg-3); border-radius: var(--radius-sm); }
+.shot img { width: 100%; height: auto; display: block; object-fit: contain; background: var(--bg-3); border-radius: var(--radius-sm); box-shadow: 0 14px 34px -12px rgba(23, 33, 46, 0.45); }
 /* Reserve the correct box per platform so screenshots are never cropped */
 #g-windows .shot img { aspect-ratio: 978 / 683; }
 #g-macos   .shot img { aspect-ratio: 2880 / 1800; }
