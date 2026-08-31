@@ -631,6 +631,17 @@ a.radio-chip:hover { border-color: var(--accent); color: var(--accent); }
 .feature-row:nth-child(even) .feature-row__media { order: -1; }
 .feature-row__media img { box-shadow: var(--shadow-soft); }
 .feature-row h3 { font-size: 1.55rem; }
+
+/* ---------- Radios page: smaller product shots with a drop shadow ---------- */
+.radios-page .feature-row__media { text-align: center; }
+.radios-page .feature-row__media img {
+  max-width: 300px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 30px -14px rgba(23, 33, 46, 0.45);
+}
 .feature-row .badge { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 10px; }
 .group-title { font-size: 1.4rem; margin: 56px 0 4px; color: var(--text); }
 .group-sub { color: var(--text-faint); margin-bottom: 8px; }
