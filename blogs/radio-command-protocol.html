@@ -18,7 +18,6 @@
       </a>
       <nav class="nav__links" id="navLinks">
         <a href="../features.html">Features</a>
-        <a href="../radios.html">Radios</a>
         <a href="../screens.html">Screens</a>
         <a href="../blog.html">Blog</a>
       </nav>
@@ -1869,9 +1868,9 @@ these commands, encoded exactly as described above.</p>
 <a href="../../src/lib/radio/radio_models.dart">radio_models.dart</a>,
 <a href="../../src/lib/radio/tnc_data_fragment.dart">tnc_data_fragment.dart</a>,
 <a href="../../src/lib/radio/utils.dart">utils.dart</a>, and
-<a href="../../src/lib/radio/radio.dart">radio.dart</a>. The browser mirror in
-<a href="../../src/assets/web/radio.js">radio.js</a> implements the same formats for the web
-client.</em></p>
+<a href="../../src/lib/radio/radio.dart">radio.dart</a>. The Flutter web client shares this
+same Dart implementation, reaching a desktop-hosted radio over a WebSocket
+bridge (<a href="../../src/lib/services/web/web_server_io.dart">web_server_io.dart</a>).</em></p>
 
         <div class="article__foot">
           <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>

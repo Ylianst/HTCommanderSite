@@ -18,7 +18,6 @@
       </a>
       <nav class="nav__links" id="navLinks">
         <a href="../features.html">Features</a>
-        <a href="../radios.html">Radios</a>
         <a href="../screens.html">Screens</a>
         <a href="../blog.html">Blog</a>
       </nav>
@@ -257,6 +256,9 @@ don&#39;t expose the Bluetooth APIs the app needs.</p>
 <p><strong>Build:</strong></p>
 <pre><code class="language-bash">flutter build web --release
 </code></pre>
+<p>When served by the desktop app instead, the web UI connects back over a
+WebSocket to share the host&#39;s radio (no Web Bluetooth needed). Build that variant
+with <code>tools/build_web_app.ps1</code>, which passes <code>--dart-define=HTC_HOSTED=true</code>.</p>
 <p>The static site is emitted to <code>build/web/</code>. Serve it with any static host, or run
 <code>flutter run -d chrome</code> during development.</p>
 <hr>

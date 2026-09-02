@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Same App, Two Homes: Running HTCommander's Web UI Inside the Desktop — HTCommander</title>
+  <meta name="description" content="HTCommander ships as a Flutter app, and Flutter builds for the web as easily as for Windows or Android. That gives us two very different ways to run the exact same UI in a browser: a **stand-alone** web build that talks to a radio directly over Web Bluetooth, and a **hosted** build that the desktop app serves from its own built-in web server and drives over a WebSocket bridge. This post is about the second one — why you'd want the desktop app to host its own web page, how a browser tab ends up sharing the desktop's already-connected radio, and the design rule that keeps the two from stepping on each other: **the host does all the work; the web page only syncs and displays.**" />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Features</a>
+        <a href="../screens.html">Screens</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">App Architecture</span>
+      <h1>The Same App, Two Homes: Running HTCommander's Web UI Inside the Desktop</h1>
+      <p>HTCommander ships as a Flutter app, and Flutter builds for the web as easily as for Windows or Android. That gives us two very different ways to run the exact same UI in a browser: a <strong>stand-alone</strong> web build that talks to a radio directly over Web Bluetooth, and a <strong>hosted</strong> build that the desktop app serves from its own built-in web server and drives over a WebSocket bridge. This post is about the second one — why you&#39;d want the desktop app to host its own web page, how a browser tab ends up sharing the desktop&#39;s already-connected radio, and the design rule that keeps the two from stepping on each other: <strong>the host does all the work; the web page only syncs and displays.</strong></p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>Two ways to be a web app</h2>
+<p>Because HTCommander is a single Flutter codebase, <code>flutter build web</code> produces a
+complete, self-contained copy of the app that runs in any modern browser. But a
+browser can&#39;t open a Bluetooth RFCOMM channel the way a desktop app can, and it
+certainly can&#39;t reach a Dump1090 server sitting on your LAN or open a raw TCP
+socket to an APRS-IS server. So the same web build can live in one of two worlds:</p>
+<ul>
+<li><p><strong>Stand-alone web</strong> — hosted on a plain static site (for example GitHub
+Pages). The browser talks to a Benshi radio <em>directly</em> using the
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API" target="_blank" rel="noopener">Web Bluetooth API</a>.
+Everything the desktop app does on its own, this build also does on its
+own — it decodes packets, runs the software modem where it can, tracks
+satellites, and stores its state in the browser. It is a full, independent
+station that happens to run in a tab.</p>
+</li>
+<li><p><strong>Hosted in HTCommander</strong> — served by the <em>desktop</em> app itself, from a small
+web server built into the program. This build does <strong>not</strong> use Web Bluetooth.
+Instead it connects back to the desktop over a WebSocket and shares the radio
+the desktop already has connected. The desktop is the brain; the browser is a
+second face on the same station.</p>
+</li>
+</ul>
+<p>The difference matters because the two builds have opposite jobs. The
+stand-alone build is <em>alone</em> and must do everything. The hosted build is a
+<em>client of the desktop</em> and must do almost nothing — because if it did the work
+itself, two copies of HTCommander would be fighting over one radio.</p>
+<pre class="mermaid">flowchart LR
+  subgraph Standalone[&quot;Stand-alone web (e.g. GitHub Pages)&quot;]
+    B1[&quot;Browser tab\n(full app)&quot;]
+    R1[&quot;Benshi radio&quot;]
+    B1 -- &quot;Web Bluetooth (GATT)&quot; --- R1
+  end
+
+  subgraph Hosted[&quot;Hosted in the desktop app&quot;]
+    B2[&quot;Browser tab\n(thin client)&quot;]
+    D[&quot;HTCommander desktop\n(the brain)&quot;]
+    R2[&quot;Benshi radio&quot;]
+    B2 -- &quot;WebSocket bridge\n(frames · state · audio)&quot; --- D
+    D -- &quot;Bluetooth (SBC audio + GATT)&quot; --- R2
+  end
+</pre>
+<hr>
+<h2>Why host the web UI at all</h2>
+<p>If the desktop app already controls the radio, why serve a web page from it?
+Because the web page can then run <strong>somewhere else</strong>. Once HTCommander is running
+on the computer that owns the Bluetooth link, anyone on the same network can open
+a browser — on a phone, a tablet, a laptop across the room — point it at the
+desktop&#39;s address, and get the full HTCommander interface driving <em>that</em> radio.
+No second Bluetooth pairing, no second physical radio, no installing anything.</p>
+<p>That opens up some genuinely useful setups:</p>
+<ul>
+<li><strong>A phone or tablet as a second screen</strong> for a radio that stays plugged into a
+desktop or a shack computer.</li>
+<li><strong>Remote operating on the local network</strong> — leave the radio and the desktop in
+the garage, sit on the couch with a tablet and still <em>hear</em> the radio.</li>
+<li><strong>A shared station</strong> where several people around the room can each pull up the
+APRS tab, the map, or the messages on their own device.</li>
+</ul>
+<p>Bluetooth only lets one host talk to the radio at a time, and re-pairing a radio
+between devices is a chore. Hosting the web UI sidesteps both: the desktop keeps
+the single Bluetooth connection, and every browser that connects is just another
+window onto it.</p>
+<hr>
+<h2>The trick: the bridge is a byte pipe</h2>
+<p>The part that makes this cheap to build is a happy accident of how the radio code
+already works on the web.</p>
+<p>On the web, HTCommander&#39;s <code>Radio</code> class always uses the radio&#39;s <strong>GATT command
+framing</strong> — the short, un-framed control frames <code>[group_hi, group_lo, cmd_hi, cmd_lo, payload…]</code> that the Bluetooth path uses. It already knows how to <em>send</em>
+those frames and how to <em>decode</em> the responses that come back. That&#39;s exactly the
+shape of data the desktop&#39;s radio exchange produces and consumes. So the WebSocket
+between the browser and the desktop doesn&#39;t need to translate anything — it&#39;s a
+plain two-way pipe of raw radio frames:</p>
+<ul>
+<li><strong>Browser → desktop:</strong> binary messages are raw GATT command frames. The desktop
+hands them straight to the radio.</li>
+<li><strong>Desktop → browser:</strong> binary messages are the radio&#39;s response frames. The
+browser decodes them with the same radio code it would use for a Web Bluetooth
+notification. (One kind of binary message is <em>not</em> a radio frame — mirrored
+audio — but it&#39;s tagged with a magic first byte, and radio frames always start
+with <code>0x00</code>, so the two can never be confused. More on that below.)</li>
+<li><strong>A few text messages</strong> ride alongside for control and sync: <code>wasconnected</code> /
+<code>connecting</code> / <code>disconnected</code> report whether a radio is available, and a set of
+prefixed messages (<code>settings:</code>, <code>history:</code>, <code>mail:</code>, <code>airplanes:</code>, <code>radiolist:</code>,
+and friends) carry state the browser can&#39;t compute for itself.</li>
+</ul>
+<p>On the client side this is a custom <code>RadioTransport</code> — a <code>WebSocketRadioTransport</code>
+that opens the socket and, from then on, pumps bytes both directions. It&#39;s a
+<em>persistent session</em>: the socket stays open (and reconnects itself if it drops)
+whether or not the host currently has a radio, so the browser keeps mirroring the
+desktop live rather than spinning on a reconnect loop. As far as the rest of the
+app is concerned, it&#39;s just another radio that happens to live at the other end of
+a WebSocket instead of a Bluetooth link.</p>
+<h3>Knowing which world you&#39;re in</h3>
+<p>A build has to know whether it&#39;s stand-alone or hosted, because that decides
+whether it reaches for Web Bluetooth or the WebSocket. The desktop serves its
+copy with a compile-time flag baked in:</p>
+<pre><code class="language-powershell">flutter build web --base-href / --dart-define=HTC_HOSTED=true
+</code></pre>
+<p>A tiny <code>HostBridge</code> helper reads that flag (and also honors <code>?bridge=1</code> in the URL
+so a developer can point an ordinary dev build at a running desktop for testing):</p>
+<pre><code class="language-dart">static bool get isHosted {
+  if (!kIsWeb) return false;
+  if (Uri.base.queryParameters[&#39;bridge&#39;] == &#39;1&#39;) return true;
+  return _hostedBuild; // bool.fromEnvironment(&#39;HTC_HOSTED&#39;)
+}
+</code></pre>
+<p>Everything else keys off <code>HostBridge.isHosted</code>. When it&#39;s true, the app connects
+to the host on startup instead of scanning for Bluetooth radios, and — as we&#39;ll
+see — quietly steps back from doing work the desktop is already doing.</p>
+<p>The desktop serves the build straight off disk from its own web server, and to
+avoid shipping the same megabytes twice, the shared app assets (fonts, the
+callsign database, images) are served out of the desktop&#39;s own bundle rather than
+the copy baked into the web output.</p>
+<hr>
+<h2>The rule that makes it work: the host does the work</h2>
+<p>Here&#39;s the subtle part, and the reason this post exists. A hosted browser tab is
+<em>running the whole HTCommander app</em>. Left to its own devices, it would happily do
+everything the desktop does: digipeat APRS frames it hears, send its own position
+beacons on a timer, auto-acknowledge incoming messages, answer BBS connections,
+serve file transfers. And because the browser&#39;s &quot;radio&quot; is really the desktop&#39;s
+radio piped over the bridge, every one of those actions would go out <strong>on the air
+for real</strong> — <em>in addition to</em> the desktop doing the exact same thing. Two beacons.
+Two digipeats. Two ACKs. One very confused channel.</p>
+<p>So the design rule for the hosted build is simple to state and worth stating
+plainly:</p>
+<blockquote>
+<p><strong>On the hosted web build, the desktop host performs all autonomous work. The
+browser only mirrors the host&#39;s state and forwards the operator&#39;s explicit
+actions.</strong></p>
+</blockquote>
+<p>The stand-alone build, by contrast, still does all of that itself — it has no
+host to defer to. The same code, two behaviors, gated on one boolean.</p>
+<p>Concretely, when a build is hosted:</p>
+<ul>
+<li>The <strong>digipeater</strong>, <strong>software beacon</strong>, <strong>BBS server</strong>, <strong>file-transfer
+(torrent) server</strong>, and <strong>software modem</strong> don&#39;t run in the browser at all. The
+desktop runs them.</li>
+<li>The <strong>APRS handler</strong> still decodes and displays packets — that&#39;s how the live
+APRS tab fills in — but its <em>automatic</em> behaviors (auto-ACKing a message
+addressed to you, raising a notification) are left to the host so they don&#39;t
+fire twice.</li>
+<li>The <strong>Winlink client</strong> doesn&#39;t run; the browser mirrors the desktop&#39;s mailbox
+and forwards send/receive requests over the bridge.</li>
+</ul>
+<p>What the browser <em>does</em> do is show you everything and let you act. Sending an
+APRS message, keying up in the terminal, opening a connected-mode session — those
+are <em>your</em> actions, initiated once, and they flow through the shared radio exactly
+like any other command. One press, one transmission.</p>
+<hr>
+<h2>Keeping the two in sync</h2>
+<p>For the browser to be a faithful second face, it needs the host&#39;s state. A hosted
+build can&#39;t read the desktop&#39;s saved settings, its message history, or its
+mailbox from the browser&#39;s own storage — that storage is empty. So the bridge
+carries the state across:</p>
+<ul>
+<li><strong>Settings.</strong> The browser proxies the app&#39;s settings to and from the host
+instead of the browser&#39;s local storage. Change a setting on the desktop and it
+pushes to every connected browser; change it in the browser and it&#39;s written on
+the host (which then re-broadcasts it to the others). Transient per-window UI
+state — which tab you&#39;re on, which radio is selected — is deliberately kept
+local so windows don&#39;t drag each other around.</li>
+<li><strong>History.</strong> On connect, the host sends a one-shot snapshot of its recent
+Comms and APRS history so the tabs aren&#39;t blank; after that the browser builds
+its own live history from the frames flowing over the bridge.</li>
+<li><strong>Mail.</strong> The host owns the Winlink mailbox and streams it to the browser,
+which forwards any changes (compose, delete, move) and sync requests back.</li>
+<li><strong>Airplanes.</strong> Only the desktop can reach a Dump1090 server on the local
+network, so it polls and pushes the aircraft list to the browser for the map.</li>
+</ul>
+<p>A couple of features that <em>are</em> configured in the browser still let the desktop do
+the actual work. The digipeater and beacon settings, for instance, sync to the
+host like any other setting — and because the browser&#39;s radio has a different
+internal ID than the desktop&#39;s, the host resolves the configured radio to <em>its</em>
+real radio when it acts. The software-modem menu works the same way: choosing a
+mode in the browser writes the setting, which the host applies to the modem it&#39;s
+actually running.</p>
+<p>Where a feature genuinely can&#39;t be driven remotely yet — the BBS and the
+file-transfer server, which keep live per-connection state on the host — the
+browser is honest about it, showing a small &quot;managed on the desktop host&quot; banner
+instead of dead buttons that pretend to work.</p>
+<hr>
+<h2>Relaying the radio, not just its data</h2>
+<p>Early on, the browser treated &quot;the host has no radio&quot; as a <em>failed connection</em> and
+kept retrying — you&#39;d load the page and watch it spin, reconnecting every few
+seconds, even though the host was perfectly reachable and simply had no radio
+plugged in yet. That&#39;s backwards. The browser isn&#39;t connecting to a radio; it&#39;s
+connecting to the <em>desktop</em>, which may or may not have a radio at any moment. So
+the session was split from the radio: the socket stays up as a stable channel, and
+the host just <em>tells</em> the browser what its radio situation is. No radio on the
+host now shows a calm &quot;no radio&quot; state, and the moment the desktop connects one,
+the browser lights up — no reconnect dance.</p>
+<p>Once the session relays state instead of just data, three things fall out of it
+naturally:</p>
+<ul>
+<li><strong>The real radio&#39;s name.</strong> Instead of a generic &quot;shared radio&quot; label, the
+browser shows the actual name of whatever radio the desktop has selected.</li>
+<li><strong>Switching radios.</strong> If the desktop has more than one radio connected, the host
+sends the browser its radio list, and the browser&#39;s normal radio switcher (the
+File menu and the Radio tab&#39;s name dropdown) lets you pick which one the desktop
+shares. Choosing a different radio tells the host to re-point the bridge, and the
+browser re-fetches the new radio&#39;s channels and status.</li>
+<li><strong>Disconnect means disconnect <em>the radio</em>.</strong> Hitting File → Disconnect in the
+browser used to tear down the browser&#39;s own session — surprising, since you were
+really trying to disconnect the radio. Now it asks the desktop to drop its radio;
+the browser session stays open and simply shows &quot;no radio&quot; afterwards, exactly as
+if you&#39;d unplugged it on the desktop.</li>
+</ul>
+<hr>
+<h2>Hearing the radio in the browser</h2>
+<p>A screen is only half the station — you want to <em>hear</em> it too. On the desktop,
+every source of audio the app plays — received radio audio, the transmit monitor,
+EchoLink, AllStarLink — is mixed down through one shared PCM player before it
+reaches the speaker. That single choke point turned out to be the perfect place to
+tap: one hook there captures <strong>everything</strong> the desktop plays, no matter which
+feature produced it, and streams it to any browser that&#39;s asked to listen.</p>
+<p>The audio rides the same WebSocket as tagged binary frames — a tiny header
+(<code>magic</code>, channel count, sample rate) followed by raw 16-bit PCM. Because radio
+command frames always begin with <code>0x00</code> and the audio magic byte doesn&#39;t, the
+transport tells them apart with a single byte compare and routes audio to the
+browser&#39;s player instead of the radio decoder.</p>
+<p>In the browser, playback uses the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API" target="_blank" rel="noopener">Web Audio API</a>:
+each incoming buffer becomes an <code>AudioBuffer</code> scheduled back-to-back on the audio
+context&#39;s clock, with a small pre-roll so a little network jitter doesn&#39;t cause a
+dropout. Browsers won&#39;t start audio without a user gesture, so it&#39;s <strong>opt-in</strong> — a
+&quot;Play Host Audio&quot; toggle (and a headphone indicator up in the menu bar) turns it
+on from a click, which both satisfies the autoplay rule and tells the host to only
+bother streaming to browsers that actually want it.</p>
+<p>The nicest part is what this makes possible with <strong>volume</strong>. The &quot;Application
+Volume&quot; slider used to be applied deep in the audio pipeline, before our tap — so
+if you turned the desktop down, the browser went quiet too. We moved the volume to
+the <em>playback</em> stage on each side, and made the setting <strong>local to each side</strong>: the
+desktop keeps its level in its own preferences, and the browser saves its own in
+the browser&#39;s local storage instead of syncing it across the bridge. The mirrored
+stream now leaves the host at full volume, and each end applies its own level. So
+you can <strong>mute the desktop and keep listening on your phone</strong>, or the other way
+around — the two are genuinely independent. (One deliberate consequence: on the
+desktop this slider became a true master output volume, so it now also rides
+EchoLink and AllStarLink audio, which it previously left alone.)</p>
+<hr>
+<h2>The honest ledger</h2>
+<p>A few rough edges remain, in the tradition of these posts:</p>
+<ul>
+<li><strong>The software modem is host-only, by physics.</strong> We mirror the audio the
+desktop <em>plays</em>, but the modem needs the raw, pre-decode SBC audio stream to
+<em>demodulate</em> — and that lower-level stream isn&#39;t bridged, only the played-back
+PCM and the control frames are. So the desktop runs the modem; the browser
+reflects its settings and hears the result, but can&#39;t decode on its own.</li>
+<li><strong>Audio is a one-way mirror, and opt-in.</strong> The browser plays what the desktop
+plays; it can&#39;t independently pick a different source to monitor, and (per the
+browser&#39;s autoplay rules) nothing is heard until you click &quot;Play Host Audio&quot;.</li>
+<li><strong>BBS and file transfer are &quot;managed on host&quot; for now.</strong> Their live,
+per-connection state isn&#39;t bridged yet, so the browser shows status rather than
+offering full remote control. Building that sync — the way mail already
+works — is future work.</li>
+<li><strong>A stale indicator or two.</strong> The digipeater dialog&#39;s &quot;active&quot; light reads a
+per-radio lock state that isn&#39;t bridged, so it can look inactive in the browser
+even while the desktop is happily digipeating.</li>
+<li><strong>It&#39;s a local-network tool.</strong> Hosting the web UI is designed for the same
+network as the desktop. Exposing it safely to the wider internet is a separate
+conversation about authentication and transport security that we haven&#39;t had
+yet.</li>
+</ul>
+<p>None of these change the shape of the thing. The hosted web build is the full
+HTCommander interface, running wherever you want a screen, driving one radio
+through the one desktop that owns it — and careful, on purpose, to let that
+desktop do the talking.</p>
+<hr>
+<p><strong>Related:</strong> <a href="building-from-source.html">Build It Yourself: Compiling HTCommander on Every Platform</a> ·
+<a href="radio-command-protocol.html">Every Command a Benshi Radio Understands</a> ·
+<a href="aprs-dual-modem.html">Two Modems Are Better Than One</a></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/web-hosted-in-desktop.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../screens.html">Screens</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

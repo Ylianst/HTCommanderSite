@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>When the App Is Closed: Push Notifications, Sync, and Avatars for APRS — HTCommander</title>
+  <meta name="description" content="How HTCommander delivers an APRS text message to your phone even when the app isn't running — and does it without turning the companion server into a bandwidth furnace. This post walks the whole path: the companion server (**HTCloudServer**), the passcode-based registration, the live push, the `since`-cursor sync that fills any gaps, and the avatar system that lets a sender's face ride along with the notification — every piece designed so the server moves as few bytes as it possibly can." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Features</a>
+        <a href="../screens.html">Screens</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Notifications &amp; Cloud</span>
+      <h1>When the App Is Closed: Push Notifications, Sync, and Avatars for APRS</h1>
+      <p>How HTCommander delivers an APRS text message to your phone even when the app isn&#39;t running — and does it without turning the companion server into a bandwidth furnace. This post walks the whole path: the companion server (<strong>HTCloudServer</strong>), the passcode-based registration, the live push, the <code>since</code>-cursor sync that fills any gaps, and the avatar system that lets a sender&#39;s face ride along with the notification — every piece designed so the server moves as few bytes as it possibly can.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The problem: radios are patient, phones are not</h2>
+<p>APRS is a store-and-forward world. A message addressed to your station can
+arrive at any moment, from anywhere on the planet, via
+<a href="aprs-is-integration.html">APRS-IS</a> — the global internet backbone of APRS. On a
+desktop that&#39;s fine: HTCommander keeps a socket open and hears it live. On a
+phone it isn&#39;t. Mobile operating systems aggressively suspend backgrounded apps,
+so a persistent APRS-IS connection from a phone is a battery-draining fiction —
+the OS will kill it the moment you switch away.</p>
+<p>The standard answer is a <strong>push notification</strong>: a tiny message the OS itself
+delivers through Firebase Cloud Messaging (Android) or APNs (iOS), waking a
+banner into existence without the app running at all. But APRS clients don&#39;t
+talk to FCM — FCM talks to <em>servers</em>. So we built one:
+<strong>HTCloudServer</strong>, a small Node.js companion that sits on APRS-IS on your
+behalf, catches messages addressed to your station, and pushes them to your
+phone.</p>
+<p>The whole design has one obsession running through it: <strong>the server should cost
+almost nothing to run</strong>. Every decision below — what we subscribe to, when we
+push, what an avatar upload looks like — is bent toward moving the fewest bytes.</p>
+<hr>
+<h2>The pieces</h2>
+<pre class="mermaid">flowchart LR
+  subgraph Net[&quot;APRS-IS&quot;]
+    IS[&quot;rotate.aprs2.net\n(global APRS backbone)&quot;]
+  end
+  subgraph Server[&quot;HTCloudServer  (aprs.meshcentral.com)&quot;]
+    Filter[&quot;Dynamic g/ filter\n(only messages TO\nregistered stations)&quot;]
+    Store[&quot;SQLite\nrolling history\n(50 msgs / station)&quot;]
+    Push[&quot;Push dispatcher\n+ coalescer&quot;]
+  end
+  subgraph Phone[&quot;HTCommander (Android)&quot;]
+    Svc[&quot;AprsCloudService&quot;]
+    Tabs[&quot;APRS / Comms tabs&quot;]
+  end
+  FCM[&quot;FCM / APNs&quot;]
+
+  IS --&gt;|matched messages| Filter --&gt; Store
+  Store --&gt; Push --&gt; FCM --&gt;|notification| Svc
+  Svc --&gt;|register / sync| Server
+  Svc --&gt; Tabs
+</pre>
+<p>On the app side, the whole thing lives in one Android-only service,
+<code>AprsCloudService</code>, wired into the app&#39;s internal event bus (the &quot;Data Broker&quot;)
+and driven entirely by settings changes. On the server side it&#39;s vanilla Node
+<code>http</code>/<code>https</code> — no framework — so we keep socket-level control for the rate
+limiter. Persistence is <code>better-sqlite3</code>; push is <code>firebase-admin</code> (FCM) and a
+hand-rolled APNs HTTP/2 client.</p>
+<p>Authentication reuses a trick from the
+<a href="aprs-is-integration.html">APRS-IS work</a>: the <strong>APRS passcode</strong>. It&#39;s a number
+derived from your callsign by a well-known (if deliberately unpublished)
+algorithm that HTCommander already carries as <code>AprsUtil.aprsValidationCode</code>. It
+isn&#39;t a secret — anyone can compute it for any callsign — but it proves you at
+least <em>know</em> the callsign you&#39;re claiming, which is exactly the bar APRS itself
+sets. Every request to the server carries it as <code>auth</code>.</p>
+<hr>
+<h2>Registration: telling the server you exist</h2>
+<p>When you turn on <strong>Push notifications</strong> in Settings (only available once APRS-IS
+is configured with a valid passcode), the app:</p>
+<ol>
+<li>Obtains an FCM token from Firebase.</li>
+<li><code>POST</code>s it to <code>/v1/register</code> with your callsign, SSID, platform, the passcode,
+and — because it&#39;s the first contact after a launch — <code>wantHistory: true</code> and
+a <code>since</code> cursor so the server hands back anything you missed while away.</li>
+</ol>
+<pre><code>POST /v1/register
+{ callsign, ssid, platform:&quot;android&quot;, pushToken, ackMessages:false,
+  wantHistory:true, since:&lt;lastSyncMs&gt;, auth:&lt;passcode&gt; }
+</code></pre>
+<p>That single call registers you, pulls your backlog, and starts a slow (6-hour)
+<strong>heartbeat</strong> that refreshes the token and keeps you in the server&#39;s APRS-IS
+filter. Everything after that is either a live push or a lightweight sync.</p>
+<hr>
+<h2>The live push — and why the server hears so little</h2>
+<p>Here&#39;s the part that keeps the server cheap. APRS-IS can firehose <em>millions</em> of
+packets. A naive gateway would drink the whole thing. HTCloudServer instead
+builds a <strong>dynamic server-side filter</strong> and asks APRS-IS to send it only what it
+needs:</p>
+<pre><code>g/CALL1/CALL2/CALL3/...      # messages addressed TO these callsigns
+</code></pre>
+<p>That <code>g/</code> construct means &quot;message packets <em>to</em> any of these stations.&quot; The
+server does <strong>not</strong> subscribe to their position beacons, telemetry, or weather —
+those never cross the wire. The filter is rebuilt and pushed to APRS-IS <strong>only
+when the set of registered stations changes</strong>, not per message. (There&#39;s a
+<code>b/</code> variant for tracking a station&#39;s <em>outgoing</em> traffic too, but it&#39;s off by
+default precisely because it multiplies ingress.)</p>
+<p>When a matching message does arrive, the pipeline:</p>
+<ol>
+<li><strong>Deduplicates it.</strong> APRS senders retransmit until they get an ACK. An
+identical message (same sender, addressee, sequence id, and text) is stored
+and pushed <strong>once</strong> — though the server still re-ACKs each retransmission so
+the sender stops repeating.</li>
+<li><strong>Stores it</strong> in a rolling per-station ring buffer (default 50 messages), so
+a phone that was offline can catch up later.</li>
+<li><strong>Coalesces the push.</strong> If several messages for one station land within a
+short window, they fold into a <em>single</em> notification (&quot;3 new APRS messages&quot;)
+carrying a <code>collapseId</code> so the OS replaces the previous banner instead of
+stacking. One provider send instead of three.</li>
+</ol>
+<p>The notification&#39;s data payload is deliberately tiny — <code>fromCall</code>, <code>seqId</code>, <code>to</code>,
+<code>count</code> — just enough for the app to know who and how many.</p>
+<blockquote>
+<p><strong>A sharp edge we hit:</strong> <code>from</code> is a <em>reserved</em> key in an FCM data payload.
+Using it makes FCM v1 reject the whole message with <code>invalid-argument</code>. We
+rename it <code>fromCall</code>. (Other reserved keys to dodge: <code>notification</code>,
+<code>message_type</code>, <code>collapse_key</code>, anything starting <code>google</code>/<code>gcm</code>.)</p>
+</blockquote>
+<hr>
+<h2>Sync: the <code>since</code> cursor that fills the gaps</h2>
+<p>Push is best-effort. A notification can be dropped, delayed, or squelched by a
+battery optimizer. So the app never <em>trusts</em> push to be complete — it treats
+every push as a hint to <strong>sync</strong>.</p>
+<p>The mechanism is a monotonic cursor. Each server response carries a <code>serverTime</code>;
+the app persists the newest one it has seen. To catch up it simply asks for
+everything after it:</p>
+<pre><code>POST /v1/sync   { callsign, ssid, since:&lt;lastSyncMs&gt;, auth }
+   → { messages:[ …only newer than since… ], serverTime }
+</code></pre>
+<ul>
+<li><strong>Foreground:</strong> when a push arrives while the app is open, the OS shows no
+banner, so the app calls <code>/v1/sync</code> and pulls the message straight into the
+list.</li>
+<li><strong>On launch:</strong> <code>/v1/register</code> with <code>wantHistory</code> does the same job for the
+whole backlog.</li>
+<li><strong>On tap:</strong> the app syncs, switches to the APRS tab, and opens the sender&#39;s
+conversation.</li>
+</ul>
+<p>Because <code>since</code> only ever moves forward and the server returns strictly newer
+rows, syncs are small and idempotent. Injected messages are de-duplicated
+against any copy that also arrived over RF or a live APRS-IS connection, so a
+message never appears twice no matter how many paths delivered it.</p>
+<hr>
+<h2>Keeping the server cheap: the whole ledger</h2>
+<p>Every one of these is in the shipping server, and every one exists to move fewer
+bytes or burn less CPU:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>What it saves</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>g/</code>-only APRS-IS filter</td>
+<td>Drops position/telemetry/weather ingress entirely</td>
+</tr>
+<tr>
+<td>Filter rebuilt on registry change (not per message)</td>
+<td>No churn on the APRS-IS control channel</td>
+</tr>
+<tr>
+<td>Duplicate suppression</td>
+<td>Store + push each message once, not once per retransmit</td>
+</tr>
+<tr>
+<td>Auto-ACK throttle</td>
+<td>Caps ACK transmits for a repeated message</td>
+</tr>
+<tr>
+<td>Push coalescing (<code>collapseId</code>)</td>
+<td>One provider send per burst, not one per message</td>
+</tr>
+<tr>
+<td><code>since</code>-cursor sync</td>
+<td>Incremental pulls, never the full history</td>
+</tr>
+<tr>
+<td>gzip responses (≥ ~860 B)</td>
+<td>Shrinks the message and avatar payloads</td>
+</tr>
+<tr>
+<td>TLS session resumption (ticket keys)</td>
+<td>Skips full handshakes on reconnect</td>
+</tr>
+<tr>
+<td>Rate limiter with silent connection drop</td>
+<td>Abusive IPs get <em>no</em> response — cheapest possible refusal</td>
+</tr>
+</tbody></table>
+</div>
+<p>The through-line: the server subscribes to as little as possible, remembers just
+enough, and speaks only when it must.</p>
+<hr>
+<h2>Avatars: a face on the message, for almost no bytes</h2>
+<p>An operator can set an <strong>avatar</strong> — either a built-in <strong>icon</strong> (a named logo like
+<code>radio</code> or <code>mail</code>) or a custom <strong>image</strong> (a base64 64×64 PNG). We wanted a
+sender&#39;s avatar to appear next to their messages on other people&#39;s phones. The
+challenge: an image is <em>kilobytes</em>, and we refuse to ship kilobytes we don&#39;t have
+to.</p>
+<h3>Uploading only what changed</h3>
+<p>The app never re-uploads an unchanged avatar. It computes a small <strong>identity
+string</strong> for the current avatar and only sends the full payload when that
+identity differs from what the server last confirmed:</p>
+<ul>
+<li><strong>Custom image:</strong> the identity is <code>sha256(icon \n image)</code> — hashing the large
+image so a change is detected without shipping it.</li>
+<li><strong>Icon only:</strong> an icon <em>needs no image hash</em>. Its name is already a compact,
+stable identity, so the app uses <code>icon:&lt;name&gt;</code> directly — no SHA-256, and a
+~9-byte identity instead of a 64-char digest.</li>
+<li><strong>No avatar:</strong> the identity is empty, so a station without one uploads nothing,
+ever.</li>
+</ul>
+<p>Every <code>register</code>/<code>heartbeat</code> carries just that small <code>avatarHash</code>. The full
+<code>avatarIcon</code>/<code>avatarImage</code> ride along <strong>only</strong> when the hash differs, flagged
+with <code>avatarUpdate:true</code>. The server stores it and <strong>echoes back the hash it now
+holds</strong> — so if the server is ever reset, the app sees the mismatch and
+re-uploads on its own. A heartbeat for an unchanged avatar is a few bytes.</p>
+<p>The server keeps this backward compatible and abuse-resistant: avatar columns
+were added to the stations table with an in-place migration, images are capped at
+24000 characters, and older clients that send no avatar fields are completely
+unaffected.</p>
+<h3>Riding along with the push</h3>
+<p>Here&#39;s the efficient bit the app cares about most: when the server pushes a
+message, it attaches the <strong>sender&#39;s</strong> stored avatar to the notification the app
+was already going to receive — <strong>no extra request</strong>.</p>
+<p>Push payloads are capped at roughly 4 KB by both FCM and APNs, so we can&#39;t just
+stuff an image in. Instead:</p>
+<ul>
+<li>The tiny <code>fromAvatarIcon</code> (logo name) and <code>fromAvatarHash</code> <strong>always</strong> travel.</li>
+<li>The <code>fromAvatarImage</code> is inlined <strong>only</strong> when its base64 fits a safe budget
+(≤ 3000 chars); otherwise it&#39;s dropped and the app falls back to initials.</li>
+</ul>
+<p>The app caches whatever arrives, keyed by callsign, and <strong>never fetches the
+missing image</strong> — honoring the rule that a push must not cost the server an extra
+round trip. A custom image too big for the budget simply shows initials until the
+app learns it another way.</p>
+<p>And when a sender <em>clears</em> their avatar, the server sends a two-byte
+<strong>tombstone</strong> — <code>fromAvatarCleared:&quot;1&quot;</code> — but only for a known cloud station that
+genuinely cleared it (its record has an update time but nothing stored, which is
+distinguishable from a station that never set one). The app drops its cached copy.</p>
+<h3>Filling in avatars on sync (for desktops)</h3>
+<p>Push is an Android luxury. A desktop that only <em>syncs</em> messages needs a way to
+learn avatars too — and the same efficiency rule applies: send the hash, fetch
+the image only if it changed.</p>
+<p>So <code>/v1/register</code> (with history) and <code>/v1/sync</code> responses now include a compact
+map of the message senders that have an avatar:</p>
+<pre><code>&quot;avatars&quot;: { &quot;KJ7ABC-7&quot;: &quot;icon:radio&quot;, &quot;KK7VZT-6&quot;: &quot;9f3c…&quot; }
+</code></pre>
+<p>The client compares each hash against its local copy and calls a batch endpoint
+<strong>only for the ones that changed</strong>:</p>
+<pre><code>POST /v1/avatars   { callsign, ssid, auth, stations:[ …up to 50… ] }
+   → { avatars:{ &quot;KJ7ABC-7&quot;:{ icon, image, hash } } }
+</code></pre>
+<p>Because push already populates the cache on Android, those hashes usually match
+and no fetch happens at all. On a desktop, the larger image travels exactly once
+and then never again while it&#39;s unchanged.</p>
+<hr>
+<h2>Backward compatibility, on purpose</h2>
+<p>Every addition here is <strong>additive</strong>. Avatar fields, the <code>avatars</code> map, the
+tombstone, the <code>/v1/avatars</code> endpoint — an older client that knows none of them
+simply ignores them and keeps working. The rollout order is deliberate: the
+<strong>updated server ships first</strong>, so by the time a client learns to ask for an
+avatar hash, the server already knows how to answer.</p>
+<hr>
+<h2>The honest ledger</h2>
+<ul>
+<li><strong>iOS</strong> is wired on the server (a full APNs HTTP/2 + JWT client) but the app
+ships Firebase only for Android today; an iOS build needs its own push
+configuration before end-to-end works there.</li>
+<li><strong>Background-delivered avatars</strong> are captured when the app is foregrounded or a
+notification is tapped — the background isolate has no access to the app&#39;s
+storage, so an avatar from a push that&#39;s never opened waits until the next
+sync.</li>
+<li><strong>A cleared avatar over sync-only</strong> (no push) isn&#39;t tombstoned; the desktop
+path advertises present avatars, not absent ones. Acceptable, and cheap.</li>
+<li>The <code>since</code> cursor is only as good as the client&#39;s willingness to render every
+message it pulls — an early bug where a pulled message advanced the cursor
+without being displayed taught us to make injection and persistence the same
+step.</li>
+</ul>
+<p>None of it is exotic. It&#39;s a small server that listens narrowly, remembers
+briefly, speaks rarely, and never sends a byte it can avoid — which is exactly
+what you want standing between a global packet firehose and a phone in your
+pocket.</p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/push-notifications.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../screens.html">Screens</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

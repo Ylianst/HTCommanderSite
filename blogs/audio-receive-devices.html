@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Any Audio In Is a Radio: Audio Receive Devices in HTCommander — HTCommander</title>
+  <meta name="description" content="How HTCommander turns any sound-card input on your computer into a data receiver. Point it at a line-in from a legacy radio, a scanner, an SDR, or a clean audio tap, choose one of three modes — **APRS**, **Comms**, or **Paired** — and it decodes AFSK 1200, PSK 2400, or DART straight off that wire. A live level meter helps you dial in the channel and gain. Pair it to a radio you already control and it does something better still: it replays the audio through that radio's **own** receive pipeline, so everything the radio can do — packet, APRS, speech-to-text, Morse, SSTV — runs on the cleaner audio, filed under the right radio and de-duplicated for free." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Features</a>
+        <a href="../screens.html">Screens</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Audio Input</span>
+      <h1>Any Audio In Is a Radio: Audio Receive Devices in HTCommander</h1>
+      <p>How HTCommander turns any sound-card input on your computer into a data receiver. Point it at a line-in from a legacy radio, a scanner, an SDR, or a clean audio tap, choose one of three modes — <strong>APRS</strong>, <strong>Comms</strong>, or <strong>Paired</strong> — and it decodes AFSK 1200, PSK 2400, or DART straight off that wire. A live level meter helps you dial in the channel and gain. Pair it to a radio you already control and it does something better still: it replays the audio through that radio&#39;s <strong>own</strong> receive pipeline, so everything the radio can do — packet, APRS, speech-to-text, Morse, SSTV — runs on the cleaner audio, filed under the right radio and de-duplicated for free.</p>
+      <p class="article__back-top"><a href="../blog.html">← All posts</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+<h2>The problem: the data is in the audio, but the app can&#39;t reach it</h2>
+<p>HTCommander is built around Benshi handhelds it drives over Bluetooth — control,
+audio, and data all ride the same link. That&#39;s great when the radio in front of
+you is one it knows how to talk to. But amateur radio is full of radios it
+<em>doesn&#39;t</em>:</p>
+<ul>
+<li>An old mobile or base rig with nothing but a speaker jack and a mic input.</li>
+<li>A scanner or SDR feeding a fixed frequency into your sound card.</li>
+<li>Even a Benshi handheld whose <strong>audio</strong> you&#39;d rather decode from a cleaner path
+than the compressed stream its own onboard modem works from.</li>
+</ul>
+<p>In every one of these cases the useful thing — the AFSK, PSK, or DART data — is
+sitting right there in an <strong>audio signal</strong>. All that&#39;s missing is a way to point
+HTCommander&#39;s software modem at an ordinary computer audio input and let it
+listen.</p>
+<p>That&#39;s what an <strong>Audio Receive Device</strong> is.</p>
+<h2>The idea: an input port with a modem bolted on</h2>
+<p>HTCommander already has a full software modem — the same DSP pipeline that
+decodes DART, PSK 2400, and AFSK 1200 off the Bluetooth SBC audio stream. It
+wants nothing more exotic than a run of 32 kHz, mono, 16-bit PCM samples. A
+computer&#39;s microphone / line-in framework produces exactly that.</p>
+<p>So an Audio Receive Device ties an audio input port to one of three <strong>modes</strong>:</p>
+<ol>
+<li><strong>APRS</strong> — decode the input as APRS (always AFSK 1200) and file every packet
+on the <code>APRS</code> channel.</li>
+<li><strong>Comms</strong> — decode general packet with a modem you choose (<strong>AFSK 1200</strong>,
+<strong>PSK 2400</strong>, or <strong>DART</strong>), filed on a channel you name.</li>
+<li><strong>Paired</strong> — attach the input to a radio you already control and let <em>that
+radio&#39;s</em> configuration decide everything: which modem, which channel, and
+even its voice decoders (more on that below).</li>
+</ol>
+<p>For APRS and Comms, the recipe is simple: capture the port, hand its samples to a
+modem instance, and route whatever decodes into the same place the radio&#39;s
+packets already go.</p>
+<pre class="mermaid">flowchart LR
+  IN[&quot;Audio input port&lt;br/&gt;(line-in / USB / loopback)&quot;]
+  MOD[&quot;Software modem&lt;br/&gt;AFSK 1200 · PSK 2400 · DART&quot;]
+  DEDUP[&quot;Frame deduplicator&lt;br/&gt;(3-second window)&quot;]
+  APRS[&quot;APRS tab&quot;]
+  COMMS[&quot;Comms tab&quot;]
+
+  IN --&gt;|&quot;32 kHz mono PCM&quot;| MOD
+  MOD --&gt;|&quot;decoded frame&quot;| DEDUP
+  DEDUP --&gt;|&quot;APRS mode&quot;| APRS
+  DEDUP --&gt;|&quot;Comms mode&quot;| COMMS
+</pre>
+<p>It is deliberately <strong>receive-only</strong> for now. There are no controls to transmit,
+no channels to program, no PTT. Because it has nothing to <em>drive</em>, an Audio
+Receive Device never shows up as a switchable radio in the app — it&#39;s a quiet
+background decoder, not another radio in the list.</p>
+<h2>Setting one up</h2>
+<p>Audio Receive Devices are configured from their own dialog, opened from the
+<strong>Audio</strong> menu. You can create as many as you like; each one is independent and
+runs its own capture and its own modem, all at the same time.</p>
+<p>For each device you choose:</p>
+<ul>
+<li><strong>Input port</strong> — the sound-card input to listen on.</li>
+<li><strong>Audio channel</strong> — for a stereo cable, which side carries the radio audio:
+<strong>Auto</strong> (loudest channel), <strong>Left</strong>, <strong>Right</strong>, or <strong>Mix</strong> (average both).
+Stereo TNC cables often put the receive audio on one channel only, so <strong>Auto</strong>
+is the sensible default.</li>
+<li><strong>Input gain</strong> — a clean digital boost (0 to +24 dB) for a quiet line-in that
+has no analog gain of its own.</li>
+<li><strong>Mode</strong> — <strong>APRS</strong>, <strong>Comms</strong>, or <strong>Paired</strong>.</li>
+<li><strong>Modem</strong> (Comms only) — AFSK 1200, PSK 2400, or DART, with FX.25 forward
+error correction on by default.</li>
+<li><strong>Channel name</strong> (Comms only) — see below.</li>
+<li><strong>Paired radio</strong> (Paired only) — which connected radio to attach to.</li>
+</ul>
+<p>One rule the dialog enforces: <strong>the same input port can&#39;t be used twice.</strong> Two
+capture streams fighting over one device don&#39;t share nicely — on desktop they
+tend to fail outright — so a port that&#39;s already assigned to another Audio
+Receive Device, or to the microphone the Audio tab is using, is off-limits. The
+dialog won&#39;t let you save a device that reuses a port.</p>
+<h2>Giving a Comms device its channel name</h2>
+<p>A <strong>Comms</strong> device asks you for a <strong>channel name</strong>. That name isn&#39;t just a label
+in a list: it becomes the <strong>received channel</strong> shown against every message the
+device decodes in the Comms tab. So a device named <code>Shack Base</code> or <code>Loopback</code>
+shows up as exactly that next to the traffic it pulled off the air, and you can
+tell at a glance which input a message came in on when several are running.
+(APRS devices always file on the <code>APRS</code> channel; Paired devices inherit the
+radio&#39;s channel, so neither needs a name.)</p>
+<h2>Seeing the level: the input meter</h2>
+<p>Getting clean data off an audio cable lives or dies on <strong>level</strong>. Too quiet and
+the modem starves; too loud and the signal clips and smears — and a clipped
+packet is a lost packet. So while you set a device up, the editor shows a live
+<strong>input-level meter</strong> driven by the audio actually arriving on the port, with the
+<strong>channel</strong> and <strong>gain</strong> you&#39;ve chosen already applied.</p>
+<p>The meter has green, amber, and <strong>red</strong> zones. Speech or a data burst should push
+the bar up into green and amber; if it slams into the <strong>red</strong>, the input is too
+hot — turn the device&#39;s own volume down, drop the input gain, or pick a different
+channel until the loud parts stay out of the red. It&#39;s the quickest way to set a
+cable up correctly without guessing.</p>
+<p>The meter opens a temporary recorder on the selected port, and two recorders on
+one device don&#39;t coexist — so it only appears when it can run <strong>safely</strong>. If the
+port is already in use by another device or the Audio tab, is already being
+captured, or isn&#39;t currently connected, the meter simply isn&#39;t shown.</p>
+<h2>Paired mode: borrow the radio&#39;s whole pipeline</h2>
+<p>Here&#39;s where it gets interesting. Suppose you&#39;re already connected to a Benshi
+handheld over Bluetooth, and you also run an <strong>audio cable</strong> from that radio&#39;s
+speaker or data output into your computer&#39;s line-in. Put the device in <strong>Paired</strong>
+mode and pick that radio from the list of your connected radios.</p>
+<p>A paired device doesn&#39;t ask you to choose a modem at all. Instead it <strong>replays
+the captured audio as if it were the radio&#39;s own receive audio</strong>, and hands it to
+that radio&#39;s <em>entire</em> receive pipeline. Two things fall out of that for free:</p>
+<ul>
+<li><strong>Everything the radio can do runs on the audio.</strong> Not just packet — the same
+path that decodes AFSK/PSK/DART data <em>and</em> the voice-side decoders:
+<strong>speech-to-text</strong>, <strong>Morse (CW)</strong>, <strong>SSTV</strong>, and the rest. Whatever the radio
+is configured to decode, it now decodes off the cleaner cable audio.</li>
+<li><strong>Attribution follows the radio&#39;s current channel.</strong> A decoded frame is filed
+under whatever channel the radio is tuned to <strong>at that moment</strong> — its real
+channel id <em>and</em> name. Spin the radio to channel 15 and packets show up on
+channel 15; move to the <code>APRS</code> channel and they&#39;re treated as APRS.</li>
+</ul>
+<p>That last point also settles the APRS question automatically. Because the audio
+is tagged with the radio&#39;s live channel, when the radio sits on its <code>APRS</code>
+channel the software modem routes it to the APRS decoder and the voice decoders
+step aside — exactly as if the radio had heard it directly. No separate APRS
+switch to remember.</p>
+<pre class="mermaid">flowchart LR
+  CABLE[&quot;Audio cable&lt;br/&gt;from radio&quot;]
+  RESAMP[&quot;48 kHz → 32 kHz&lt;br/&gt;+ live channel tag&quot;]
+  PIPE[&quot;Paired radio&#39;s receive pipeline&quot;]
+  DATA[&quot;Software modem&lt;br/&gt;(APRS / packet)&quot;]
+  VOICE[&quot;Voice decoders&lt;br/&gt;(STT · Morse · SSTV)&quot;]
+
+  CABLE --&gt; RESAMP --&gt; PIPE
+  PIPE --&gt; DATA
+  PIPE --&gt; VOICE
+</pre>
+<p>Two details make this behave:</p>
+<ul>
+<li><strong>It only runs while the radio&#39;s Bluetooth audio path is off.</strong> If the radio is
+already streaming its own audio over Bluetooth, it&#39;s already decoding it —
+replaying the cable on top would just double everything. So a paired device
+stays silent whenever the radio&#39;s audio path is on, and wakes up when it&#39;s off.
+It also only runs while the radio is <strong>connected</strong>; drop the radio and the
+paired decoder goes quiet, reconnect and it returns on its own.</li>
+<li><strong>The sample rates are reconciled.</strong> Sound cards capture at 48 kHz; the radio
+pipeline runs at 32 kHz, so the audio is resampled on the way in.</li>
+</ul>
+<p>Why bother? <strong>Audio quality.</strong> The path a handheld&#39;s onboard modem works from is
+bandwidth-limited and compressed; a direct audio tap can be cleaner, and a
+cleaner signal decodes packets — and words, and images — the radio&#39;s own modem
+drops.</p>
+<h3>The signal meter comes along too</h3>
+<p>Because a paired device is standing in for the radio&#39;s audio, HTCommander also
+lets it stand in for the radio&#39;s <strong>signal meter</strong>. While the audio path is
+active, the RSSI bar on the radio panel (and in the status bar) is driven by the
+<strong>amplitude of the incoming audio</strong> instead of the radio&#39;s reported RSSI — rising
+green as audio arrives, the same way EchoLink and AllStarLink already light that
+bar. It&#39;s immediate confirmation that the cable is alive and carrying signal.</p>
+<h2>Two ears, one packet: deduplication</h2>
+<p>The moment you can decode the same signal twice — once by the radio, once off its
+audio — you invite <strong>duplicates</strong>. HTCommander already solved this for its
+<a href="aprs-dual-modem.html">dual APRS modem</a>, and Audio Receive Devices ride the same
+machinery.</p>
+<p>Every finished frame, no matter which source produced it, passes through a shared
+<strong>deduplicator</strong>. It keys each frame by its raw bytes and drops any identical
+frame it has already seen inside a short window — <strong>three seconds</strong>. Whichever
+copy arrives first wins; the rest are silently discarded. So a packet heard by
+both the radio&#39;s onboard modem and a paired Audio Receive Device shows up
+<strong>once</strong>, and the second decoder only ever <em>adds</em> packets the first one missed —
+never doubles them.</p>
+<p>That&#39;s the whole payoff in one sentence: <strong>you get the union of everything your
+inputs can hear, with none of the duplicates.</strong></p>
+<h2>What it is, and what it isn&#39;t (yet)</h2>
+<p>Audio Receive Devices are intentionally small and honest about their scope:</p>
+<ul>
+<li><strong>Receive-only.</strong> No transmit, no controls, no channel programming.</li>
+<li><strong>Not a radio in the list.</strong> Nothing to switch to; it decodes in the
+background.</li>
+<li><strong>Desktop and Android.</strong> The software modem&#39;s audio path isn&#39;t available on
+the web or iOS builds, so neither are Audio Receive Devices there.</li>
+<li><strong>One port per device.</strong> Distinct inputs, never shared with the Audio tab
+microphone.</li>
+<li><strong>Paired mode complements the radio, it doesn&#39;t fight it.</strong> It only runs while
+the radio&#39;s own Bluetooth audio path is off, so the two never decode the same
+stream at once.</li>
+</ul>
+<p>The result is a surprisingly powerful little feature: any audio you can get into
+your computer — from a decades-old rig on a cable, a scanner, an SDR, or a
+cleaner tap on a radio you already own — becomes another data receiver. In APRS
+and Comms modes it feeds the same pipelines you already use; in Paired mode it
+lends the radio a cleaner set of ears for everything it decodes, from packet to
+speech to pictures — all de-duplicated so it only ever helps.</p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../blog.html">← Back to the blog</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/blogs/audio-receive-devices.md" target="_blank" rel="noopener">View source on GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>A cross-platform companion for Benshi handheld radios. Built for the amateur radio community. An amateur radio license is required to transmit.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../screens.html">Screens</a></li>
+            <li><a href="../features.html">Deep dive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Releases</a></li>
+            <li><a href="../blog.html">Technology blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Get licensed</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Privacy policy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">License (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Released under the Apache 2.0 License.</span>
+        <span>An amateur radio license is required to transmit.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+  </script>
+</body>
+</html>

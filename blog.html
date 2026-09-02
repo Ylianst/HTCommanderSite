@@ -18,9 +18,7 @@
       </a>
       <nav class="nav__links" id="navLinks">
         <a href="features.html">Features</a>
-        <a href="radios.html">Radios</a>
         <a href="screens.html">Screens</a>
-        <a href="videos.html">Videos</a>
         <a href="blog.html">Blog</a>
       </nav>
       <div class="nav__cta">
@@ -171,6 +169,22 @@
 
   <section class="section--tight" style="background: var(--bg-2);">
     <div class="container">
+      <h2 class="group-title">Audio Input</h2>
+      <p class="group-sub">Decoding data off any sound-card input — turning ordinary audio into another receiver.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/audio-receive-devices.html">
+          <span class="kicker">Audio</span>
+          <h3>Any Audio In Is a Radio: Audio Receive Devices in HTCommander</h3>
+          <p>How HTCommander turns any computer audio input — a legacy radio on a cable, a scanner, an SDR, or a clean audio tap on a radio you already control — into a receive-only data decoder: picking an input port, choosing APRS or Comms and a modem (AFSK 1200 / PSK 2400 / DART), naming an unpaired device so it becomes a Comms channel, the one-port-per-device rule, optionally pairing to a connected radio for attribution and connected-only listening, and the shared 3-second deduplicator that merges it with the radio&#39;s own decode without doubles.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
       <h2 class="group-title">Messaging &amp; Security</h2>
       <p class="group-sub">Trusting what comes off the air — proving who sent a message, without breaking the no-encryption rules.</p>
 
@@ -179,6 +193,22 @@
           <span class="kicker">Messaging</span>
           <h3>Signing the Airwaves: Authenticating APRS Messages Without Encryption</h3>
           <p>How HTCommander proves an APRS message really came from who it claims — and isn&#39;t a replay of an old one — by appending a six-character HMAC-SHA256 token keyed by a shared password: the wire format that stays backward compatible, the who/what/when string that gets signed, the minute-based freshness window, why ACKs must be re-signed, and where key exchange stays out of scope.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Notifications &amp; Cloud</h2>
+      <p class="group-sub">Reaching a phone that isn&#39;t running the app — and keeping the companion server cheap while doing it.</p>
+
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="blogs/push-notifications.html">
+          <span class="kicker">Notifications</span>
+          <h3>When the App Is Closed: Push Notifications, Sync, and Avatars for APRS</h3>
+          <p>How HTCloudServer catches APRS messages addressed to your station and pushes them to your phone via FCM/APNs: the passcode registration, the <code>g/</code>-only APRS-IS filter that ignores everything but your messages, duplicate suppression and push coalescing, the <code>since</code>-cursor sync that fills any gaps, and the avatar system — change-detected uploads (an icon needs no image hash), avatars that piggyback on the push within the ~4 KB budget, a two-byte tombstone when one is cleared, and a hash-then-fetch path so desktops pull an image only when it changed. Every decision bent toward moving the fewest bytes.</p>
           <span class="post__more">Read more →</span>
         </a>
       </div>
@@ -363,6 +393,12 @@
           <span class="kicker">Architecture</span>
           <h3>Getting Audio Off the Main Thread: Moving the Radio Pipeline to Its Own Isolate</h3>
           <p>Why the whole receive pipeline — SBC decode, software modem, and SSTV — runs on the UI thread today and stutters when the interface is busy, and the plan to move it into a dedicated background isolate with playback fed straight from the worker. Written before the work begins.</p>
+          <span class="post__more">Read more →</span>
+        </a>
+        <a class="post" href="blogs/web-hosted-in-desktop.html">
+          <span class="kicker">Architecture</span>
+          <h3>The Same App, Two Homes: Running HTCommander&#39;s Web UI Inside the Desktop</h3>
+          <p>Why the desktop app serves its own web page, how a browser tab shares the desktop&#39;s already-connected radio over a WebSocket bridge instead of Web Bluetooth, the difference between the stand-alone web build and the HTCommander-hosted one, and the design rule that keeps them from fighting over the radio: the host does all the autonomous work while the browser only syncs, displays, and forwards the operator&#39;s own actions.</p>
           <span class="post__more">Read more →</span>
         </a>
       </div>
