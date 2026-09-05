@@ -629,7 +629,7 @@ a.radio-chip:hover { border-color: var(--accent); color: var(--accent); }
   border-bottom: 1px solid var(--border);
 }
 .feature-row:nth-child(even) .feature-row__media { order: -1; }
-.feature-row__media img { box-shadow: var(--shadow-soft); }
+.feature-row__media img { box-shadow: none; }
 .feature-row h3 { font-size: 1.55rem; }
 
 /* ---------- Radios page: smaller product shots with a drop shadow ---------- */
