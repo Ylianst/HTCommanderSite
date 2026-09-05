@@ -72,7 +72,7 @@ push, what an avatar upload looks like — is bent toward moving the fewest byte
     Store[&quot;SQLite\nrolling history\n(50 msgs / station)&quot;]
     Push[&quot;Push dispatcher\n+ coalescer&quot;]
   end
-  subgraph Phone[&quot;HTCommander (Android)&quot;]
+  subgraph Phone[&quot;HTCommander (Android / iOS)&quot;]
     Svc[&quot;AprsCloudService&quot;]
     Tabs[&quot;APRS / Comms tabs&quot;]
   end
@@ -83,7 +83,7 @@ push, what an avatar upload looks like — is bent toward moving the fewest byte
   Svc --&gt;|register / sync| Server
   Svc --&gt; Tabs
 </pre>
-<p>On the app side, the whole thing lives in one Android-only service,
+<p>On the app side, the whole thing lives in one mobile service,
 <code>AprsCloudService</code>, wired into the app&#39;s internal event bus (the &quot;Data Broker&quot;)
 and driven entirely by settings changes. On the server side it&#39;s vanilla Node
 <code>http</code>/<code>https</code> — no framework — so we keep socket-level control for the rate
@@ -101,13 +101,13 @@ sets. Every request to the server carries it as <code>auth</code>.</p>
 <p>When you turn on <strong>Push notifications</strong> in Settings (only available once APRS-IS
 is configured with a valid passcode), the app:</p>
 <ol>
-<li>Obtains an FCM token from Firebase.</li>
+<li>Obtains an FCM token on Android or a raw APNs device token on iOS.</li>
 <li><code>POST</code>s it to <code>/v1/register</code> with your callsign, SSID, platform, the passcode,
 and — because it&#39;s the first contact after a launch — <code>wantHistory: true</code> and
 a <code>since</code> cursor so the server hands back anything you missed while away.</li>
 </ol>
 <pre><code>POST /v1/register
-{ callsign, ssid, platform:&quot;android&quot;, pushToken, ackMessages:false,
+{ callsign, ssid, platform:&quot;android&quot;|&quot;ios&quot;, pushToken, ackMessages:false,
   wantHistory:true, since:&lt;lastSyncMs&gt;, auth:&lt;passcode&gt; }
 </code></pre>
 <p>That single call registers you, pulls your backlog, and starts a slow (6-hour)
@@ -298,9 +298,10 @@ avatar hash, the server already knows how to answer.</p>
 <hr>
 <h2>The honest ledger</h2>
 <ul>
-<li><strong>iOS</strong> is wired on the server (a full APNs HTTP/2 + JWT client) but the app
-ships Firebase only for Android today; an iOS build needs its own push
-configuration before end-to-end works there.</li>
+<li><strong>iOS setup</strong> requires Apple and Firebase configuration that cannot be stored
+generically in the source tree. Follow the
+<a href="https://github.com/Ylianst/HTCommander/blob/main/docs/iOS-Push-Notifications.md" target="_blank" rel="noopener">iOS push notification setup</a> to add the app&#39;s
+Firebase plist, APNs signing key, and server configuration.</li>
 <li><strong>Background-delivered avatars</strong> are captured when the app is foregrounded or a
 notification is tapped — the background isolate has no access to the app&#39;s
 storage, so an avatar from a push that&#39;s never opened waits until the next
