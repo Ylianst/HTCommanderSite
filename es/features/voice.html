@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voz a texto — HTCommander</title>
+  <meta name="description" content="HTCommander transcribes incoming radio audio to text in real time using OpenAI Whisper, fully offline, plus text-to-speech to read your messages on the air." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/voice.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/voice.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/voice.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/voice.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/voice.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/voice.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/voice.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/voice.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/voice.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/voice.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Funciones</a>
+        <a href="../radios.html">Radios</a>
+        <a href="../screens.html">Pantallas</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Ver código</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Descargar</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Alternar menú" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Audio y voz</span>
+      <h1>Voz a texto</h1>
+      <p>Transcribe el audio de radio entrante a texto en tiempo real — totalmente sin conexión en tu dispositivo — además de texto a voz para leer mensajes escritos por radio.</p>
+      <p class="article__back-top"><a href="../features.html">← Todas las funciones</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/SpeechToText.png" alt="Speech-to-text in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>Whisper, ejecutándose en tu máquina</h2>
+        <p>HTCommander incluye reconocimiento de voz integrado, impulsado por Whisper de OpenAI. El audio de radio pasa por un modelo de lenguaje de red neuronal para convertirlo en texto, y los resultados son impresionantes. Se requiere una CPU potente con soporte AVX, y todo se ejecuta localmente — ideal para seguir una red concurrida o un boletín meteorológico de la NOAA.</p>
+
+        <h2>Elige el modelo adecuado</h2>
+        <p>Desde HTCommander puedes seleccionar y descargar un modelo Whisper. Los modelos más grandes dan mejores resultados pero necesitan más potencia de CPU.</p>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Modelo</th><th>Tamaño</th><th>Notas</th></tr></thead>
+          <tbody>
+            <tr><td>Tiny</td><td>77.7 MB</td><td></td></tr>
+            <tr><td>Tiny.en</td><td>77.7 MB</td><td>Solo inglés</td></tr>
+            <tr><td>Base</td><td>148 MB</td><td></td></tr>
+            <tr><td>Base.en</td><td>148 MB</td><td>Solo inglés (recomendado)</td></tr>
+            <tr><td>Small</td><td>488 MB</td><td></td></tr>
+            <tr><td>Small.en</td><td>488 MB</td><td>Solo inglés</td></tr>
+            <tr><td>Medium</td><td>1.53 GB</td><td></td></tr>
+            <tr><td>Medium.en</td><td>1.53 GB</td><td>Solo inglés</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>Los modelos solo en inglés son los mejores si solo escuchas en inglés; los modelos normales admiten una amplia variedad de idiomas. Puedes ayudar al modelo seleccionando en el panel de Ajustes el idioma que vas a escuchar, lo que le sugiere centrarse en ese idioma.</p>
+
+        <h2>Cuándo se ejecuta, y responder hablando</h2>
+        <p>Una vez habilitado, el reconocimiento de voz se ejecuta cuando la radio deja de recibir señal, o cada 20 a 30 segundos. También hay texto a voz mediante la Microsoft Speech API, de modo que puedes escribir un mensaje y hacer que se lea por radio.</p>
+
+        <hr>
+        <p><em>Disponible solo en escritorio: Windows, macOS y Linux.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Todas las funciones</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Voice.md" target="_blank" rel="noopener">Ver el código en GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Un complemento multiplataforma para radios portátiles Benshi. Creado para la comunidad de radioaficionados. Se requiere una licencia de radioaficionado para transmitir.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Funciones</a></li>
+            <li><a href="../screens.html">Pantallas</a></li>
+            <li><a href="../features.html">A fondo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Proyecto</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versiones</a></li>
+            <li><a href="../blog.html">Blog de tecnología</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Obtén tu licencia</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Política de privacidad</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Licencia (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Publicado bajo la licencia Apache 2.0.</span>
+        <span>Se requiere una licencia de radioaficionado para transmitir.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "es", page: "features/voice.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

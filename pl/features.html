@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funkcje — HTCommander</title>
+  <meta name="description" content="Każda funkcja HTCommander objaśniona: programowanie kanałów, pełne ustawienia radia, wiadomości i mapy APRS, e-mail Winlink, terminal packet i BBS, przesyłanie plików przez torrent, wydajny modem programowy, przechwytywanie pakietów, SSTV, GPS, śledzenie satelitów, Android Auto, dekodowanie radiosond i śledzenie samolotów ADS-B, radio FM, dźwięk Bluetooth, mowa na tekst offline, wielojęzyczność oraz motyw jasny/ciemny." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features.html" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="features.html">Funkcje</a>
+        <a href="radios.html">Radiotelefony</a>
+        <a href="screens.html">Zrzuty ekranu</a>
+        <a href="videos.html">Filmy</a>
+        <a href="blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz kod</a>
+        <a class="btn btn--primary btn--sm" href="downloads.html">Pobierz</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Przełącz menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= PAGE HERO ================= -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Szczegóły</span>
+      <h1>Każda funkcja z bliska</h1>
+      <p>HTCommander mieści narzędzia całej stacji w jednej aplikacji — programowanie kanałów, wiadomości i mapy, e-mail i przesyłanie plików, modem programowy, dźwięk i głos oraz więcej. Oto co robi każda z nich, z odnośnikami do szczegółów technicznych.</p>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 1: PROGRAM YOUR RADIO ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Zaprogramuj swoje radio</h2>
+      <p class="group-sub">Kanały · pamięci · udostępnianie · ustawienia</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Kanały</span>
+          <h3>Edycja kanałów</h3>
+          <p>Ustaw każdy kanał ręcznie — nazwa, częstotliwości odbioru i nadawania, tryb, szerokość pasma, poziom mocy oraz tony CTCSS/DCS — dzięki przejrzystemu edytorowi, który dokładnie odzwierciedla to, czego oczekuje radio.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Channels.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/ChannelEditing.png" alt="Channel editing in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Programowanie</span>
+          <h3>Wsadowe programowanie kanałów</h3>
+          <p>Importuj listy kanałów z pliku, a następnie przeciągaj wpisy bezpośrednio do slotów kanałów radia. Zmieniaj kolejność, kopiuj i przesyłaj cały bank pamięci do radiotelefonu w kilka sekund zamiast wpisywać każdy na radiu.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Channels.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/BatchChannelProgramming.png" alt="Batch channel programming in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">RepeaterBook</span>
+          <h3>Import z RepeaterBook</h3>
+          <p>Znajdź przemienniki w pobliżu bez opuszczania aplikacji. Przeszukaj ogólnoświatowy katalog <a href="https://www.repeaterbook.com" target="_blank" rel="noopener">RepeaterBook.com</a> według kraju, stanu i miasta, a następnie przeciągnij wyniki bezpośrednio do slotów kanałów radia — częstotliwości, offsety i tony CTCSS/DCS zostaną wypełnione za Ciebie. Dane przemienników dzięki uprzejmości <a href="https://www.repeaterbook.com" target="_blank" rel="noopener">RepeaterBook.com</a>.</p>
+          <a class="btn btn--ghost btn--sm" href="https://www.repeaterbook.com" target="_blank" rel="noopener">Odwiedź RepeaterBook.com →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/RepeaterBook.png" alt="Importing repeaters from RepeaterBook.com in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Udostępnianie</span>
+          <h3>Udostępniaj kanały przez eter</h3>
+          <p>Wyślij kanał do każdego na częstotliwości jako wiadomość do dotknięcia na czacie. Wystarczy, że dotkną, aby wczytać go do własnego radia — idealne, by ustawić całą grupę na tym samym kanale simplex lub przemiennika.</p>
+          <a class="btn btn--ghost btn--sm" href="../blogs/channel-share-string.html">Przeczytaj bloga →</a>
+          <a class="btn btn--primary btn--sm" href="channel-tool.html">Narzędzie ciągów kanału →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/ChannelSharing.png" alt="Sharing a channel in the HTCommander chat" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Ustawienia</span>
+          <h3>Pełne ustawienia radia</h3>
+          <p>Dotrzyj do każdego zakątka konfiguracji radia z jednego miejsca — zachowanie zwolnienia PTT, beacon, przyciski programowalne, sparowane urządzenia Bluetooth, dźwięk, moc, nadawanie, wyświetlacz i pełny zestaw zaawansowanych przełączników. Zmień ustawienie na ekranie i zapisz je bezpośrednio w radiotelefonie.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz na GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/RadioSettings.png" alt="Radio settings dialog in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 2: MESSAGING & MAPPING ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Wiadomości i mapy</h2>
+      <p class="group-sub">APRS · mapy · kontakty</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">APRS</span>
+          <h3>Wiadomości APRS i szczegóły pakietów</h3>
+          <p>Odbieraj i wysyłaj wiadomości APRS, ustawiaj własne trasy, pisz do zwykłych telefonów przez SMS i zamawiaj raporty pogodowe. Kliknij dowolny pakiet, aby otworzyć pełne dekodowanie ścieżki AX.25, pozycji, lokatora i komentarza.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Aprs.png" alt="APRS messaging and packet details in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">APRS</span>
+          <h3>Wyślij wiadomość do znajomych</h3>
+          <p>Bądź w kontakcie ze znajomymi przez wiadomości APRS — prowadź rozmowę tam i z powrotem bezpośrednio z aplikacji. Ustaw osobisty awatar dla każdego kontaktu, aby każdy wątek miał znajomą twarz i abyś od razu wiedział, kto jest kim.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AprsMessaging.png" alt="APRS messaging with friends and custom avatars in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">APRS</span>
+          <h3>Powiadomienia push APRS</h3>
+          <p>Otrzymuj wiadomości APRS jako powiadomienia push na Androidzie i iOS, aby pozostać w kontakcie nawet gdy aplikacja jest zamknięta. Dotknij powiadomienia, aby przejść prosto do rozmowy i odpowiedzieć w drodze.</p>
+          <a class="btn btn--ghost btn--sm" href="../blogs/push-notifications.html">Przeczytaj bloga →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AprsPushMessaging.png" alt="APRS push messaging on Android and iOS in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Mapa</span>
+          <h3>Mapa APRS na żywo</h3>
+          <p>Obsługa OpenStreetMap nanosi każdą stację APRS wokół Ciebie na pierwszy rzut oka. Śledź historię pozycji, dotknij pinezki, aby zobaczyć znak wywoławczy i czas ostatniego odbioru stacji, i wyśrodkuj mapę na własnej pozycji GPS jednym kliknięciem.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Map.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AprsMap.png" alt="Live APRS map in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">APRS-IS</span>
+          <h3>Bramka internetowa APRS-IS</h3>
+          <p>Połącz HTCommander z siecią APRS-IS, aby widzieć i wymieniać ruch APRS z całego świata, daleko poza zasięgiem Twojego radia. Bramkuj pozycje i wiadomości między RF a Internetem i śledź odległe stacje na tej samej mapie.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Aprs-is.png" alt="APRS-IS Internet gateway in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Książka adresowa</span>
+          <h3>Wspólna książka adresowa</h3>
+          <p>Trzymaj kontakty APRS, Winlink i terminala w jednej wspólnej książce adresowej. Zapisuj znak wywoławczy, nazwę, typ, trasę APRS i ustawienia uwierzytelniania wiadomości każdej stacji, aby właściwe dane były zawsze o jedno kliknięcie.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/AddressBook.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Contacts.png" alt="Address book of contacts in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Znak wywoławczy</span>
+          <h3>Wyszukiwanie znaków wywoławczych offline</h3>
+          <p>Wyszukaj dowolny znak wywoławczy bez połączenia z Internetem. Wbudowana baza danych zwraca kraj, kontynent oraz — dla stacji licencjonowanych — pełne dane, takie jak imię operatora, klasa licencji, status, lokalizacja i data ważności, z jednym kliknięciem do skopiowania każdego pola.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz na GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/OfflineCallsignLookup.png" alt="Offline callsign lookup in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 3: EMAIL, TERMINAL & FILE TRANSFER ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">E-mail, terminal i przesyłanie plików</h2>
+      <p class="group-sub">Winlink · packet · torrent</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Winlink</span>
+          <h3>E-mail Winlink</h3>
+          <p>Wysyłaj i odbieraj prawdziwe e-maile w globalnej sieci Winlink — wraz z załącznikami — przez packet radio lub bezpośrednio przez Internet. Znajome skrzynki odbiorcza i nadawcza oraz okno tworzenia sprawiają, że działa jak każdy klient poczty.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Mail.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Winlink.png" alt="Winlink email in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Terminal</span>
+          <h3>Terminal packet i BBS</h3>
+          <p>Łącz się z innymi stacjami, użytkownikami i systemami BBS w klasycznym trybie packet. HTCommander zawiera też wbudowany BBS, który pełni funkcję bramki Winlink, dzięki czemu pobliskie stacje mogą dotrzeć do szerszej sieci przez Ciebie.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/terminal.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/PacketTerminal.png" alt="Packet terminal connected to a BBS in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Torrent</span>
+          <h3>Wymiana plików przez torrent</h3>
+          <p>Udostępnij plik całej sieci naraz. Ten system torrent wielu do wielu przez FM-AFSK 1200 bodów śledzi każdy blok, kompresuje dane w locie i pozwala spóźnialskim nadrobić zaległości — zamiast zajmować kanał jednym połączeniem naraz.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Torrent.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/FileTransferTorrent.png" alt="Torrent file exchange in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 4: DATA MODES & DSP ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Tryby danych i DSP</h2>
+      <p class="group-sub">Modem programowy · przechwytywanie · SSTV</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Modem</span>
+          <h3>Wydajny modem programowy</h3>
+          <p>DART to modem nowej generacji, w pełni programowy, działający w całości na Twoim komputerze. Dostosowuje modulację od BPSK aż do 16QAM z korekcją błędów LDPC, pokazuje konstelację na żywo i odczyt SNR oraz przepycha przez kanał FM znacznie więcej danych niż klasyczny AFSK.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/NextGenModem.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/HighPerformanceSoftwareModem.png" alt="High-performance DART software modem in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Przechwytywanie</span>
+          <h3>Przechwytywanie i dekodowanie pakietów</h3>
+          <p>Obserwuj każdą ramkę AX.25 w eterze i otwórz pełne dekodowanie pokazujące kodowanie, korekcje LDPC, surowe bajty i hex. Wbudowany analizator jest idealny do rozwiązywania problemów z konfiguracją lub nauki, jak naprawdę działa packet radio.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Capture.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/PacketCapture.png" alt="Packet capture and decode in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">SSTV</span>
+          <h3>Wysyłanie i odbiór SSTV</h3>
+          <p>Wysyłaj i odbieraj obrazy slow-scan television. Przychodzące transmisje są automatycznie wykrywane i dekodowane wprost na czacie, a wysyłanie jest tak proste jak przeciągnięcie obrazu na okno.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/SSTV.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/SstvSupport.png" alt="SSTV images received in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 5: AUDIO & VOICE ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Dźwięk i głos</h2>
+      <p class="group-sub">Windows · macOS · Linux · Android</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Dźwięk</span>
+          <h3>Sterowanie dźwiękiem Bluetooth</h3>
+          <p>Precyzyjnie dostrój cały tor audio z jednego miejsca: wybierz urządzenia wejścia i wyjścia, ustaw głośność i blokadę szumów radia, wyreguluj wzmocnienie mikrofonu i obserwuj spektrograf na żywo tego, co nadajesz — bez dodatkowego okablowania.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Bluetooth.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AudioControls.png" alt="Bluetooth audio controls in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Głos</span>
+          <h3>Mowa na tekst offline</h3>
+          <p>Transkrybuj przychodzący dźwięk radiowy na tekst w czasie rzeczywistym — świetne do śledzenia zatłoczonej sieci lub komunikatu pogodowego NOAA. Działa w pełni offline na Twoim urządzeniu, nigdy nie zapisuje dźwięku na dysku i automatycznie rozpoznaje kilka języków. Wpisane wiadomości można też wypowiedzieć na antenie.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Voice.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/SpeechToText.png" alt="Offline speech-to-text in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Morse</span>
+          <h3>Klucz telegraficzny</h3>
+          <p>Pracuj emisją CW bez klucza sztorcowego czy klucza sztorcowo-łopatkowego. HTCommander nadaje telegrafię w eter i dekoduje przychodzące CW na tekst w czasie rzeczywistym, z odczytem na ekranie, który ułatwia śledzenie lub ćwiczenie we własnym tempie.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz na GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/MorseKey.png" alt="Morse code keyer in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">EchoLink</span>
+          <h3>Łączenie EchoLink</h3>
+          <p>Sięgnij daleko poza zasięg RF przez Internet. Przeglądaj i wyszukuj węzły, linki, przemienniki i konferencje EchoLink według znaku wywoławczego lub lokalizacji, a następnie dodawaj je jako kanały, aby rozmawiać ze stacjami na całym świecie z tego samego okna łączności.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz na GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/EchoLink.png" alt="EchoLink linking in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 6: LOCATION & LISTENING ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">Lokalizacja i nasłuch</h2>
+      <p class="group-sub">GPS · satelity · ADS-B · radiosonda · radio FM</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">GPS</span>
+          <h3>Pozycjonowanie GPS</h3>
+          <p>Użyj wbudowanego GPS radia lub podłącz dongla USB GPS/GLONASS, aby uzyskać precyzyjne pozycjonowanie. Udostępnij swoją lokalizację, aby radio automatycznie ją nadawało jako beacon, i wyśrodkuj mapę na sobie jednym kliknięciem.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/GPS.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/SerialGps.png" alt="GPS positioning with a serial GPS dongle in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Satelita</span>
+          <h3>Śledzenie satelitów</h3>
+          <p>Pracuj z satelitami krótkofalarskimi z pewnością. HTCommander wymienia każdego satelitę nad Tobą i nadchodzącego, przewiduje każdy przelot z czasem akwizycji, maksymalną elewacją i azymutem anteny oraz pokazuje na żywo azymut, elewację i odległość, dzięki czemu wiesz dokładnie, gdzie celować. Częstotliwości uplink i downlink są korygowane o efekt Dopplera w czasie rzeczywistym, gdy satelita przemieszcza się po niebie.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz na GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/SatelliteTracking.png" alt="Satellite tracking with pass predictions in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">ADS-B</span>
+          <h3>Śledzenie samolotów na żywo</h3>
+          <p>Podawaj dane ADS-B z odbiornika dump1090 i obserwuj, jak samoloty przemieszczają się po tej samej mapie co Twoje stacje APRS — zabawna, pouczająca nakładka, która zmienia Twoją stację w widok nieba na żywo.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Map.md" target="_blank" rel="noopener">Przeczytaj dokumentację →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Dump1090Airplanes.png" alt="Live airplane tracking on the map in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Radiosonda</span>
+          <h3>Dekodowanie radiosond</h3>
+          <p>Zamień swój radiotelefon w odbiornik górnych warstw atmosfery. HTCommander dekoduje radiosondy z kilku rodzin balonów meteorologicznych prosto z eteru, pokazuje telemetrię każdej sondy — pozycję, wysokość, prędkość i więcej — oraz nanosi wznoszenie i opadanie każdego balonu na mapie na żywo.</p>
+          <a class="btn btn--ghost btn--sm" href="../blogs/radiosonde-decoding.html">Przeczytaj bloga →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Radiosonde.png" alt="Radiosonde decoding in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Radio FM</span>
+          <h3>Odbiornik radia FM</h3>
+          <p>Nastraj radio na komercyjne stacje radia FM bezpośrednio z aplikacji. Zapisuj ulubione jako zaprogramowane kanały i przełączaj się między nimi bez dotykania radiotelefonu.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz na GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/FmBroadcastRadio.png" alt="FM broadcast radio receiver in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 7: BUILT FOR EVERYONE ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">Stworzony dla każdego</h2>
+      <p class="group-sub">Android Auto · wieloplatformowy · przetłumaczony · motywy</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Android Auto</span>
+          <h3>HTCommander w podróży</h3>
+          <p>Przenieś najważniejsze funkcje HTCommander na ekran Android Auto w swoim pojeździe. Przeglądaj kanały, wybieraj podłączone radio i śledź przychodzące wiadomości APRS w interfejsie zaprojektowanym do samochodu.</p>
+          <a class="btn btn--ghost btn--sm" href="features/android-auto.html">Poznaj Android Auto →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AndroidAuto.png" alt="HTCommander channels, connected radios and APRS messages in Android Auto" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Wieloplatformowość</span>
+          <h3>Działa na każdej platformie</h3>
+          <p>Jedna aplikacja, wszędzie. HTCommander działa natywnie na Windows, macOS, Linux, iOS, Android i w sieci — wszędzie tam, gdzie masz Bluetooth — więc Twoja stacja towarzyszy Ci na dowolnym urządzeniu, które masz przy sobie.</p>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/MultiPlatform.png" alt="HTCommander running on iPad, macOS, Windows and Android" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Języki</span>
+          <h3>Wiele języków</h3>
+          <p>Interfejs jest przetłumaczony na wiele języków, od hiszpańskiego po chiński, aby operatorzy na całym świecie mogli wygodnie korzystać z HTCommander we własnym języku.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz na GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/MultiLanguage.png" alt="HTCommander in Spanish and Chinese" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Motywy</span>
+          <h3>Motyw jasny i ciemny</h3>
+          <p>Nowoczesny, dopracowany interfejs, który podąża za jasnym lub ciemnym motywem systemu — przyjazny dla oczu podczas jasnego Field Day lub nocnej sieci.</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz na GitHub →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/LightAndDarkModes.png" alt="HTCommander in light and dark themes" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Home Assistant</span>
+          <h3>Home Assistant przez MQTT</h3>
+          <p>Zamień swój radiotelefon Benshi w pełnoprawne urządzenie Home Assistant. Korzystając z brokera MQTT i automatycznego wykrywania Home Assistant, HTCommander udostępnia baterię, GPS, głośność, blokadę szumów, skanowanie, kanały i przychodzące wiadomości APRS bezpośrednio na Twoim pulpicie.</p>
+          <a class="btn btn--ghost btn--sm" href="../blogs/home-assistant-mqtt.html">Przeczytaj bloga →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/MqttHomeAssistant.png" alt="HTCommander integrated with Home Assistant over MQTT" loading="lazy" /></div>
+      </div>
+
+      <div class="center mt-56">
+        <a class="btn btn--primary" href="downloads.html">Pobierz HTCommander</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Wieloplatformowy program towarzyszący dla radiotelefonów Benshi. Stworzony dla społeczności krótkofalowców. Do nadawania wymagane jest pozwolenie radioamatorskie.</p>
+        </div>
+        <div>
+          <h4>Aplikacja</h4>
+          <ul>
+            <li><a href="index.html#features">Funkcje</a></li>
+            <li><a href="screens.html">Zrzuty ekranu</a></li>
+            <li><a href="features.html">Szczegóły</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projekt</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Wydania</a></li>
+            <li><a href="blog.html">Blog techniczny</a></li>
+            <li><a href="https://ylianst.github.io/HTCommander/spec/HTCommander-Spec.pdf" target="_blank" rel="noopener">Specyfikacja (PDF)</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Zdobądź pozwolenie</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Informacje prawne</h4>
+          <ul>
+            <li><a href="privacy.html">Polityka prywatności</a></li>
+            <li><a href="license.html">Licencja (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Udostępniono na licencji Apache 2.0.</span>
+        <span>Do nadawania wymagane jest pozwolenie radioamatorskie.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "pl", page: "features.html", root: "../" };</script>
+  <script src="../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

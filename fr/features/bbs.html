@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BBS intégré — HTCommander</title>
+  <meta name="description" content="HTCommander includes a built-in BBS that acts as a private Winlink gateway and even hosts a multiplayer text adventure, with live station statistics." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/bbs.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/bbs.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/bbs.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/bbs.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/bbs.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/bbs.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/bbs.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/bbs.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/bbs.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/bbs.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Fonctions</a>
+        <a href="../radios.html">Radios</a>
+        <a href="../screens.html">Captures</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Voir le code</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Télécharger</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Basculer le menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">E-mail, terminal &amp; transfert de fichiers</span>
+      <h1>BBS intégré</h1>
+      <p>Gérez votre propre BBS — une passerelle Winlink privée, une aventure textuelle multijoueur et des statistiques de stations en direct — directement depuis HTCommander.</p>
+      <p class="article__back-top"><a href="../features.html">← Toutes les fonctions</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <h2>Un BBS dans votre poche</h2>
+        <p>HTCommander dispose d'un BBS intégré, un peu comme au bon vieux temps des modems. Il n'est disponible que si vous détenez une licence et avez autorisé l'application à émettre. L'activer est simple : sélectionnez un canal sur le canal principal ou supérieur et cliquez sur <strong>Activate</strong> en haut à droite de l'onglet BBS.</p>
+
+        <h2>Les protocoles qu'il parle</h2>
+        <p>Le BBS prend en charge les sessions AX.25 ainsi que RAW AX.25, APRS et les formats de paquets compressés — les mêmes protocoles que le <a href="terminal.html">terminal</a> prend en charge. Un paquet entrant doit être adressé à la station, et le BBS répond dans le même format que celui reçu. Les formats de session AX.25 et APRS incluent la prise en charge du relais/ack ; RAW AX.25 non.</p>
+
+        <h2>Passerelle Winlink et une aventure textuelle</h2>
+        <p>Pour l'instant, le BBS fait office de passerelle e-mail privée <a href="winlink.html">Winlink</a>, et héberge un jeu d'aventure textuelle appelé <a href="https://github.com/TheTextAdventurer/Adventurer" target="_blank" rel="noopener">The Adventurer</a>. Tout paquet non connecté envoyé au BBS lance l'aventure, et chaque tour est enregistré sous l'indicatif de l'expéditeur — ainsi de nombreuses stations peuvent jouer en même temps, chacune voyant sa propre partie. Émettez <code>quit</code> à tout moment pour recommencer.</p>
+
+        <h2>Statistiques en direct</h2>
+        <p>L'onglet BBS affiche des statistiques en temps réel sur les stations qui utilisent le BBS et le nombre d'octets et de paquets envoyés et reçus.</p>
+
+        <hr>
+        <p><em>Disponible sur toutes les plateformes : Windows, macOS, Linux, iOS, Android et web.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Toutes les fonctions</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/BBS.md" target="_blank" rel="noopener">Voir le code sur GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Un compagnon multiplateforme pour les radios portables Benshi. Conçu pour la communauté radioamateur. Une licence radioamateur est requise pour émettre.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Fonctions</a></li>
+            <li><a href="../screens.html">Captures</a></li>
+            <li><a href="../features.html">En détail</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projet</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versions</a></li>
+            <li><a href="../blog.html">Blog technique</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Obtenir une licence</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Mentions légales</h4>
+          <ul>
+            <li><a href="../privacy.html">Politique de confidentialité</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Licence (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Publié sous licence Apache 2.0.</span>
+        <span>Une licence radioamateur est requise pour émettre.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "fr", page: "features/bbs.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTCommander — 从任何设备操控你的手持电台</title>
+  <meta name="description" content="HTCommander is a free, open-source ham radio companion for Benshi handheld radios. 信道编程, APRS, Winlink, terminal, BBS, torrent file transfer and more — on Windows, macOS, Linux, iOS, Android and the web over Bluetooth." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <meta property="og:title" content="HTCommander — 从任何设备操控你的手持电台" />
+  <meta property="og:description" content="A cross-platform ham radio toolkit for Benshi handheld radios over Bluetooth. Free and open source." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="../assets/img/hero.png" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/index.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/index.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/index.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/index.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/index.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/index.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/index.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/index.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/index.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/index.html" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="features.html">功能</a>
+        <a href="radios.html">支持的电台</a>
+        <a href="screens.html">截图</a>
+        <a href="videos.html">视频</a>
+        <a href="blog.html">博客</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">查看源码</a>
+        <a class="btn btn--primary btn--sm" href="downloads.html">下载</a>
+        <button class="nav__toggle" id="navToggle" aria-label="切换菜单" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="container hero__grid">
+      <div class="hero__copy">
+        <span class="eyebrow">业余无线电软件</span>
+        <h1>随时随地操控你的<span class="text-gradient">手持电台</span>。</h1>
+        <p class="hero__lead">一款免费开源的 EchoLink 与互联网 APRS 软件，支持 Benshi 电台。可编程信道、通过 APRS 聊天、收发 Winlink 邮件、追踪卫星等等。</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="downloads.html">下载应用</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">在 GitHub 上查看</a>
+        </div>
+        <p class="hero__meta"><strong>免费且开源</strong> · <a href="downloads.html">Windows</a> · <a href="https://apps.apple.com/us/app/handi-talky-commander/id6786154035" target="_blank" rel="noopener">macOS</a> · <a href="downloads.html">Linux</a> · <a href="https://apps.apple.com/us/app/handi-talky-commander/id6786154035" target="_blank" rel="noopener">iOS</a> · <a href="downloads.html">Android</a> · <a href="https://ylianst.github.io/HTCommanderWeb/" target="_blank" rel="noopener">网页端</a></p>
+      </div>
+      <div class="hero__media">
+        <div class="feature-show" id="featureShow" aria-live="polite">
+          <div class="feature-show__stage">
+            <figure class="feature-show__slide is-active">
+              <img src="../assets/features/Winlink.png" alt="Winlink" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/Aprs.png" alt="APRS messaging" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AprsMessaging.png" alt="APRS messaging with friends and custom avatars" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AprsPushMessaging.png" alt="APRS push messaging on Android and iOS" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AprsMap.png" alt="APRS map" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/Aprs-is.png" alt="APRS-IS Internet gateway" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/PacketTerminal.png" alt="Packet terminal" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/ChannelEditing.png" alt="Channel editing" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/BatchChannelProgramming.png" alt="Batch channel programming" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/ChannelSharing.png" alt="Channel sharing" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/Contacts.png" alt="Contacts" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/FileTransferTorrent.png" alt="Torrent file transfer" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/SstvSupport.png" alt="SSTV support" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/Dump1090Airplanes.png" alt="Aircraft tracking" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/SpeechToText.png" alt="Speech to text" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/MorseKey.png" alt="Morse code keyer" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/FmBroadcastRadio.png" alt="FM broadcast radio" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/PacketCapture.png" alt="Packet capture" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/HighPerformanceSoftwareModem.png" alt="Software modem" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AudioControls.png" alt="Audio controls" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/SerialGps.png" alt="Serial GPS" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/SatelliteTracking.png" alt="Satellite tracking" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AndroidAuto.png" alt="HTCommander running in Android Auto" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/MultiPlatform.png" alt="Multi-platform" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/MultiLanguage.png" alt="Multi-language" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/LightAndDarkModes.png" alt="Light and dark modes" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/EchoLink.png" alt="EchoLink" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/OfflineCallsignLookup.png" alt="Offline callsign lookup" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/MqttHomeAssistant.png" alt="Home Assistant integration over MQTT" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/RepeaterBook.png" alt="Importing repeaters from RepeaterBook.com" />
+            </figure>
+          </div>
+          <p class="feature-show__caption" id="featureCaption" data-captions='[
+            "通过分组无线电和互联网收发 Winlink 邮件",
+            "APRS 消息、天气与短信桥接",
+            "带电台位置历史的实时 APRS 地图",
+            "面向全球 APRS 流量的 APRS-IS 互联网网关",
+            "用于与用户和 BBS 交流的分组终端",
+            "拖放布局，快速编辑信道",
+            "使用批量工具一次编程多个信道",
+            "拖放即可在线共享或编程信道",
+            "内置通讯录管理你的联系人",
+            "通过电波进行种子式文件传输",
+            "收发 SSTV 图像",
+            "使用 dump1090 追踪附近的航空器",
+            "实时语音转文字",
+            "使用内置电键收发莫尔斯电码（CW）",
+            "收听调频广播",
+            "抓取并检查原始分组流量",
+            "高性能内置软件调制解调器",
+            "完整的音频控制与电平表",
+            "支持串口 GPS 实时定位",
+            "通过过境预测和天线指向追踪卫星",
+            "在 Android Auto 中访问信道、电台和 APRS 消息",
+            "可在 Windows、macOS、Linux、iOS、Android 和网页端运行",
+            "提供多种语言",
+            "精美的浅色与深色主题",
+            "连接 EchoLink 节点、中继台和会议室",
+            "带完整执照信息的离线呼号查询",
+            "通过 MQTT 从 Home Assistant 操控电台",
+            "从 RepeaterBook.com 将附近的中继台导入你的电台"
+          ]'>通过分组无线电和互联网收发 Winlink 邮件</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">一体化应用</span>
+        <h2>完整的电台工具箱</h2>
+        <p>从日常的信道编程到分组数据和射频实验，HTCommander 都能把你的整个电台带到你正在使用的设备上。</p>
+      </div>
+
+      <div class="grid grid--features">
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/contacts.png" alt="" /></div>
+          <h3>信道编程</h3>
+          <p>配置、导入、导出并拖放信道，按照你的实际操作习惯打造理想的布局。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/aprs.png" alt="" /></div>
+          <h3>APRS 消息</h3>
+          <p>收发 APRS、设置路径、通过短信向真实电话发送信息、请求天气并发送经过认证的消息。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/map.png" alt="" /></div>
+          <h3>实时 APRS 地图</h3>
+          <p>在基于 OpenStreetMap 的地图上一目了然地查看每个电台，并附带位置历史和电台详情。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/email.png" alt="" /></div>
+          <h3>Winlink 邮件</h3>
+          <p>通过全球 Winlink 网络收发邮件——包括附件——直接从电台完成。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/terminal.png" alt="" /></div>
+          <h3>分组终端</h3>
+          <p>以分组模式与其他电台、用户和 BBS 交流，内置通讯录便于快速访问。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/bbs.png" alt="" /></div>
+          <h3>内置 BBS</h3>
+          <p>运行一个轻量级公告板，同时充当能够联系到你的电台的 Winlink 网关。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/torrent.png" alt="" /></div>
+          <h3>种子式文件交换</h3>
+          <p>通过 1200 波特 FM-AFSK 进行多对多的文件传输，让整个网络可以同时共享一个文件。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/packets.png" alt="" /></div>
+          <h3>分组抓包</h3>
+          <p>使用内置分析器抓取并解码分组，准确了解电波上正在发生什么。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/audio.png" alt="" /></div>
+          <h3>音频与 SSTV</h3>
+          <p>通过计算机音频收听和发射，自动检测传入的 SSTV，并拖放图像进行发送。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/voice.png" alt="" /></div>
+          <h3>语音</h3>
+          <p>进行语音转文字和文字转语音，实现免手操作地发送和阅读消息。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/satellite.png" alt="" /></div>
+          <h3>卫星追踪</h3>
+          <p>查看头顶上空及即将到来的卫星，实时获取方位角、仰角和过境时间，并让 HTCommander 为你处理多普勒频移。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/appicon.png" alt="" /></div>
+          <h3>Android Auto</h3>
+          <p>从车辆的 Android Auto 显示屏访问信道、选择已连接的电台并跟踪 APRS 消息。</p>
+        </article>
+      </div>
+
+      <div class="center mt-40">
+        <a class="btn btn--ghost" href="features.html">探索全部功能 →</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================= NO RADIO NEEDED ================= -->
+  <section class="section section--tight">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">没有电台？没问题</span>
+        <h2>无需电台</h2>
+        <p>得益于内置的 EchoLink 和 APRS-IS 支持，你今天就可以完全通过互联网使用 HTCommander——无需电台——等你准备好后再添加一台 Benshi 电台。而且 Benshi 不只生产手持机：HTCommander 同样能与它们的车载机和台式机完美配合。</p>
+      </div>
+      <p class="center" style="color: var(--text-faint); font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 22px;">支持的 Benshi 电台 — 手持机、车载机与台式机</p>
+      <div class="radios">
+        <a class="radio-chip" href="https://baofengtech.com/product/uv-pro/" target="_blank" rel="noopener">BTech UV-Pro</a>
+        <a class="radio-chip" href="https://baofengtech.com/product/uv-50pro/" target="_blank" rel="noopener">BTech UV-50Pro</a>
+        <a class="radio-chip" href="https://www.radioddity.com/products/radioddity-ga-5wb" target="_blank" rel="noopener">Radioddity GA-5WB</a>
+        <a class="radio-chip" href="https://www.radioddity.com/products/radioddity-db50-b" target="_blank" rel="noopener">Radioddity DB50-B Mini</a>
+        <a class="radio-chip" href="https://www.verotelecom.com/Products/VERO-VR-N75-Ultra-Thin-Two-Way-Radio-App-Defined-Bluetooth-Programming-p1623587.html" target="_blank" rel="noopener">Vero VR-N75</a>
+        <a class="radio-chip" href="https://www.verotelecom.com/Products/VGC-VR-N76-Dual-Band-Ham-Radio-KISS-TNC-Bluetooth-APRS-Satellite-Tracking-p2511333.html" target="_blank" rel="noopener">Vero VR-N76</a>
+        <a class="radio-chip" href="https://www.verotelecom.com/Products/VGC-VR-N7500-Headless-Ham-Radio-50W-App-Controlled-Dual-Band-Mobile-Radio-p541441.html" target="_blank" rel="noopener">Vero VR-N7500</a>
+        <a class="radio-chip" href="https://www.verotelecom.com/Products/VGC-VR-N7600-50W-Dual-Band-Mobile-Radio-Full-Color-Screen-App-Control-p2581203.html" target="_blank" rel="noopener">Vero VR-N7600</a>
+        <a class="radio-chip" href="https://www.radtels.com/products/radtel-rt-660-ip67-dual-band-vhf-uhf-two-way-radio-gps-aprs-bluetooth-satcom-kiss-tnc-text-messaging-aviation-band-scanner-noaa-weather-alerts-usb-c-rechargeable-battery" target="_blank" rel="noopener">Radtel RT-660</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRIVACY / OPEN SOURCE ================= -->
+  <section class="section" style="background: var(--bg-2);">
+    <div class="container assure">
+      <div>
+        <span class="eyebrow">完全属于你</span>
+        <h2>无账户。无追踪。无服务器。</h2>
+        <p>HTCommander 不会收集、存储或传输任何个人数据。蓝牙和麦克风等权限仅用于与你的电台通信——一切都保留在你的设备上。</p>
+        <ul class="assure__points">
+          <li><span class="dot">✓</span> 无分析、广告或第三方追踪器</li>
+          <li><span class="dot">✓</span> 无需注册，也无需云账户</li>
+          <li><span class="dot">✓</span> 基于 Apache 2.0 许可证的免费开源软件</li>
+        </ul>
+        <div class="hero__actions mt-40">
+          <a class="btn btn--ghost btn--sm" href="privacy.html">阅读隐私政策</a>
+          <a class="btn btn--ghost btn--sm" href="license.html">查看许可证</a>
+        </div>
+      </div>
+      <div class="assure__badge">
+        <img src="../assets/img/appicon.png" alt="HTCommander app icon" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>面向 Benshi 手持电台的跨平台伴侣软件。为业余无线电社区打造。发射需持有业余无线电执照。</p>
+        </div>
+        <div>
+          <h4>应用</h4>
+          <ul>
+            <li><a href="index.html#features">功能</a></li>
+            <li><a href="screens.html">截图</a></li>
+            <li><a href="features.html">深入了解</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>项目</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">发布版本</a></li>
+            <li><a href="blog.html">技术博客</a></li>
+            <li><a href="https://ylianst.github.io/HTCommander/spec/HTCommander-Spec.pdf" target="_blank" rel="noopener">规范（PDF）</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">获取执照</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>法律</h4>
+          <ul>
+            <li><a href="privacy.html">隐私政策</a></li>
+            <li><a href="license.html">许可证（Apache 2.0）</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. 基于 Apache 2.0 许可证发布。</span>
+        <span>发射需持有业余无线电执照。</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "zh", page: "index.html", root: "../" };</script>
+  <script src="../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

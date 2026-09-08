@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APRS-Nachrichten — HTCommander</title>
+  <meta name="description" content="Empfange und sende APRS-Nachrichten in HTCommander, lege eigene Routen fest, schreibe normale Telefone per SMS an, fordere Wetterberichte an und sende authentifizierte Nachrichten." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/aprs.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/aprs.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/aprs.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/aprs.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/aprs.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/aprs.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/aprs.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/aprs.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/aprs.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/aprs.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Funktionen</a>
+        <a href="../radios.html">Funkgeräte</a>
+        <a href="../screens.html">Screenshots</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Quellcode ansehen</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Herunterladen</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Menü umschalten" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Nachrichten &amp; Karten</span>
+      <h1>APRS-Nachrichten</h1>
+      <p>Sende und empfange APRS-Nachrichten, verfolge Live-Telemetrie, lege eigene Routen fest, schreibe normale Telefone an, fordere Wetterberichte an und authentifiziere sogar deine Nachrichten — alles aus einem Tab.</p>
+      <p class="article__back-top"><a href="../features.html">← Alle Funktionen</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/Aprs.png" alt="APRS tab in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>Das Herz der App</h2>
+        <p>Der APRS-Tab ist der Haupt-Tab in HTCommander. Nutze ihn, um Nachrichten anderer Stationen zu lesen, eigene zu senden und einen stetigen Strom an Telemetrie zu verfolgen. Wenn dein Funkgerät richtig eingerichtet ist, überwacht es den APRS-Kanal fortlaufend — sogar während du auf einem anderen Kanal Sprache hörst — sei also nicht überrascht, wenn APRS-Verkehr eintrifft, während du auf deinem Lieblingsrelais stehst.</p>
+        <p>Wenn du eine APRS-Nachricht sendest, teilt HTCommander dem Funkgerät mit, dass das Paket APRS ist, damit es auf der richtigen Frequenz gesendet wird. Damit das funktioniert, muss ein Kanal namens <strong>APRS</strong> existieren. Falls du noch keinen hast, öffnet HTCommander einen Dialog, der dir beim Anlegen hilft.</p>
+        <p>Klicke auf das Menü oben rechts, um Telemetrie-Nachrichten auszublenden, wenn du nur Unterhaltungen sehen willst. Jedes APRS-Paket ist anklickbar: öffne eine vollständige Dekodierung von AX.25-Pfad, Position, Locator und Kommentar, oder rechtsklicke eine Station, die Koordinaten gesendet hat, um sie auf einer Mini-Karte zu sehen.</p>
+
+        <h2>Eigene Routen</h2>
+        <p>Unter <strong>File → Settings → APRS</strong> kannst du zusätzliche APRS-Routen hinzufügen. Sobald mehr als eine Route konfiguriert ist, erscheint oben rechts im APRS-Tab ein Aufklappmenü, mit dem du beim Senden die zu verwendende Route wählen kannst. So treffen deine Nachrichten die richtigen Digipeater, um ihr Ziel zu erreichen.</p>
+
+        <h2 id="sms">Normale Telefone per SMS anschreiben</h2>
+        <p>Mit konfiguriertem Rufzeichen und aktiviertem Senden kannst du SMS-Textnachrichten über APRS an normale Mobiltelefone senden — perfekt, wenn du jemanden erreichen musst und keinen Handyempfang hast. Der Empfänger muss zuerst zustimmen: er besucht <a href="https://aprs.wiki/" target="_blank" rel="noopener">aprs.wiki</a> und bestätigt mit einer SMS-Antwort.</p>
+        <p>Sobald sie zugestimmt haben, öffne das Menü oben rechts im APRS-Tab, wähle <strong>SMS Message…</strong> und gib dann die Telefonnummer und die Nachricht ein. Beachte, dass sowohl Nummer als auch Nachricht unverschlüsselt und ohne Authentifizierung übertragen werden.</p>
+
+        <h2 id="weather">Wetterberichte auf Abruf</h2>
+        <p>Mit Rufzeichen und aktiviertem Senden kannst du auch einen Wetterbericht für einen Ort und eine Zeit anfordern. Wähle im Menü oben rechts <strong>Weather Report…</strong>, gib den Ort ein und wähle Zeit und Berichtstyp. Dies nutzt den <a href="https://sites.google.com/site/ki6wjp/wxbot" target="_blank" rel="noopener">WxBot</a> service.</p>
+
+        <h2 id="authentication">Authentifizierte Nachrichten</h2>
+        <p>HTCommander kann <strong>authentifizierte</strong> APRS-Nachrichten senden. Zwei oder mehr Stationen teilen ein im HTCommander-Adressbuch eingegebenes Passwort. Wenn du dieser Station eine Nachricht schickst, wird ein 6-stelliger Authentifizierungscode angehängt. Hat der Empfänger dasselbe Passwort, verifiziert er die Nachricht und zeigt sie in <strong>Grün</strong> an; bei Abweichung erscheint sie in Hellorange.</p>
+        <p>Das Passwort wird niemals über den Äther gesendet — es erzeugt nur den Code, der aus der Nachricht, dem Passwort und der aktuellen Zeit abgeleitet wird. Da sich der Code jede Minute ändert, scheitern wiederholte Nachrichten an der Prüfung, halte also die Uhren der Stationen synchron. Verschlüsselung ist im Amateurfunk nicht erlaubt, Authentifizierung aber schon — diese Funktion bietet nur Authentifizierung. Wenn du dich darauf verlässt, verwende ein langes, starkes Passwort, da jemand, der viele Nachrichten mitschneidet, ein schwaches per Brute Force knacken könnte.</p>
+        <blockquote>
+          <p>Setzt du das in deiner eigenen Software um? Die <a href="https://github.com/Ylianst/HTCommander/blob/main/docs/Aprs-Auth-Specification.md" target="_blank" rel="noopener">Authentifizierungsspezifikation ist auf GitHub veröffentlicht</a>.</p>
+        </blockquote>
+
+        <hr>
+        <p><em>Auf allen Plattformen verfügbar: Windows, macOS, Linux, iOS, Android und Web. Verwandt: die <a href="map.html">Live-APRS-Karte</a> and the <a href="address-book.html">gemeinsames Adressbuch</a>.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Alle Funktionen</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">Quellcode auf GitHub ansehen →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Eine plattformübergreifende Begleit-App für Benshi-Handfunkgeräte. Für die Amateurfunkgemeinschaft entwickelt. Zum Senden ist eine Amateurfunklizenz erforderlich.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Funktionen</a></li>
+            <li><a href="../screens.html">Screenshots</a></li>
+            <li><a href="../features.html">Im Detail</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projekt</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versionen</a></li>
+            <li><a href="../blog.html">Technik-Blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Lizenz erwerben</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Rechtliches</h4>
+          <ul>
+            <li><a href="../privacy.html">Datenschutzerklärung</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Lizenz (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Veröffentlicht unter der Apache-2.0-Lizenz.</span>
+        <span>Zum Senden ist eine Amateurfunklizenz erforderlich.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "de", page: "features/aprs.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

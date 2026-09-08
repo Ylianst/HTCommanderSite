@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTCommander — どのデバイスからでもハンディ機を操作</title>
+  <meta name="description" content="HTCommander is a free, open-source ham radio companion for Benshi handheld radios. チャンネルのプログラミング, APRS, Winlink, terminal, BBS, torrent file transfer and more — on Windows, macOS, Linux, iOS, Android and the web over Bluetooth." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <meta property="og:title" content="HTCommander — どのデバイスからでもハンディ機を操作" />
+  <meta property="og:description" content="A cross-platform ham radio toolkit for Benshi handheld radios over Bluetooth. Free and open source." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="../assets/img/hero.png" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/index.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/index.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/index.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/index.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/index.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/index.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/index.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/index.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/index.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/index.html" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="features.html">機能</a>
+        <a href="radios.html">対応無線機</a>
+        <a href="screens.html">画面</a>
+        <a href="videos.html">動画</a>
+        <a href="blog.html">ブログ</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">ソースを見る</a>
+        <a class="btn btn--primary btn--sm" href="downloads.html">ダウンロード</a>
+        <button class="nav__toggle" id="navToggle" aria-label="メニューを切り替え" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="container hero__grid">
+      <div class="hero__copy">
+        <span class="eyebrow">アマチュア無線ソフトウェア</span>
+        <h1>どこからでも<span class="text-gradient">ハンディ機</span>を操作。</h1>
+        <p class="hero__lead">Benshi 製無線機に対応した、無料・オープンソースの EchoLink およびインターネット APRS ソフトウェア。チャンネルのプログラミング、APRS でのチャット、Winlink メールの送信、衛星の追尾などが行えます。</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="downloads.html">アプリをダウンロード</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub で見る</a>
+        </div>
+        <p class="hero__meta"><strong>無料・オープンソース</strong> · <a href="downloads.html">Windows</a> · <a href="https://apps.apple.com/us/app/handi-talky-commander/id6786154035" target="_blank" rel="noopener">macOS</a> · <a href="downloads.html">Linux</a> · <a href="https://apps.apple.com/us/app/handi-talky-commander/id6786154035" target="_blank" rel="noopener">iOS</a> · <a href="downloads.html">Android</a> · <a href="https://ylianst.github.io/HTCommanderWeb/" target="_blank" rel="noopener">Web</a></p>
+      </div>
+      <div class="hero__media">
+        <div class="feature-show" id="featureShow" aria-live="polite">
+          <div class="feature-show__stage">
+            <figure class="feature-show__slide is-active">
+              <img src="../assets/features/Winlink.png" alt="Winlink" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/Aprs.png" alt="APRS messaging" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AprsMessaging.png" alt="APRS messaging with friends and custom avatars" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AprsPushMessaging.png" alt="APRS push messaging on Android and iOS" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AprsMap.png" alt="APRS map" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/Aprs-is.png" alt="APRS-IS Internet gateway" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/PacketTerminal.png" alt="Packet terminal" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/ChannelEditing.png" alt="Channel editing" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/BatchChannelProgramming.png" alt="Batch channel programming" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/ChannelSharing.png" alt="Channel sharing" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/Contacts.png" alt="Contacts" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/FileTransferTorrent.png" alt="Torrent file transfer" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/SstvSupport.png" alt="SSTV support" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/Dump1090Airplanes.png" alt="Aircraft tracking" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/SpeechToText.png" alt="Speech to text" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/MorseKey.png" alt="Morse code keyer" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/FmBroadcastRadio.png" alt="FM broadcast radio" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/PacketCapture.png" alt="Packet capture" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/HighPerformanceSoftwareModem.png" alt="Software modem" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AudioControls.png" alt="Audio controls" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/SerialGps.png" alt="Serial GPS" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/SatelliteTracking.png" alt="Satellite tracking" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/AndroidAuto.png" alt="HTCommander running in Android Auto" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/MultiPlatform.png" alt="Multi-platform" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/MultiLanguage.png" alt="Multi-language" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/LightAndDarkModes.png" alt="Light and dark modes" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/EchoLink.png" alt="EchoLink" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/OfflineCallsignLookup.png" alt="Offline callsign lookup" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/MqttHomeAssistant.png" alt="Home Assistant integration over MQTT" />
+            </figure>
+            <figure class="feature-show__slide">
+              <img src="../assets/features/RepeaterBook.png" alt="Importing repeaters from RepeaterBook.com" />
+            </figure>
+          </div>
+          <p class="feature-show__caption" id="featureCaption" data-captions='[
+            "パケット無線とインターネット経由の Winlink メール",
+            "APRS メッセージング、気象情報、SMS ブリッジ",
+            "局の位置履歴を表示するリアルタイム APRS マップ",
+            "世界中の APRS トラフィックに対応する APRS-IS インターネットゲートウェイ",
+            "ユーザーや BBS とやり取りするパケットターミナル",
+            "ドラッグ＆ドロップ配置による高速なチャンネル編集",
+            "一括ツールで多数のチャンネルを一度にプログラミング",
+            "ドラッグ＆ドロップでチャンネルをオンライン共有・プログラミング",
+            "連絡先を管理する内蔵アドレス帳",
+            "電波を通じたトレント方式のファイル転送",
+            "SSTV 画像の送受信",
+            "dump1090 で近くの航空機を追尾",
+            "リアルタイムの音声からテキストへの書き起こし",
+            "内蔵電鍵でモールス信号（CW）を送受信",
+            "FM ラジオ放送を受信",
+            "生のパケットトラフィックをキャプチャして解析",
+            "高性能な内蔵ソフトウェアモデム",
+            "充実したオーディオコントロールとレベルメーター",
+            "リアルタイム測位のためのシリアル GPS 対応",
+            "パス予測とアンテナ指向で衛星を追尾",
+            "Android Auto でチャンネル・無線機・APRS メッセージにアクセス",
+            "Windows・macOS・Linux・iOS・Android・Web で動作",
+            "多くの言語に対応",
+            "美しいライトテーマとダークテーマ",
+            "EchoLink のノード・レピーター・カンファレンスに接続",
+            "免許情報を含むオフラインのコールサイン検索",
+            "MQTT で Home Assistant から無線機を操作",
+            "RepeaterBook.com から近くのレピーターを無線機にインポート"
+          ]'>パケット無線とインターネット経由の Winlink メール</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">すべてを 1 つのアプリに</span>
+        <h2>完全な無線ツールキット</h2>
+        <p>日常的なチャンネルのプログラミングから、パケットデータや RF 実験まで、HTCommander はあなたのシャック全体を、いま使っているデバイスに届けます。</p>
+      </div>
+
+      <div class="grid grid--features">
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/contacts.png" alt="" /></div>
+          <h3>チャンネルのプログラミング</h3>
+          <p>実際の運用スタイルに合わせて、チャンネルを設定・インポート・エクスポートし、ドラッグ＆ドロップで理想的な配置を作成できます。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/aprs.png" alt="" /></div>
+          <h3>APRS メッセージング</h3>
+          <p>APRS の送受信、経路の設定、SMS で実際の電話への送信、気象情報の要求、認証済みメッセージの送信が行えます。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/map.png" alt="" /></div>
+          <h3>リアルタイム APRS マップ</h3>
+          <p>OpenStreetMap ベースの地図で、すべての局を一目で確認できます。位置履歴や局の詳細も表示します。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/email.png" alt="" /></div>
+          <h3>Winlink メール</h3>
+          <p>世界規模の Winlink ネットワークを通じて、添付ファイルを含むメールを無線機から直接送受信できます。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/terminal.png" alt="" /></div>
+          <h3>パケットターミナル</h3>
+          <p>パケットモードで他局・ユーザー・BBS とやり取りできます。すばやくアクセスできる内蔵アドレス帳付き。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/bbs.png" alt="" /></div>
+          <h3>内蔵 BBS</h3>
+          <p>軽量な掲示板を運用でき、あなたに届く局に対する Winlink ゲートウェイも兼ねます。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/torrent.png" alt="" /></div>
+          <h3>トレント方式のファイル交換</h3>
+          <p>1200 ボー FM-AFSK による多対多のファイル転送で、ネット全体が一度に 1 つのファイルを共有できます。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/packets.png" alt="" /></div>
+          <h3>パケットキャプチャ</h3>
+          <p>内蔵アナライザーでパケットをキャプチャ・デコードし、電波上で何が起きているかを正確に確認できます。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/audio.png" alt="" /></div>
+          <h3>オーディオと SSTV</h3>
+          <p>コンピューターのオーディオで受信・送信し、着信 SSTV を自動検出、画像をドラッグ＆ドロップで送信できます。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/voice.png" alt="" /></div>
+          <h3>音声</h3>
+          <p>音声からテキスト、テキストから音声への変換で、ハンズフリーでメッセージを送受信・読み上げできます。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/tabs/satellite.png" alt="" /></div>
+          <h3>衛星追尾</h3>
+          <p>頭上にある衛星や次に来る衛星を確認し、方位・仰角・通過時刻をリアルタイムで取得。ドップラー補正は HTCommander にお任せです。</p>
+        </article>
+
+        <article class="card">
+          <div class="card__icon"><img src="../assets/img/appicon.png" alt="" /></div>
+          <h3>Android Auto</h3>
+          <p>車両の Android Auto 画面から、チャンネルへのアクセス、接続中の無線機の選択、APRS メッセージの確認ができます。</p>
+        </article>
+      </div>
+
+      <div class="center mt-40">
+        <a class="btn btn--ghost" href="features.html">すべての機能を見る →</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================= NO RADIO NEEDED ================= -->
+  <section class="section section--tight">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">無線機がなくても大丈夫</span>
+        <h2>無線機は不要</h2>
+        <p>EchoLink と APRS-IS の内蔵サポートにより、いますぐ無線機なしで HTCommander をインターネット経由でフルに利用でき、準備ができたら Benshi 製無線機を追加できます。しかも Benshi はハンディ機だけでなく、モービル機や固定機も製造しており、HTCommander はそれらでも同様に快適に動作します。</p>
+      </div>
+      <p class="center" style="color: var(--text-faint); font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 22px;">対応 Benshi 製無線機 — ハンディ機・モービル機・固定機</p>
+      <div class="radios">
+        <a class="radio-chip" href="https://baofengtech.com/product/uv-pro/" target="_blank" rel="noopener">BTech UV-Pro</a>
+        <a class="radio-chip" href="https://baofengtech.com/product/uv-50pro/" target="_blank" rel="noopener">BTech UV-50Pro</a>
+        <a class="radio-chip" href="https://www.radioddity.com/products/radioddity-ga-5wb" target="_blank" rel="noopener">Radioddity GA-5WB</a>
+        <a class="radio-chip" href="https://www.radioddity.com/products/radioddity-db50-b" target="_blank" rel="noopener">Radioddity DB50-B Mini</a>
+        <a class="radio-chip" href="https://www.verotelecom.com/Products/VERO-VR-N75-Ultra-Thin-Two-Way-Radio-App-Defined-Bluetooth-Programming-p1623587.html" target="_blank" rel="noopener">Vero VR-N75</a>
+        <a class="radio-chip" href="https://www.verotelecom.com/Products/VGC-VR-N76-Dual-Band-Ham-Radio-KISS-TNC-Bluetooth-APRS-Satellite-Tracking-p2511333.html" target="_blank" rel="noopener">Vero VR-N76</a>
+        <a class="radio-chip" href="https://www.verotelecom.com/Products/VGC-VR-N7500-Headless-Ham-Radio-50W-App-Controlled-Dual-Band-Mobile-Radio-p541441.html" target="_blank" rel="noopener">Vero VR-N7500</a>
+        <a class="radio-chip" href="https://www.verotelecom.com/Products/VGC-VR-N7600-50W-Dual-Band-Mobile-Radio-Full-Color-Screen-App-Control-p2581203.html" target="_blank" rel="noopener">Vero VR-N7600</a>
+        <a class="radio-chip" href="https://www.radtels.com/products/radtel-rt-660-ip67-dual-band-vhf-uhf-two-way-radio-gps-aprs-bluetooth-satcom-kiss-tnc-text-messaging-aviation-band-scanner-noaa-weather-alerts-usb-c-rechargeable-battery" target="_blank" rel="noopener">Radtel RT-660</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRIVACY / OPEN SOURCE ================= -->
+  <section class="section" style="background: var(--bg-2);">
+    <div class="container assure">
+      <div>
+        <span class="eyebrow">すべてがあなたのもの</span>
+        <h2>アカウント不要。追跡なし。サーバーなし。</h2>
+        <p>HTCommander は個人データを一切収集・保存・送信しません。Bluetooth やマイクなどの権限は無線機との通信にのみ使用され、すべてはあなたのデバイス内に留まります。</p>
+        <ul class="assure__points">
+          <li><span class="dot">✓</span> 解析・広告・サードパーティのトラッカーなし</li>
+          <li><span class="dot">✓</span> サインアップやクラウドアカウントは不要</li>
+          <li><span class="dot">✓</span> Apache 2.0 ライセンスの無料・オープンソース</li>
+        </ul>
+        <div class="hero__actions mt-40">
+          <a class="btn btn--ghost btn--sm" href="privacy.html">プライバシーポリシーを読む</a>
+          <a class="btn btn--ghost btn--sm" href="license.html">ライセンスを見る</a>
+        </div>
+      </div>
+      <div class="assure__badge">
+        <img src="../assets/img/appicon.png" alt="HTCommander app icon" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Benshi 製ハンディ機向けのクロスプラットフォームなコンパニオン。アマチュア無線コミュニティのために開発されました。送信にはアマチュア無線の免許が必要です。</p>
+        </div>
+        <div>
+          <h4>アプリ</h4>
+          <ul>
+            <li><a href="index.html#features">機能</a></li>
+            <li><a href="screens.html">画面</a></li>
+            <li><a href="features.html">詳しく見る</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>プロジェクト</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">リリース</a></li>
+            <li><a href="blog.html">技術ブログ</a></li>
+            <li><a href="https://ylianst.github.io/HTCommander/spec/HTCommander-Spec.pdf" target="_blank" rel="noopener">仕様書（PDF）</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">免許を取得する</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>法的事項</h4>
+          <ul>
+            <li><a href="privacy.html">プライバシーポリシー</a></li>
+            <li><a href="license.html">ライセンス（Apache 2.0）</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Apache 2.0 ライセンスのもとで公開。</span>
+        <span>送信にはアマチュア無線の免許が必要です。</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "ja", page: "index.html", root: "../" };</script>
+  <script src="../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

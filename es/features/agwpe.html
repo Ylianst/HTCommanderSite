@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protocolo AGWPE — HTCommander</title>
+  <meta name="description" content="HTCommander includes an AGWPE server so other packet-radio applications can route their traffic over your radio on a standard TCP port." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/agwpe.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/agwpe.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/agwpe.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/agwpe.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/agwpe.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/agwpe.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/agwpe.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/agwpe.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/agwpe.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/agwpe.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Funciones</a>
+        <a href="../radios.html">Radios</a>
+        <a href="../screens.html">Pantallas</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Ver código</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Descargar</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Alternar menú" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Modos de datos y DSP</span>
+      <h1>Protocolo AGWPE</h1>
+      <p>Enruta el tráfico de packet de otras aplicaciones a través de tu radio usando el popular protocolo AGWPE — HTCommander actúa como servidor.</p>
+      <p class="article__back-top"><a href="../features.html">← Todas las funciones</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <h2>Conecta otras apps a tu radio</h2>
+        <p>HTCommander admite AGWPE, un protocolo muy usado en la comunidad de radioaficionados para conectar aplicaciones de packet radio a una radio. Con el servidor AGWPE habilitado, otro software puede enviar y recibir paquetes a través de HTCommander y tu portátil.</p>
+
+        <h2>Activarlo</h2>
+        <p>Ve a <strong>File → Settings</strong>, abre la pestaña <strong>Services</strong> y habilita el <strong>AGWPE Server</strong>. Normalmente mantendrás el puerto predeterminado <code>8000</code>. Luego apunta tu aplicación de packet a ese puerto — verá un puerto <em>Port1: Handi-Talky Commander</em>. Enviar por ese puerto transmite en el VFO1 de la radio.</p>
+
+        <h2>Pruébalo</h2>
+        <p>En <a href="https://uz7.ho.ua/packetradio.htm" target="_blank" rel="noopener">esta página</a> hay varias aplicaciones clásicas compatibles con AGWPE, entre ellas:</p>
+        <ul>
+          <li><a href="http://uz7.ho.ua/apps/chess10.zip" target="_blank" rel="noopener">chess10.zip</a></li>
+          <li><a href="http://uz7.ho.ua/apps/checkers6.zip" target="_blank" rel="noopener">checkers6.zip</a></li>
+          <li><a href="http://uz7.ho.ua/apps/easyterm49.zip" target="_blank" rel="noopener">easyterm49.zip</a></li>
+        </ul>
+
+        <hr>
+        <p><em>Disponible solo en escritorio: Windows, macOS y Linux.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Todas las funciones</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Agwpe.md" target="_blank" rel="noopener">Ver el código en GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Un complemento multiplataforma para radios portátiles Benshi. Creado para la comunidad de radioaficionados. Se requiere una licencia de radioaficionado para transmitir.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Funciones</a></li>
+            <li><a href="../screens.html">Pantallas</a></li>
+            <li><a href="../features.html">A fondo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Proyecto</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versiones</a></li>
+            <li><a href="../blog.html">Blog de tecnología</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Obtén tu licencia</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="../privacy.html">Política de privacidad</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Licencia (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Publicado bajo la licencia Apache 2.0.</span>
+        <span>Se requiere una licencia de radioaficionado para transmitir.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "es", page: "features/agwpe.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Programmation des canaux — HTCommander</title>
+  <meta name="description" content="Configure, import, export and drag & drop channels in HTCommander to build the perfect memory layout for your radio — then share channels over the air." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/channels.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/channels.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/channels.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/channels.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/channels.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/channels.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/channels.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/channels.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/channels.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/channels.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Fonctions</a>
+        <a href="../radios.html">Radios</a>
+        <a href="../screens.html">Captures</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Voir le code</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Télécharger</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Basculer le menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Programmez votre radio</span>
+      <h1>Programmation des canaux</h1>
+      <p>Configurez, importez, exportez et glissez-déposez des canaux pour construire la disposition mémoire parfaite selon votre façon d'opérer — puis transmettez un canal à un autre opérateur en un seul message.</p>
+      <p class="article__back-top"><a href="../features.html">← Toutes les fonctions</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/ChannelEditing.png" alt="Channel programming in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>Une banque mémoire réellement gérable</h2>
+        <p>Saisir un plan de canaux complet dans un portatif chiffre par chiffre est lent et source d'erreurs. HTCommander vous offre un éditeur clair pour chaque canal — nom, fréquences de réception et d'émission, mode, largeur de bande, niveau de puissance et tonalités CTCSS/DCS — qui reflète exactement ce que la radio attend : ce que vous voyez est ce que la radio enregistre.</p>
+
+        <h2>Importer, exporter et glisser-déposer</h2>
+        <p>Depuis le menu <strong>Settings</strong>, vous pouvez importer et exporter des canaux. L'exportation enregistre chaque canal actuellement affiché dans un fichier CSV — au format CHIRP largement utilisé ou au format natif de votre radio — pour sauvegarder, partager ou modifier facilement votre configuration ailleurs.</p>
+        <p>Lorsque vous importez une liste de canaux, une nouvelle fenêtre s'ouvre en affichant les canaux importés. De là, il suffit de <strong>glisser-déposer</strong> chaque entrée à la position voulue. Vous pouvez réorganiser, copier et envoyer une banque mémoire complète à la radio en quelques secondes au lieu de programmer chaque emplacement à la main.</p>
+        <p>À tout moment, vous pouvez aussi glisser-déposer des canaux directement dans le panneau de la radio pour les repositionner. Cela rend le contrôle précis de la disposition de vos canaux rapide et tactile.</p>
+
+        <h2>Partager un canal par radio</h2>
+        <p>Un canal dans HTCommander n'est pas lié à votre radio — c'est quelque chose que vous pouvez transmettre à quelqu'un d'autre. Faites glisser un canal hors du panneau de la radio et déposez-le dans l'onglet Comm ou APRS, et HTCommander l'encode en un jeton texte compact et autovérifiable qui emprunte le transport utilisé par la conversation : Bluetooth, internet ou directement <strong>par radio</strong>.</p>
+        <p>Côté réception, le jeton est reconnu et affiché sous forme de bloc de canal tactile. L'autre opérateur fait glisser ce bloc sur un emplacement de son propre panneau radio et il est programmé d'un seul geste — aucune saisie manuelle, aucune erreur de transcription. C'est le moyen le plus rapide de mettre tout un groupe sur le même canal simplex ou relais.</p>
+        <blockquote>
+          <p>Curieux de savoir comment un canal entier tient dans une courte ligne de texte ? Lisez l'analyse détaillée : <a href="../../blogs/channel-share-string.html">A Channel You Can Text: The Channel-Share String</a>.</p>
+        </blockquote>
+
+        <hr>
+        <p><em>Disponible sur toutes les plateformes : Windows, macOS, Linux, iOS, Android et web.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Toutes les fonctions</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Channels.md" target="_blank" rel="noopener">Voir le code sur GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Un compagnon multiplateforme pour les radios portables Benshi. Conçu pour la communauté radioamateur. Une licence radioamateur est requise pour émettre.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Fonctions</a></li>
+            <li><a href="../screens.html">Captures</a></li>
+            <li><a href="../features.html">En détail</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projet</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versions</a></li>
+            <li><a href="../blog.html">Blog technique</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Obtenir une licence</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Mentions légales</h4>
+          <ul>
+            <li><a href="../privacy.html">Politique de confidentialité</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Licence (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Publié sous licence Apache 2.0.</span>
+        <span>Une licence radioamateur est requise pour émettre.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "fr", page: "features/channels.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

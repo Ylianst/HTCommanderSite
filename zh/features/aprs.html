@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APRS 消息 — HTCommander</title>
+  <meta name="description" content="在 HTCommander 中接收和发送 APRS 消息、设置自定义路径、通过短信向普通手机发送信息、请求天气报告并发送经过认证的消息。" />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/aprs.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/aprs.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/aprs.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/aprs.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/aprs.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/aprs.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/aprs.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/aprs.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/aprs.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/aprs.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">功能</a>
+        <a href="../radios.html">支持的电台</a>
+        <a href="../screens.html">截图</a>
+        <a href="../blog.html">博客</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">查看源码</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">下载</a>
+        <button class="nav__toggle" id="navToggle" aria-label="切换菜单" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">消息与地图</span>
+      <h1>APRS 消息</h1>
+      <p>发送和接收 APRS 消息、跟踪实时遥测、设置自定义路径、向普通手机发送信息、请求天气报告，甚至对你的消息进行认证——全部在一个选项卡中完成。</p>
+      <p class="article__back-top"><a href="../features.html">← 所有功能</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/Aprs.png" alt="APRS tab in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>应用的核心</h2>
+        <p>APRS 选项卡是 HTCommander 的主选项卡。用它来阅读其他电台的消息、发送你自己的消息，并观看源源不断的遥测数据流。如果你的电台设置正确，它会持续监控 APRS 信道——即使你正在另一个信道上收听语音——所以当你停在最喜欢的中继台上时看到 APRS 流量到来，不要感到惊讶。</p>
+        <p>当你发送 APRS 消息时，HTCommander 会告知电台该分组是 APRS，以便在正确的频率上发射。为使其正常工作，必须存在一个名为 <strong>APRS</strong> 的信道。如果你还没有，HTCommander 会弹出一个对话框帮助你创建。</p>
+        <p>如果你只想查看对话，请点击右上角的菜单以隐藏遥测消息。每个 APRS 分组都可点击：打开对 AX.25 路径、位置、网格定位和备注的完整解码，或右键点击发送了坐标的电台以在小地图上查看它。</p>
+
+        <h2>自定义路径</h2>
+        <p>在 <strong>File → Settings → APRS</strong> 中，你可以添加额外的 APRS 路径。配置多条路径后，APRS 选项卡的右上角会出现一个下拉菜单，让你在发送时选择使用哪条路径。这样你的消息就能命中正确的数字中继，以到达目的地。</p>
+
+        <h2 id="sms">通过短信向普通手机发送信息</h2>
+        <p>配置好呼号并启用发射后，你就可以通过 APRS 向普通手机发送 SMS 短信——当你需要联系某人却没有手机信号时非常合适。收件人必须先选择加入：他们访问 <a href="https://aprs.wiki/" target="_blank" rel="noopener">aprs.wiki</a>，并通过 SMS 回复进行确认。</p>
+        <p>在他们选择加入后，打开 APRS 选项卡右上角的菜单，选择 <strong>SMS Message…</strong>，然后输入电话号码和消息。请注意，号码和消息都以未加密且未认证的方式传输。</p>
+
+        <h2 id="weather">按需天气报告</h2>
+        <p>配置好呼号并启用发射后，你还可以为某个地点和时间请求天气报告。从右上角菜单中选择 <strong>Weather Report…</strong>，输入地点并选择时间和报告类型。这会使用 <a href="https://sites.google.com/site/ki6wjp/wxbot" target="_blank" rel="noopener">WxBot</a> service.</p>
+
+        <h2 id="authentication">经过认证的消息</h2>
+        <p>HTCommander 可以发送<strong>经过认证的</strong> APRS 消息。两个或更多电台共享一个在 HTCommander 通讯录中输入的密码。当你给该电台发消息时，会附加一个 6 位认证码。如果接收方拥有相同的密码，它会验证该消息并以<strong>绿色</strong>显示；不匹配则以浅橙色显示。</p>
+        <p>密码绝不会通过电波发送——它只用于生成代码，而代码由消息、密码和当前时间派生而来。由于代码每分钟变化一次，重放的消息将无法通过校验，因此请保持各电台的时钟同步。业余无线电不允许加密，但允许认证——此功能仅提供认证。如果你依赖它，请使用足够长且强的密码，因为捕获大量消息的人可能会尝试暴力破解弱密码。</p>
+        <blockquote>
+          <p>要在你自己的软件中实现它？ <a href="https://github.com/Ylianst/HTCommander/blob/main/docs/Aprs-Auth-Specification.md" target="_blank" rel="noopener">认证规范已发布在 GitHub 上</a>.</p>
+        </blockquote>
+
+        <hr>
+        <p><em>适用于所有平台：Windows、macOS、Linux、iOS、Android 和网页端。相关： <a href="map.html">实时 APRS 地图</a> and the <a href="address-book.html">共享通讯录</a>.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← 所有功能</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">在 GitHub 上查看源码 →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>面向 Benshi 手持电台的跨平台伴侣软件。为业余无线电社区打造。发射需持有业余无线电执照。</p>
+        </div>
+        <div>
+          <h4>应用</h4>
+          <ul>
+            <li><a href="../index.html#features">功能</a></li>
+            <li><a href="../screens.html">截图</a></li>
+            <li><a href="../features.html">深入了解</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>项目</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">发布版本</a></li>
+            <li><a href="../blog.html">技术博客</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">获取执照</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>法律</h4>
+          <ul>
+            <li><a href="../privacy.html">隐私政策</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">许可证（Apache 2.0）</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. 基于 Apache 2.0 许可证发布。</span>
+        <span>发射需持有业余无线电执照。</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "zh", page: "features/aprs.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

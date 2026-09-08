@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Échange de fichiers torrent — HTCommander</title>
+  <meta name="description" content="Share files with a whole net at once using HTCommander's many-to-many torrent-style file transfer over 1200-baud FM-AFSK." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/torrent.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/torrent.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/torrent.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/torrent.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/torrent.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/torrent.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/torrent.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/torrent.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/torrent.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/torrent.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Fonctions</a>
+        <a href="../radios.html">Radios</a>
+        <a href="../screens.html">Captures</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Voir le code</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Télécharger</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Basculer le menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">E-mail, terminal &amp; transfert de fichiers</span>
+      <h1>Échange de fichiers torrent</h1>
+      <p>Partagez un fichier avec tout un réseau à la fois — un système de transfert de fichiers plusieurs-à-plusieurs, façon BitTorrent, qui fonctionne en FM-AFSK à 1200 bauds.</p>
+      <p class="article__back-top"><a href="../features.html">← Toutes les fonctions</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/FileTransferTorrent.png" alt="Torrent file exchange in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>Partage de fichiers plusieurs-à-plusieurs par radio</h2>
+        <p>HTCommander possède son propre mini système de partage de fichiers façon BitTorrent, plusieurs-à-plusieurs. Il est propre à HTCommander, donc pour l'essayer il vous faudra deux radios ou plus exécutant l'application. Chaque trame est envoyée en multidiffusion un-à-plusieurs, de sorte que de nombreuses stations peuvent participer en même temps.</p>
+
+        <h2>Comment l'utiliser</h2>
+        <p>Choisissez une fréquence libre et cliquez sur <strong>Activate</strong> pour verrouiller la radio et activer le mode torrent. Ajoutez ou glissez-déposez les fichiers que vous voulez partager — vous pouvez joindre à chacun une description de 200 caractères. Le protocole découvre les autres nœuds sur la fréquence et échange les listes de fichiers.</p>
+        <p>Pour télécharger un fichier, faites un clic droit dessus et choisissez <strong>Request</strong>. Pendant que d'autres demandent des fichiers, votre nœud stocke automatiquement chaque bloc reçu et aide à retransmettre des blocs au groupe. Une fois un fichier entièrement téléchargé, faites un clic droit dessus et choisissez <strong>Save As…</strong> pour en conserver une copie.</p>
+
+        <h2>Conçu pour la patience</h2>
+        <p>C'est encore très expérimental, des améliorations de synchronisation sont en cours. 1200 bauds, ce n'est pas rapide, mais le système est conçu pour fonctionner longtemps sur la radio — il troque la vitesse brute contre la possibilité d'alimenter tout un réseau depuis un seul partage au lieu de monopoliser le canal liaison par liaison.</p>
+
+        <hr>
+        <p><em>Disponible sur toutes les plateformes : Windows, macOS, Linux, iOS, Android et web.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Toutes les fonctions</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Torrent.md" target="_blank" rel="noopener">Voir le code sur GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Un compagnon multiplateforme pour les radios portables Benshi. Conçu pour la communauté radioamateur. Une licence radioamateur est requise pour émettre.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Fonctions</a></li>
+            <li><a href="../screens.html">Captures</a></li>
+            <li><a href="../features.html">En détail</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projet</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versions</a></li>
+            <li><a href="../blog.html">Blog technique</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Obtenir une licence</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Mentions légales</h4>
+          <ul>
+            <li><a href="../privacy.html">Politique de confidentialité</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Licence (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Publié sous licence Apache 2.0.</span>
+        <span>Une licence radioamateur est requise pour émettre.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "fr", page: "features/torrent.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

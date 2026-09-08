@@ -8,6 +8,16 @@
   <meta name="theme-color" content="#e7ebf0" />
   <link rel="icon" href="../favicon.ico" />
   <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/address-book.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/address-book.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/address-book.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/address-book.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/address-book.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/address-book.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/address-book.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/address-book.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/address-book.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/address-book.html" />
 </head>
 <body class="feature-page">
   <header class="nav" id="nav">
@@ -23,6 +33,7 @@
         <a href="../blog.html">Blog</a>
       </nav>
       <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
         <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
         <a class="btn btn--primary btn--sm" href="../downloads.html">Download</a>
         <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
@@ -50,7 +61,7 @@
         </figure>
 
         <h2>One place for every contact</h2>
-        <p>HTCommander has a built-in address book that ties the rest of the app together. Keep a list of <a href="aprs.html">APRS</a> stations you frequently message, or the <a href="terminal.html">terminal</a> profiles you connect to, so you can pick a station quickly instead of retyping a callsign each time.</p>
+        <p>HTCommander has a built-in address book that ties the rest of the app together. Keep a list of <a href="aprs.html">APRS stations</a> you frequently message, or the <a href="terminal.html">terminal profiles</a> you connect to, so you can pick a station quickly instead of retyping a callsign each time.</p>
         <p>The address book is also where you store per-station settings that other features rely on — such as the shared password used for <a href="aprs.html">authenticated APRS messages</a> and a station's preferred APRS route. It's a simple foundation that makes everything else in the application work better, and there's room to grow it further over time.</p>
 
         <hr>
@@ -104,5 +115,7 @@
   </footer>
 
   <script src="../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "en", page: "features/address-book.html", root: "../" };</script>
+  <script src="../assets/js/i18n.js?v=20260719"></script>
 </body>
 </html>

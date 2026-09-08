@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supporto del protocollo BSS — HTCommander</title>
+  <meta name="description" content="HTCommander decodes and supports the proprietary BSS short-message binary protocol from Baofeng / BTech radios, alongside APRS." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/bss.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/bss.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/bss.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/bss.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/bss.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/bss.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/bss.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/bss.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/bss.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/bss.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Funzioni</a>
+        <a href="../radios.html">Radio</a>
+        <a href="../screens.html">Schermate</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Vedi il codice</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Scarica</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Attiva/disattiva menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Messaggistica e mappe</span>
+      <h1>Supporto del protocollo BSS</h1>
+      <p>Supporto per il protocollo binario proprietario di messaggi brevi di Baofeng / BTech — decodificato tramite reverse engineering e documentato affinché HTCommander possa decodificare messaggi, posizioni e richieste dalle radio di serie.</p>
+      <p class="article__back-top"><a href="../features.html">← Tutte le funzioni</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <h2>Due protocolli, un'app</h2>
+        <p>HTCommander parla sia APRS sia BSS. APRS è ben documentato, ma BSS sembra essere un protocollo proprietario non documentato usato dalle radio Baofeng / BTech. HTCommander include un primo tentativo funzionante di decodificarlo, così i messaggi, le posizioni e le richieste dalle radio di serie compaiono insieme a tutto il resto.</p>
+
+        <h2>Come funziona il formato sul canale</h2>
+        <p>BSS è un semplice protocollo binario codificato in lunghezza, trasportato in un frame AFSK. Inizia sempre con <code>0x01</code>, il che lo rende facile da distinguere dai frame AX.25. Dopo segue una serie di elementi lunghezza / tipo / dati.</p>
+        <p>Un pacchetto tipico ha questo aspetto:</p>
+        <pre><code>0107204B4B37565A540121062468656C6C6F072514C72DC7CDF1</code></pre>
+        <p>Si decodifica byte per byte come:</p>
+        <pre><code>01                 // BSS protocol indicator
+0720 4B4B37565A54  // Len 0x07, Type 0x20 (From), "KK7VZT"
+0121               // Len 0x01, Type 0x21 (To), ""
+0624 68656C6C6F    // Len 0x06, Type 0x24 (Message), "hello"
+0725 xxxxxxxxxxxx  // Len 0x07, Type 0x25 (Location), Lat + Lng</code></pre>
+        <p>È un messaggio di testo con una posizione in cui il campo To è vuoto (cosa che accade occasionalmente, anche se di solito è del tutto assente). C'è un'eccezione nella codifica: se il campo lunghezza è <code>0x85</code>, i due byte successivi sono un contatore di messaggi. Il contatore consente a un ricevitore di ignorare un duplicato dello stesso messaggio, ed è tipicamente usato con richieste come chiedere una posizione o uno squillo.</p>
+
+        <h2>Tipi di dati noti</h2>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Name</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>0x20</code></td><td>Callsign</td><td>Source of the message, e.g. <code>N0CALL</code> or <code>N0CALL-0</code></td></tr>
+            <tr><td><code>0x21</code></td><td>Destination</td><td>Message destination callsign</td></tr>
+            <tr><td><code>0x24</code></td><td>Message</td><td>A UTF-8 encoded message</td></tr>
+            <tr><td><code>0x25</code></td><td>Location</td><td>Sender's position (latitude, longitude, altitude, speed, heading)</td></tr>
+            <tr><td><code>0x27</code></td><td>LocationRequest</td><td>Requests the location of a given station</td></tr>
+            <tr><td><code>0x28</code></td><td>CallRequest</td><td>Rings the requested station, like a phone call</td></tr>
+            <tr><td><code>0x85</code></td><td>Message counter</td><td>Length marker followed by a 2-byte counter</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>A un elemento di posizione (<code>0x25</code>) seguono latitudine e longitudine e, facoltativamente, altitudine, velocità e rotta. Una richiesta di squillo (<code>0x28</code>) fa emettere un bip alla radio di destinazione, un po' come una telefonata in arrivo.</p>
+
+        <hr>
+        <p><em>Disponibile su tutte le piattaforme: Windows, macOS, Linux, iOS, Android e web.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Tutte le funzioni</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/BSS-Protocol.md" target="_blank" rel="noopener">Vedi il codice su GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Un compagno multipiattaforma per le radio portatili Benshi. Creato per la comunità dei radioamatori. Per trasmettere è necessaria una licenza da radioamatore.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Funzioni</a></li>
+            <li><a href="../screens.html">Schermate</a></li>
+            <li><a href="../features.html">Approfondimento</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Progetto</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versioni</a></li>
+            <li><a href="../blog.html">Blog tecnico</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Ottieni la licenza</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Note legali</h4>
+          <ul>
+            <li><a href="../privacy.html">Informativa sulla privacy</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Licenza (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Rilasciato con licenza Apache 2.0.</span>
+        <span>Per trasmettere è necessaria una licenza da radioamatore.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "it", page: "features/bss.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

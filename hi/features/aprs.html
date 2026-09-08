@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APRS संदेश — HTCommander</title>
+  <meta name="description" content="HTCommander में APRS संदेश प्राप्त करें और भेजें, कस्टम रूट सेट करें, SMS के ज़रिए सामान्य फ़ोन पर संदेश भेजें, मौसम रिपोर्ट का अनुरोध करें और प्रमाणित संदेश भेजें।" />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/aprs.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/aprs.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/aprs.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/aprs.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/aprs.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/aprs.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/aprs.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/aprs.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/aprs.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/aprs.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">विशेषताएँ</a>
+        <a href="../radios.html">रेडियो</a>
+        <a href="../screens.html">स्क्रीन</a>
+        <a href="../blog.html">ब्लॉग</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">स्रोत देखें</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">डाउनलोड</a>
+        <button class="nav__toggle" id="navToggle" aria-label="मेन्यू टॉगल करें" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">संदेश और मानचित्रण</span>
+      <h1>APRS संदेश</h1>
+      <p>APRS संदेश भेजें और प्राप्त करें, लाइव टेलीमेट्री देखें, कस्टम रूट सेट करें, सामान्य फ़ोन पर संदेश भेजें, मौसम रिपोर्ट का अनुरोध करें और यहाँ तक कि अपने संदेशों को प्रमाणित भी करें — सब कुछ एक ही टैब से।</p>
+      <p class="article__back-top"><a href="../features.html">← सभी विशेषताएँ</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/Aprs.png" alt="APRS tab in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>ऐप का दिल</h2>
+        <p>APRS टैब HTCommander का मुख्य टैब है। इसका उपयोग अन्य स्टेशनों के संदेश पढ़ने, अपने भेजने और टेलीमेट्री की लगातार धारा देखने के लिए करें। यदि आपका रेडियो सही ढंग से सेट है, तो यह APRS चैनल की निरंतर निगरानी करता है — तब भी जब आप किसी अन्य चैनल पर आवाज़ सुन रहे हों — इसलिए यदि आप अपने पसंदीदा रिपीटर पर हों और APRS ट्रैफ़िक आता दिखे तो आश्चर्यचकित न हों।</p>
+        <p>जब आप कोई APRS संदेश भेजते हैं, तो HTCommander रेडियो को बताता है कि पैकेट APRS है ताकि इसे सही आवृत्ति पर प्रेषित किया जाए। इसके काम करने के लिए, <strong>APRS</strong> नाम का एक चैनल होना चाहिए। यदि आपके पास अभी तक कोई नहीं है, तो HTCommander इसे बनाने में मदद के लिए एक डायलॉग खोलता है।</p>
+        <p>यदि आप केवल बातचीत देखना चाहते हैं तो टेलीमेट्री संदेशों को छिपाने के लिए ऊपरी-दाएँ मेन्यू पर क्लिक करें। हर APRS पैकेट क्लिक करने योग्य है: AX.25 पथ, स्थिति, ग्रिड स्क्वायर और टिप्पणी का पूरा डिकोड खोलें, या निर्देशांक भेजने वाले किसी स्टेशन पर राइट-क्लिक करके उसे मिनी-मानचित्र पर देखें।</p>
+
+        <h2>कस्टम रूट</h2>
+        <p><strong>File → Settings → APRS</strong> में आप अतिरिक्त APRS रूट जोड़ सकते हैं। एक से अधिक रूट कॉन्फ़िगर होने पर, APRS टैब के ऊपरी-दाएँ में एक ड्रॉप-डाउन दिखाई देता है ताकि आप भेजते समय चुन सकें कि कौन-सा रूट उपयोग करना है। इससे आपके संदेश सही डिजीपीटर तक पहुँचकर अपने गंतव्य तक पहुँचते हैं।</p>
+
+        <h2 id="sms">SMS के ज़रिए सामान्य फ़ोन पर संदेश भेजें</h2>
+        <p>एक कॉलसाइन कॉन्फ़िगर और ट्रांसमिट सक्षम होने पर, आप APRS के ज़रिए सामान्य मोबाइल फ़ोन पर SMS टेक्स्ट संदेश भेज सकते हैं — तब एकदम सही जब आपको किसी तक पहुँचना हो और सेल कवरेज न हो। प्राप्तकर्ता को पहले सहमति देनी होगी: वे जाते हैं <a href="https://aprs.wiki/" target="_blank" rel="noopener">aprs.wiki</a> और एक SMS उत्तर से पुष्टि करते हैं।</p>
+        <p>एक बार जब वे सहमति दे दें, तो APRS टैब के ऊपरी-दाएँ मेन्यू को खोलें, <strong>SMS Message…</strong> चुनें, फिर फ़ोन नंबर और संदेश दर्ज करें। ध्यान दें कि नंबर और संदेश दोनों बिना एन्क्रिप्शन और बिना प्रमाणीकरण के जाते हैं।</p>
+
+        <h2 id="weather">मांग पर मौसम रिपोर्ट</h2>
+        <p>एक कॉलसाइन और ट्रांसमिट सक्षम होने पर, आप किसी स्थान और समय के लिए मौसम रिपोर्ट का अनुरोध भी कर सकते हैं। ऊपरी-दाएँ मेन्यू से <strong>Weather Report…</strong> चुनें, स्थान दर्ज करें और एक समय व रिपोर्ट प्रकार चुनें। यह उपयोग करता है <a href="https://sites.google.com/site/ki6wjp/wxbot" target="_blank" rel="noopener">WxBot</a> service.</p>
+
+        <h2 id="authentication">प्रमाणित संदेश</h2>
+        <p>HTCommander <strong>प्रमाणित</strong> APRS संदेश भेज सकता है। दो या अधिक स्टेशन HTCommander पता पुस्तिका में दर्ज एक पासवर्ड साझा करते हैं। जब आप उस स्टेशन को संदेश भेजते हैं, तो एक 6-अंकीय प्रमाणीकरण कोड जोड़ा जाता है। यदि प्राप्तकर्ता के पास वही पासवर्ड है, तो यह संदेश की पुष्टि करता है और उसे <strong>हरे</strong> रंग में दिखाता है; बेमेल होने पर हल्के नारंगी में दिखता है।</p>
+        <p>पासवर्ड कभी हवा में नहीं भेजा जाता — यह केवल कोड उत्पन्न करता है, जो संदेश, पासवर्ड और वर्तमान समय से प्राप्त होता है। चूँकि कोड हर मिनट बदलता है, दोहराए गए संदेश जाँच में विफल हो जाते हैं, इसलिए स्टेशनों की घड़ियाँ समन्वयित रखें। एमेच्योर रेडियो में एन्क्रिप्शन की अनुमति नहीं है, लेकिन प्रमाणीकरण की है — यह सुविधा केवल प्रमाणीकरण प्रदान करती है। यदि आप इस पर निर्भर हैं, तो एक लंबा, मज़बूत पासवर्ड उपयोग करें, क्योंकि कई संदेश पकड़ने वाला कोई व्यक्ति एक कमज़ोर पासवर्ड को ब्रूट-फ़ोर्स करने का प्रयास कर सकता है।</p>
+        <blockquote>
+          <p>इसे अपने सॉफ़्टवेयर में लागू कर रहे हैं? यह <a href="https://github.com/Ylianst/HTCommander/blob/main/docs/Aprs-Auth-Specification.md" target="_blank" rel="noopener">प्रमाणीकरण विनिर्देश GitHub पर प्रकाशित है</a>.</p>
+        </blockquote>
+
+        <hr>
+        <p><em>सभी प्लेटफ़ॉर्म पर उपलब्ध: Windows, macOS, Linux, iOS, Android और वेब। संबंधित: <a href="map.html">लाइव APRS मानचित्र</a> and the <a href="address-book.html">साझा पता पुस्तिका</a>.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← सभी विशेषताएँ</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">GitHub पर स्रोत देखें →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Benshi हैंडहेल्ड रेडियो के लिए एक क्रॉस-प्लेटफ़ॉर्म सहयोगी। हैम रेडियो समुदाय के लिए बनाया गया। प्रसारण के लिए एक हैम रेडियो लाइसेंस आवश्यक है।</p>
+        </div>
+        <div>
+          <h4>ऐप</h4>
+          <ul>
+            <li><a href="../index.html#features">विशेषताएँ</a></li>
+            <li><a href="../screens.html">स्क्रीन</a></li>
+            <li><a href="../features.html">विस्तार से</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>परियोजना</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">रिलीज़</a></li>
+            <li><a href="../blog.html">तकनीकी ब्लॉग</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">लाइसेंस प्राप्त करें</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>कानूनी</h4>
+          <ul>
+            <li><a href="../privacy.html">गोपनीयता नीति</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">लाइसेंस (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Apache 2.0 लाइसेंस के तहत जारी।</span>
+        <span>प्रसारण के लिए एक हैम रेडियो लाइसेंस आवश्यक है।</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "hi", page: "features/aprs.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

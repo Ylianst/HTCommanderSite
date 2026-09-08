@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reconnaissance vocale — HTCommander</title>
+  <meta name="description" content="HTCommander transcribes incoming radio audio to text in real time using OpenAI Whisper, fully offline, plus text-to-speech to read your messages on the air." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/voice.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/voice.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/voice.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/voice.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/voice.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/voice.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/voice.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/voice.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/voice.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/voice.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Fonctions</a>
+        <a href="../radios.html">Radios</a>
+        <a href="../screens.html">Captures</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Voir le code</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Télécharger</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Basculer le menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Audio &amp; voix</span>
+      <h1>Reconnaissance vocale</h1>
+      <p>Transcrivez l'audio radio entrant en texte en temps réel — entièrement hors ligne sur votre appareil — plus la synthèse vocale pour lire à l'antenne les messages que vous tapez.</p>
+      <p class="article__back-top"><a href="../features.html">← Toutes les fonctions</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/SpeechToText.png" alt="Speech-to-text in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>Whisper, sur votre machine</h2>
+        <p>HTCommander intègre une reconnaissance vocale propulsée par Whisper d'OpenAI. L'audio radio passe par un modèle de langage à réseau de neurones pour être converti en texte, et les résultats sont impressionnants. Un processeur puissant prenant en charge l'AVX est requis, et tout s'exécute localement — parfait pour suivre un réseau chargé ou un bulletin météo de la NOAA.</p>
+
+        <h2>Choisir le bon modèle</h2>
+        <p>Depuis HTCommander, vous pouvez sélectionner et télécharger un modèle Whisper. Les modèles plus grands donnent de meilleurs résultats mais demandent plus de puissance CPU.</p>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Modèle</th><th>Taille</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Tiny</td><td>77.7 MB</td><td></td></tr>
+            <tr><td>Tiny.en</td><td>77.7 MB</td><td>Anglais uniquement</td></tr>
+            <tr><td>Base</td><td>148 MB</td><td></td></tr>
+            <tr><td>Base.en</td><td>148 MB</td><td>Anglais uniquement (recommandé)</td></tr>
+            <tr><td>Small</td><td>488 MB</td><td></td></tr>
+            <tr><td>Small.en</td><td>488 MB</td><td>Anglais uniquement</td></tr>
+            <tr><td>Medium</td><td>1.53 GB</td><td></td></tr>
+            <tr><td>Medium.en</td><td>1.53 GB</td><td>Anglais uniquement</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>Les modèles uniquement en anglais sont les meilleurs si vous n'écoutez que l'anglais ; les modèles normaux prennent en charge un large éventail de langues. Vous pouvez aider le modèle en sélectionnant dans le panneau Réglages la langue que vous allez écouter, ce qui l'incite à se concentrer sur cette langue.</p>
+
+        <h2>Quand elle s'exécute, et répondre à voix haute</h2>
+        <p>Une fois activée, la reconnaissance vocale s'exécute lorsque la radio cesse de recevoir un signal, ou toutes les 20 à 30 secondes. Il y a aussi la synthèse vocale via la Microsoft Speech API, pour taper un message et le faire lire à l'antenne.</p>
+
+        <hr>
+        <p><em>Disponible uniquement sur ordinateur : Windows, macOS et Linux.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Toutes les fonctions</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Voice.md" target="_blank" rel="noopener">Voir le code sur GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Un compagnon multiplateforme pour les radios portables Benshi. Conçu pour la communauté radioamateur. Une licence radioamateur est requise pour émettre.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Fonctions</a></li>
+            <li><a href="../screens.html">Captures</a></li>
+            <li><a href="../features.html">En détail</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projet</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versions</a></li>
+            <li><a href="../blog.html">Blog technique</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Obtenir une licence</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Mentions légales</h4>
+          <ul>
+            <li><a href="../privacy.html">Politique de confidentialité</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Licence (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Publié sous licence Apache 2.0.</span>
+        <span>Une licence radioamateur est requise pour émettre.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "fr", page: "features/voice.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

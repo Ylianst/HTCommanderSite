@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>功能库 — HTCommander</title>
+  <meta name="description" content="按自己的节奏逐一浏览 HTCommander 的功能——Winlink、APRS、地图、信道编程、文件传输、SSTV、航空器追踪等等。" />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/feature-gallery.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/feature-gallery.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/feature-gallery.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/feature-gallery.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/feature-gallery.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/feature-gallery.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/feature-gallery.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/feature-gallery.html" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="features.html">功能</a>
+        <a href="radios.html">支持的电台</a>
+        <a href="screens.html">截图</a>
+        <a href="videos.html">视频</a>
+        <a href="blog.html">博客</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">查看源码</a>
+        <a class="btn btn--primary btn--sm" href="downloads.html">下载</a>
+        <button class="nav__toggle" id="navToggle" aria-label="切换菜单" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= GALLERY ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <div class="gallery" id="gallery" aria-roledescription="轮播">
+        <button class="gallery__nav gallery__nav--prev" id="galleryPrev" aria-label="上一项功能">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+
+        <div class="gallery__viewport">
+          <div class="gallery__stage" id="galleryStage" aria-live="polite">
+            <img class="gallery__image" id="galleryImage" src="" alt="" />
+          </div>
+          <div class="gallery__info">
+            <h2 class="gallery__title" id="galleryTitle"></h2>
+            <p class="gallery__desc" id="galleryDesc"></p>
+            <p class="gallery__counter"><span id="galleryIndex">1</span> / <span id="galleryTotal">30</span></p>
+          </div>
+        </div>
+
+        <button class="gallery__nav gallery__nav--next" id="galleryNext" aria-label="下一项功能">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div class="gallery__dots" id="galleryDots" role="tablist" aria-label="选择一项功能"></div>
+
+      <div class="center mt-56">
+        <a class="btn btn--ghost" href="features.html">查看完整深入介绍 →</a>
+        <a class="btn btn--primary" href="downloads.html">下载 HTCommander</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature data (image / badge / title / description) -->
+  <script type="application/json" id="galleryData">
+  [
+    { "img": "../assets/features/Winlink.png", "badge": "邮件", "title": "Winlink 邮件", "desc": "通过分组无线电和互联网收发 Winlink 邮件，包括附件，直接在你的电台上完成。" },
+    { "img": "../assets/features/Aprs.png", "badge": "APRS", "title": "APRS 消息", "desc": "接收和发送 APRS 消息、设置自定义路径、通过短信向普通手机发送信息并请求天气报告。" },
+    { "img": "../assets/features/AprsMessaging.png", "badge": "APRS", "title": "给朋友发消息", "desc": "通过 APRS 消息与朋友聊天，并为每个联系人设置个性化头像，让你一眼就能区分每个人。" },
+    { "img": "../assets/features/AprsPushMessaging.png", "badge": "APRS", "title": "APRS 推送消息", "desc": "在 Android 和 iOS 上以推送通知形式接收 APRS 消息，即使应用未打开也能保持联系。" },
+    { "img": "../assets/features/AprsMap.png", "badge": "地图", "title": "实时 APRS 地图", "desc": "基于 OpenStreetMap 的地图标出你周围的每个 APRS 电台，并附带位置历史和电台详情。" },
+    { "img": "../assets/features/Aprs-is.png", "badge": "APRS-IS", "title": "APRS-IS 互联网网关", "desc": "连接到 APRS-IS 网络，通过互联网查看和交换全球范围的 APRS 流量，超越你电台的覆盖范围。" },
+    { "img": "../assets/features/PacketTerminal.png", "badge": "终端", "title": "分组终端", "desc": "以分组模式与其他电台、用户和 BBS 聊天，内置通讯录便于快速访问。" },
+    { "img": "../assets/features/ChannelEditing.png", "badge": "信道", "title": "信道编辑", "desc": "采用简洁的拖放布局，快速编辑信道——名称、频率、模式、带宽、功率和音频。" },
+    { "img": "../assets/features/BatchChannelProgramming.png", "badge": "编程", "title": "批量信道编程", "desc": "导入信道列表，并将条目拖放到电台的槽位中，几秒钟即可编程整个存储库。" },
+    { "img": "../assets/features/ChannelSharing.png", "badge": "共享", "title": "通过电波共享信道", "desc": "以可点按的消息形式将信道发送给同频率上的任何人——他们只需轻点即可将其加载到自己的电台中。" },
+    { "img": "../assets/features/RadioSettings.png", "badge": "设置", "title": "完整的电台设置", "desc": "在应用中调整电台的每一项设置——PTT 释放、信标、按键、已配对设备、音频、功率、发射、显示以及高级选项。" },
+    { "img": "../assets/features/Contacts.png", "badge": "通讯录", "title": "共享通讯录", "desc": "将你的 APRS、Winlink 和终端联系人保存在一个共享通讯录中，让正确的信息触手可及。" },
+    { "img": "../assets/features/FileTransferTorrent.png", "badge": "文件", "title": "种子式文件交换", "desc": "通过 1200 波特 FM-AFSK 进行多对多文件传输，让整个网络可以同时共享一个文件。" },
+    { "img": "../assets/features/SstvSupport.png", "badge": "SSTV", "title": "SSTV 支持", "desc": "直接通过 HTCommander 收发慢扫描电视图像。" },
+    { "img": "../assets/features/Dump1090Airplanes.png", "badge": "ADS-B", "title": "航空器追踪", "desc": "通过 dump1090 ADS-B 集成实时追踪附近的航空器。" },
+    { "img": "../assets/features/SpeechToText.png", "badge": "语音", "title": "语音转文字", "desc": "对接收到的音频进行实时、离线的语音转文字转录。" },
+    { "img": "../assets/features/MorseKey.png", "badge": "Morse", "title": "莫尔斯电键", "desc": "在 HTCommander 中直接收发莫尔斯电码（CW），内置电键并可在屏幕上解码。" },
+    { "img": "../assets/features/FmBroadcastRadio.png", "badge": "广播", "title": "调频广播", "desc": "调谐并收听普通的调频广播电台。" },
+    { "img": "../assets/features/PacketCapture.png", "badge": "分组", "title": "分组抓包", "desc": "抓取并检查原始分组流量，以便调试和了解电波上的情况。" },
+    { "img": "../assets/features/HighPerformanceSoftwareModem.png", "badge": "调制解调器", "title": "软件调制解调器", "desc": "高性能的内置软件定义调制解调器——无需外接 TNC。" },
+    { "img": "../assets/features/AudioControls.png", "badge": "音频", "title": "音频控制", "desc": "带电平表的完整音频控制，可调出干净、均衡的发射和接收音频。" },
+    { "img": "../assets/features/SerialGps.png", "badge": "GPS", "title": "串口 GPS", "desc": "连接串口 GPS 以实现实时定位和精确的 APRS 信标。" },
+    { "img": "../assets/features/SatelliteTracking.png", "badge": "卫星", "title": "卫星追踪", "desc": "追踪业余无线电卫星，提供实时过境预测、天线指向以及经多普勒校正的上行和下行频率。" },
+    { "img": "../assets/features/AndroidAuto.png", "badge": "Android Auto", "title": "Android Auto", "desc": "从车辆的 Android Auto 显示屏访问信道、在已连接的电台之间切换并跟踪 APRS 消息。" },
+    { "img": "../assets/features/Radiosonde.png", "badge": "探空仪", "title": "探空仪解码", "desc": "捕捉空中的气象气球——解码多个系列的探空仪，并在实时地图上绘制每个气球的上升和下降轨迹。" },
+    { "img": "../assets/features/MultiPlatform.png", "badge": "跨平台", "title": "随处运行", "desc": "一个应用，通过蓝牙在 Windows、macOS、Linux、iOS、Android 和网页端上运行。" },
+    { "img": "../assets/features/MultiLanguage.png", "badge": "语言", "title": "多种语言", "desc": "已翻译成多种语言，从西班牙语到中文，让世界各地的操作员都倍感亲切。" },
+    { "img": "../assets/features/LightAndDarkModes.png", "badge": "主题", "title": "浅色和深色主题", "desc": "现代化界面，跟随系统的浅色或深色主题，无论白天黑夜都护眼舒适。" },
+    { "img": "../assets/features/EchoLink.png", "badge": "EchoLink", "title": "EchoLink 连接", "desc": "通过互联网连接 EchoLink 节点、链路、中继台和会议室——按呼号或位置搜索，并将它们添加为信道。" },
+    { "img": "../assets/features/OfflineCallsignLookup.png", "badge": "呼号", "title": "离线呼号查询", "desc": "完全离线查询任何呼号——国家、大洲以及姓名、等级、状态和有效期等完整的执照信息。" },
+    { "img": "../assets/features/MqttHomeAssistant.png", "badge": "Home Assistant", "title": "通过 MQTT 使用 Home Assistant", "desc": "通过 MQTT 将你的 Benshi 手持机变成一流的 Home Assistant 设备——电量、GPS、音量、静噪、扫描、信道以及接收到的 APRS 消息都显示在你的仪表板上。" },
+    { "img": "../assets/features/RepeaterBook.png", "badge": "RepeaterBook", "title": "RepeaterBook 导入", "desc": "在 RepeaterBook.com 目录中搜索附近的中继台，并将它们直接拖入你电台的信道。中继台数据由 RepeaterBook.com 提供。" }
+  ]
+  </script>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>面向 Benshi 手持电台的跨平台伴侣软件。为业余无线电社区打造。发射需持有业余无线电执照。</p>
+        </div>
+        <div>
+          <h4>应用</h4>
+          <ul>
+            <li><a href="index.html#features">功能</a></li>
+            <li><a href="screens.html">截图</a></li>
+            <li><a href="features.html">深入了解</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>项目</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">发布版本</a></li>
+            <li><a href="blog.html">技术博客</a></li>
+            <li><a href="https://ylianst.github.io/HTCommander/spec/HTCommander-Spec.pdf" target="_blank" rel="noopener">规范（PDF）</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">获取执照</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>法律</h4>
+          <ul>
+            <li><a href="privacy.html">隐私政策</a></li>
+            <li><a href="license.html">许可证（Apache 2.0）</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. 基于 Apache 2.0 许可证发布。</span>
+        <span>发射需持有业余无线电执照。</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "zh", page: "feature-gallery.html", root: "../" };</script>
+  <script src="../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

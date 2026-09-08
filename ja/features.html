@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>機能 — HTCommander</title>
+  <meta name="description" content="HTCommander のすべての機能を解説：チャンネルのプログラミング、無線機の全設定、APRS メッセージと地図、Winlink メール、パケットターミナルと BBS、トレント方式のファイル転送、高性能ソフトウェアモデム、パケットキャプチャ、SSTV、GPS、衛星追尾、Android Auto、ラジオゾンデのデコードと ADS-B 航空機追尾、FM 放送、Bluetooth オーディオ、オフラインの音声認識、多言語、ライト／ダークテーマ。" />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features.html" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="features.html">機能</a>
+        <a href="radios.html">対応無線機</a>
+        <a href="screens.html">画面</a>
+        <a href="videos.html">動画</a>
+        <a href="blog.html">ブログ</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">ソースを見る</a>
+        <a class="btn btn--primary btn--sm" href="downloads.html">ダウンロード</a>
+        <button class="nav__toggle" id="navToggle" aria-label="メニューを切り替え" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= PAGE HERO ================= -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">詳しく見る</span>
+      <h1>すべての機能を間近で</h1>
+      <p>HTCommander は、ステーション一式のツールを 1 つのアプリに凝縮しています — チャンネルのプログラミング、メッセージングと地図、メールとファイル転送、ソフトウェア無線モデム、オーディオと音声など。ここでは各機能の内容を、技術的な詳細へのリンクとともに紹介します。</p>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 1: PROGRAM YOUR RADIO ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">無線機をプログラミング</h2>
+      <p class="group-sub">チャンネル · メモリー · 共有 · 設定</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">チャンネル</span>
+          <h3>チャンネル編集</h3>
+          <p>各チャンネルを手動で設定 — 名前、受信・送信周波数、モード、帯域幅、出力レベル、CTCSS/DCS トーン — 無線機が求める内容をそのまま反映する、すっきりしたエディターで行えます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Channels.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/ChannelEditing.png" alt="Channel editing in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">プログラミング</span>
+          <h3>チャンネルの一括プログラミング</h3>
+          <p>ファイルからチャンネルリストをインポートし、項目を無線機のチャンネルスロットに直接ドラッグ＆ドロップできます。無線機で 1 つずつ入力する代わりに、メモリーバンク全体を数秒で並べ替え・コピーしてハンディ機に転送できます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Channels.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/BatchChannelProgramming.png" alt="Batch channel programming in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">RepeaterBook</span>
+          <h3>RepeaterBook のインポート</h3>
+          <p>アプリを離れずに近くのレピーターを見つけましょう。世界規模のディレクトリを検索できます: <a href="https://www.repeaterbook.com" target="_blank" rel="noopener">RepeaterBook.com</a> 国・州・都市で検索し、結果を無線機のチャンネルスロットへ直接ドラッグできます — 周波数、オフセット、CTCSS/DCS トーンが自動入力されます。レピーターのデータの提供元: <a href="https://www.repeaterbook.com" target="_blank" rel="noopener">RepeaterBook.com</a>.</p>
+          <a class="btn btn--ghost btn--sm" href="https://www.repeaterbook.com" target="_blank" rel="noopener">RepeaterBook.com にアクセス →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/RepeaterBook.png" alt="Importing repeaters from RepeaterBook.com in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">共有</span>
+          <h3>電波でチャンネルを共有</h3>
+          <p>チャット内で、周波数上の相手にタップできるメッセージとしてチャンネルを送信できます。相手はタップするだけで自分の無線機に読み込めます — グループ全体を同じシンプレックスやレピーターのチャンネルに揃えるのに最適です。</p>
+          <a class="btn btn--ghost btn--sm" href="../blogs/channel-share-string.html">ブログを読む →</a>
+          <a class="btn btn--primary btn--sm" href="channel-tool.html">チャンネル文字列ツール →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/ChannelSharing.png" alt="Sharing a channel in the HTCommander chat" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">設定</span>
+          <h3>無線機の全設定</h3>
+          <p>無線機の設定のあらゆる部分に 1 か所からアクセスできます — PTT リリースの挙動、ビーコン、プログラマブルボタン、ペアリング済み Bluetooth デバイス、オーディオ、出力、送信、ディスプレイ、そして充実した詳細トグル。画面で設定を変更し、そのままハンディ機に保存できます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub で見る →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/RadioSettings.png" alt="Radio settings dialog in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 2: MESSAGING & MAPPING ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">メッセージング＆地図</h2>
+      <p class="group-sub">APRS · 地図 · 連絡先</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">APRS</span>
+          <h3>APRS メッセージング＆パケット詳細</h3>
+          <p>APRS メッセージの送受信、カスタム経路の設定、SMS による一般の電話への送信、気象情報の要求ができます。任意のパケットをクリックすると、AX.25 の経路・位置・グリッドロケーター・コメントの完全なデコードが開きます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Aprs.png" alt="APRS messaging and packet details in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">APRS</span>
+          <h3>友だちにメッセージ</h3>
+          <p>APRS メッセージで友だちと連絡を取り合い — アプリからそのまま双方向の会話ができます。連絡先ごとに個人アバターを設定すれば、どのスレッドにもなじみの顔があり、ひと目で誰が誰か分かります。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AprsMessaging.png" alt="APRS messaging with friends and custom avatars in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">APRS</span>
+          <h3>APRS プッシュ通知</h3>
+          <p>APRS メッセージを Android と iOS のプッシュ通知として受け取れるので、アプリを開いていないときでも連絡を保てます。通知をタップすればそのまま会話に移動し、外出先でも返信できます。</p>
+          <a class="btn btn--ghost btn--sm" href="../blogs/push-notifications.html">ブログを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AprsPushMessaging.png" alt="APRS push messaging on Android and iOS in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">マップ</span>
+          <h3>リアルタイム APRS マップ</h3>
+          <p>OpenStreetMap 対応により、周囲のすべての APRS 局をひと目で表示します。位置履歴をたどり、ピンをタップして局のコールサインや最終受信時刻を確認し、ワンクリックで自分の GPS 位置に地図を再センタリングできます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Map.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AprsMap.png" alt="Live APRS map in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">APRS-IS</span>
+          <h3>APRS-IS インターネットゲートウェイ</h3>
+          <p>HTCommander を APRS-IS ネットワークに接続すれば、無線機の到達範囲をはるかに超えて、世界中の APRS トラフィックを閲覧・交換できます。RF とインターネットの間で位置やメッセージをゲートし、遠方の局を同じ地図上で追えます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/APRS.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Aprs-is.png" alt="APRS-IS Internet gateway in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">アドレス帳</span>
+          <h3>共有アドレス帳</h3>
+          <p>APRS・Winlink・ターミナルの連絡先を 1 つの共有アドレス帳にまとめられます。各局のコールサイン、名前、種別、APRS ルート、メッセージ認証設定を保存でき、必要な情報にいつでもワンクリックでアクセスできます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/AddressBook.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Contacts.png" alt="Address book of contacts in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">コールサイン</span>
+          <h3>オフラインでのコールサイン検索</h3>
+          <p>インターネット接続なしで任意のコールサインを検索できます。内蔵データベースが国、大陸、そして免許局については運用者名・免許クラス・状態・所在地・有効期限などの詳細を返し、各項目はワンクリックでコピーできます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub で見る →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/OfflineCallsignLookup.png" alt="Offline callsign lookup in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 3: EMAIL, TERMINAL & FILE TRANSFER ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">メール・ターミナル＆ファイル転送</h2>
+      <p class="group-sub">Winlink · パケット · トレント</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Winlink</span>
+          <h3>Winlink メール</h3>
+          <p>世界規模の Winlink ネットワークを通じて、添付ファイルも含めて本物のメールを、パケット無線またはインターネット経由で送受信できます。使い慣れた受信トレイ・送信トレイ・作成画面により、一般のメールクライアントのように使えます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Mail.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Winlink.png" alt="Winlink email in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">ターミナル</span>
+          <h3>パケットターミナル＆BBS</h3>
+          <p>従来のパケットモードで、他局・ユーザー・BBS システムに接続できます。HTCommander には Winlink ゲートウェイも兼ねる内蔵 BBS もあり、近くの局があなたを通じてより広いネットワークに到達できます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/terminal.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/PacketTerminal.png" alt="Packet terminal connected to a BBS in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Torrent</span>
+          <h3>トレント方式のファイル交換</h3>
+          <p>1 つのファイルをネット全体と一度に共有できます。1200 ボー FM-AFSK 上のこの多対多トレントシステムは、すべてのブロックを追跡し、データをその場で圧縮し、遅れて参加した人も追いつけるようにします — チャンネルを 1 リンクずつ占有する代わりに。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Torrent.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/FileTransferTorrent.png" alt="Torrent file exchange in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 4: DATA MODES & DSP ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">データモード＆DSP</h2>
+      <p class="group-sub">ソフトウェアモデム · キャプチャ · SSTV</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">モデム</span>
+          <h3>高性能ソフトウェアモデム</h3>
+          <p>DART は、コンピューター上で完結して動作する次世代の完全ソフトウェア無線モデムです。LDPC 誤り訂正を用いて BPSK から 16QAM まで変調を適応させ、リアルタイムのコンスタレーションと SNR 表示を示し、従来の AFSK よりはるかに多くのデータを FM チャンネルで伝送します。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/NextGenModem.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/HighPerformanceSoftwareModem.png" alt="High-performance DART software modem in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">キャプチャ</span>
+          <h3>パケットキャプチャ＆デコード</h3>
+          <p>電波上のすべての AX.25 フレームを観察し、符号化・LDPC 訂正・生バイト・16 進数を示す完全なデコードを開けます。内蔵アナライザーは、設定のトラブルシューティングや、パケット無線の実際の仕組みを学ぶのに最適です。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Capture.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/PacketCapture.png" alt="Packet capture and decode in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">SSTV</span>
+          <h3>SSTV の送受信</h3>
+          <p>スロースキャンテレビ（SSTV）の画像を送受信できます。受信信号は自動検出され、チャット内でそのままデコードされます。送信は画像をウィンドウにドラッグするだけです。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/SSTV.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/SstvSupport.png" alt="SSTV images received in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 5: AUDIO & VOICE ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">オーディオ＆音声</h2>
+      <p class="group-sub">Windows · macOS · Linux · Android</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">オーディオ</span>
+          <h3>Bluetooth オーディオコントロール</h3>
+          <p>オーディオチェーン全体を 1 か所で微調整できます：入出力デバイスの選択、無線機の音量とスケルチの設定、マイクゲインの調整、送信内容のリアルタイムのスペクトログラフ表示 — 追加の配線は不要です。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Bluetooth.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AudioControls.png" alt="Bluetooth audio controls in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">音声</span>
+          <h3>オフラインの音声認識</h3>
+          <p>受信した無線音声をリアルタイムで文字起こしできます — 混み合ったネットや NOAA の気象通報を把握するのに最適です。デバイス上で完全にオフラインで動作し、音声をディスクに書き込むことはなく、複数の言語を自動認識します。入力したメッセージを電波上で読み上げることもできます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Voice.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/SpeechToText.png" alt="Offline speech-to-text in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Morse</span>
+          <h3>モールス電鍵</h3>
+          <p>縦振れ電鍵やパドルなしで CW を運用できます。HTCommander はモールス信号を電波に送出し、受信した CW をリアルタイムで文字にデコードします。画面表示により、追いかけたり自分のペースで練習したりが簡単です。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub で見る →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/MorseKey.png" alt="Morse code keyer in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">EchoLink</span>
+          <h3>EchoLink 接続</h3>
+          <p>インターネット経由で RF の到達範囲をはるかに超えられます。EchoLink のノード・リンク・レピーター・カンファレンスをコールサインや場所で閲覧・検索し、チャンネルとして追加すれば、同じ通信ウィンドウから世界中の局と話せます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub で見る →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/EchoLink.png" alt="EchoLink linking in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 6: LOCATION & LISTENING ================= -->
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">位置＆受信</h2>
+      <p class="group-sub">GPS · 衛星 · ADS-B · ラジオゾンデ · FM 放送</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">GPS</span>
+          <h3>GPS 測位</h3>
+          <p>無線機の内蔵 GPS を使うか、USB の GPS/GLONASS ドングルを接続して高精度に測位できます。位置を共有すれば無線機が自動でビーコン送出し、ワンクリックで地図を自分の位置に再センタリングできます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/GPS.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/SerialGps.png" alt="GPS positioning with a serial GPS dongle in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">衛星</span>
+          <h3>衛星追尾</h3>
+          <p>アマチュア無線衛星を自信を持って運用できます。HTCommander は頭上や間もなく現れる衛星をすべて一覧表示し、捕捉時刻・最大仰角・アンテナ方位とともに各パスを予測し、方位・仰角・距離をリアルタイム表示するので、どこに向ければよいか正確に分かります。アップリンク・ダウンリンク周波数は、衛星が空を移動するにつれてリアルタイムにドップラー補正されます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub で見る →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/SatelliteTracking.png" alt="Satellite tracking with pass predictions in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">ADS-B</span>
+          <h3>航空機のリアルタイム追尾</h3>
+          <p>dump1090 受信機から ADS-B データを取り込み、APRS 局と同じ地図上を航空機が移動する様子を見られます — あなたのステーションをリアルタイムの空のビューに変える、楽しく有益なオーバーレイです。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Map.md" target="_blank" rel="noopener">ドキュメントを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Dump1090Airplanes.png" alt="Live airplane tracking on the map in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">ラジオゾンデ</span>
+          <h3>ラジオゾンデのデコード</h3>
+          <p>ハンディ機を高層気象の受信機に変えます。HTCommander は複数系統の気象観測気球のラジオゾンデを電波から直接デコードし、各ゾンデのテレメトリ（位置・高度・速度など）を表示し、各気球の上昇と下降をリアルタイム地図に描画します。</p>
+          <a class="btn btn--ghost btn--sm" href="../blogs/radiosonde-decoding.html">ブログを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/Radiosonde.png" alt="Radiosonde decoding in HTCommander" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">FM ラジオ</span>
+          <h3>FM 放送受信機</h3>
+          <p>アプリから直接、無線機を商業 FM 放送局に合わせられます。お気に入りをプリセットとして保存し、ハンディ機に一切触れずに切り替えられます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub で見る →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/FmBroadcastRadio.png" alt="FM broadcast radio receiver in HTCommander" loading="lazy" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROUP 7: BUILT FOR EVERYONE ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">すべての人のために</h2>
+      <p class="group-sub">Android Auto · マルチプラットフォーム · 翻訳済み · テーマ</p>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Android Auto</span>
+          <h3>ドライブ中の HTCommander</h3>
+          <p>HTCommander の主要な操作を車両の Android Auto 画面に。車向けに設計されたインターフェースで、チャンネルの閲覧、接続中の無線機の選択、受信 APRS メッセージの確認ができます。</p>
+          <a class="btn btn--ghost btn--sm" href="features/android-auto.html">Android Auto を見る →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/AndroidAuto.png" alt="HTCommander channels, connected radios and APRS messages in Android Auto" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">マルチプラットフォーム</span>
+          <h3>あらゆるプラットフォームで動作</h3>
+          <p>1 つのアプリを、どこでも。HTCommander は Windows・macOS・Linux・iOS・Android・Web でネイティブに動作し — Bluetooth があればどこでも — 持ち歩くどのデバイスでもあなたのステーションが一緒です。</p>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/MultiPlatform.png" alt="HTCommander running on iPad, macOS, Windows and Android" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">言語</span>
+          <h3>多言語対応</h3>
+          <p>インターフェースはスペイン語から中国語まで多くの言語に翻訳されているので、世界中のオペレーターが自分の言語で快適に HTCommander を使えます。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub で見る →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/MultiLanguage.png" alt="HTCommander in Spanish and Chinese" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">テーマ</span>
+          <h3>ライト＆ダークテーマ</h3>
+          <p>システムのライト／ダークテーマに合わせる、洗練されたモダンな UI — 明るいフィールドデーでも深夜のネットでも目にやさしい表示です。</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub で見る →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/LightAndDarkModes.png" alt="HTCommander in light and dark themes" loading="lazy" /></div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <span class="badge">Home Assistant</span>
+          <h3>MQTT で Home Assistant</h3>
+          <p>Benshi のハンディ機を一級の Home Assistant デバイスに変えます。MQTT ブローカーと Home Assistant の自動検出を使い、HTCommander はバッテリー、GPS、音量、スケルチ、スキャン、チャンネル、受信 APRS メッセージをダッシュボードに直接表示します。</p>
+          <a class="btn btn--ghost btn--sm" href="../blogs/home-assistant-mqtt.html">ブログを読む →</a>
+        </div>
+        <div class="feature-row__media"><img src="../assets/features/MqttHomeAssistant.png" alt="HTCommander integrated with Home Assistant over MQTT" loading="lazy" /></div>
+      </div>
+
+      <div class="center mt-56">
+        <a class="btn btn--primary" href="downloads.html">HTCommander をダウンロード</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Benshi 製ハンディ機向けのクロスプラットフォームなコンパニオン。アマチュア無線コミュニティのために開発されました。送信にはアマチュア無線の免許が必要です。</p>
+        </div>
+        <div>
+          <h4>アプリ</h4>
+          <ul>
+            <li><a href="index.html#features">機能</a></li>
+            <li><a href="screens.html">画面</a></li>
+            <li><a href="features.html">詳しく見る</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>プロジェクト</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">リリース</a></li>
+            <li><a href="blog.html">技術ブログ</a></li>
+            <li><a href="https://ylianst.github.io/HTCommander/spec/HTCommander-Spec.pdf" target="_blank" rel="noopener">仕様書（PDF）</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">免許を取得する</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>法的事項</h4>
+          <ul>
+            <li><a href="privacy.html">プライバシーポリシー</a></li>
+            <li><a href="license.html">ライセンス（Apache 2.0）</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Apache 2.0 ライセンスのもとで公開。</span>
+        <span>送信にはアマチュア無線の免許が必要です。</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "ja", page: "features.html", root: "../" };</script>
+  <script src="../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>फ़ीचर गैलरी — HTCommander</title>
+  <meta name="description" content="HTCommander की विशेषताओं को अपनी गति से एक-एक करके देखें — Winlink, APRS, मानचित्र, चैनल प्रोग्रामिंग, फ़ाइल ट्रांसफर, SSTV, विमान ट्रैकिंग और बहुत कुछ।" />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/feature-gallery.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/feature-gallery.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/feature-gallery.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/feature-gallery.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/feature-gallery.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/feature-gallery.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/feature-gallery.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/feature-gallery.html" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="features.html">विशेषताएँ</a>
+        <a href="radios.html">रेडियो</a>
+        <a href="screens.html">स्क्रीन</a>
+        <a href="videos.html">वीडियो</a>
+        <a href="blog.html">ब्लॉग</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">स्रोत देखें</a>
+        <a class="btn btn--primary btn--sm" href="downloads.html">डाउनलोड</a>
+        <button class="nav__toggle" id="navToggle" aria-label="मेन्यू टॉगल करें" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= GALLERY ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <div class="gallery" id="gallery" aria-roledescription="कैरोसेल">
+        <button class="gallery__nav gallery__nav--prev" id="galleryPrev" aria-label="पिछली विशेषता">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+
+        <div class="gallery__viewport">
+          <div class="gallery__stage" id="galleryStage" aria-live="polite">
+            <img class="gallery__image" id="galleryImage" src="" alt="" />
+          </div>
+          <div class="gallery__info">
+            <h2 class="gallery__title" id="galleryTitle"></h2>
+            <p class="gallery__desc" id="galleryDesc"></p>
+            <p class="gallery__counter"><span id="galleryIndex">1</span> / <span id="galleryTotal">30</span></p>
+          </div>
+        </div>
+
+        <button class="gallery__nav gallery__nav--next" id="galleryNext" aria-label="अगली विशेषता">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div class="gallery__dots" id="galleryDots" role="tablist" aria-label="एक विशेषता चुनें"></div>
+
+      <div class="center mt-56">
+        <a class="btn btn--ghost" href="features.html">पूरा विस्तृत विवरण देखें →</a>
+        <a class="btn btn--primary" href="downloads.html">HTCommander डाउनलोड करें</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature data (image / badge / title / description) -->
+  <script type="application/json" id="galleryData">
+  [
+    { "img": "../assets/features/Winlink.png", "badge": "ईमेल", "title": "Winlink ईमेल", "desc": "पैकेट रेडियो और इंटरनेट के ज़रिए Winlink ईमेल भेजें और प्राप्त करें, अटैचमेंट सहित, सीधे अपने रेडियो से।" },
+    { "img": "../assets/features/Aprs.png", "badge": "APRS", "title": "APRS संदेश", "desc": "APRS संदेश प्राप्त करें और भेजें, कस्टम रूट सेट करें, SMS के ज़रिए सामान्य फ़ोन पर संदेश भेजें और मौसम रिपोर्ट का अनुरोध करें।" },
+    { "img": "../assets/features/AprsMessaging.png", "badge": "APRS", "title": "अपने दोस्तों को संदेश भेजें", "desc": "APRS संदेश के ज़रिए दोस्तों से चैट करें और हर संपर्क के लिए एक व्यक्तिगत अवतार सेट करें ताकि आप सभी को एक नज़र में पहचान सकें।" },
+    { "img": "../assets/features/AprsPushMessaging.png", "badge": "APRS", "title": "APRS पुश संदेश", "desc": "Android और iOS पर APRS संदेश पुश नोटिफ़िकेशन के रूप में पाएं ताकि ऐप बंद होने पर भी आप संपर्क में रहें।" },
+    { "img": "../assets/features/AprsMap.png", "badge": "मानचित्र", "title": "लाइव APRS मानचित्र", "desc": "OpenStreetMap-संचालित एक मानचित्र आपके आस-पास की हर APRS स्टेशन को स्थिति इतिहास और स्टेशन विवरण के साथ दर्शाता है।" },
+    { "img": "../assets/features/Aprs-is.png", "badge": "APRS-IS", "title": "APRS-IS इंटरनेट गेटवे", "desc": "APRS-IS नेटवर्क से जुड़ें ताकि आप अपने रेडियो की रेंज से परे, इंटरनेट पर दुनिया भर के APRS ट्रैफ़िक को देख और आदान-प्रदान कर सकें।" },
+    { "img": "../assets/features/PacketTerminal.png", "badge": "टर्मिनल", "title": "पैकेट टर्मिनल", "desc": "अन्य स्टेशनों, उपयोगकर्ताओं और BBS के साथ पैकेट मोड में चैट करें, त्वरित पहुँच के लिए अंतर्निहित पता पुस्तिका के साथ।" },
+    { "img": "../assets/features/ChannelEditing.png", "badge": "चैनल", "title": "चैनल संपादन", "desc": "साफ़-सुथरे ड्रैग एंड ड्रॉप लेआउट के साथ तेज़ चैनल संपादन — नाम, आवृत्तियाँ, मोड, बैंडविड्थ, पावर और टोन।" },
+    { "img": "../assets/features/BatchChannelProgramming.png", "badge": "प्रोग्रामिंग", "title": "बैच चैनल प्रोग्रामिंग", "desc": "चैनल सूचियाँ आयात करें और प्रविष्टियों को रेडियो के स्लॉट में ड्रैग एंड ड्रॉप करके सेकंडों में एक पूरा मेमोरी बैंक प्रोग्राम करें।" },
+    { "img": "../assets/features/ChannelSharing.png", "badge": "साझाकरण", "title": "चैनल हवा में साझा करें", "desc": "फ़्रीक्वेंसी पर किसी को भी एक चैनल टैप करने योग्य संदेश के रूप में भेजें — वे बस टैप करके इसे अपने रेडियो में लोड कर लेते हैं।" },
+    { "img": "../assets/features/RadioSettings.png", "badge": "सेटिंग्स", "title": "पूर्ण रेडियो सेटिंग्स", "desc": "ऐप से रेडियो की हर सेटिंग समायोजित करें — PTT रिलीज़, बीकन, बटन, पेयर किए गए डिवाइस, ऑडियो, पावर, ट्रांसमिट, डिस्प्ले और उन्नत विकल्प।" },
+    { "img": "../assets/features/Contacts.png", "badge": "पता पुस्तिका", "title": "साझा पता पुस्तिका", "desc": "अपने APRS, Winlink और टर्मिनल संपर्कों को एक साझा पता पुस्तिका में रखें ताकि सही विवरण एक क्लिक दूर हों।" },
+    { "img": "../assets/features/FileTransferTorrent.png", "badge": "फ़ाइलें", "title": "टोरेंट फ़ाइल विनिमय", "desc": "1200-बॉड FM-AFSK पर कई-से-कई फ़ाइल ट्रांसफर, ताकि पूरा नेट एक साथ एक फ़ाइल साझा कर सके।" },
+    { "img": "../assets/features/SstvSupport.png", "badge": "SSTV", "title": "SSTV समर्थन", "desc": "HTCommander के माध्यम से सीधे स्लो-स्कैन टेलीविज़न छवियाँ भेजें और प्राप्त करें।" },
+    { "img": "../assets/features/Dump1090Airplanes.png", "badge": "ADS-B", "title": "विमान ट्रैकिंग", "desc": "dump1090 ADS-B एकीकरण के साथ पास के विमानों को रीयल टाइम में ट्रैक करें।" },
+    { "img": "../assets/features/SpeechToText.png", "badge": "आवाज़", "title": "वाक् से पाठ", "desc": "प्राप्त ऑडियो का रीयल-टाइम, ऑफ़लाइन वाक्-से-पाठ ट्रांसक्रिप्शन।" },
+    { "img": "../assets/features/MorseKey.png", "badge": "Morse", "title": "मोर्स कुंजी", "desc": "अंतर्निहित कुंजी और ऑन-स्क्रीन डिकोड के साथ HTCommander में सीधे मोर्स कोड (CW) भेजें और प्राप्त करें।" },
+    { "img": "../assets/features/FmBroadcastRadio.png", "badge": "रेडियो", "title": "FM प्रसारण रेडियो", "desc": "सामान्य FM प्रसारण रेडियो स्टेशनों को ट्यून करें और सुनें।" },
+    { "img": "../assets/features/PacketCapture.png", "badge": "पैकेट", "title": "पैकेट कैप्चर", "desc": "यह डीबग करने और समझने के लिए कि हवा में क्या है, कच्चे पैकेट ट्रैफ़िक को कैप्चर और निरीक्षण करें।" },
+    { "img": "../assets/features/HighPerformanceSoftwareModem.png", "badge": "मॉडेम", "title": "सॉफ़्टवेयर मॉडेम", "desc": "एक उच्च-प्रदर्शन, अंतर्निहित सॉफ़्टवेयर-परिभाषित मॉडेम — किसी बाहरी TNC की आवश्यकता नहीं।" },
+    { "img": "../assets/features/AudioControls.png", "badge": "ऑडियो", "title": "ऑडियो नियंत्रण", "desc": "स्तर मापन के साथ पूर्ण ऑडियो नियंत्रण, ताकि स्वच्छ और संतुलित ट्रांसमिट और रिसीव ऑडियो सेट किया जा सके।" },
+    { "img": "../assets/features/SerialGps.png", "badge": "GPS", "title": "सीरियल GPS", "desc": "लाइव पोज़िशनिंग और सटीक APRS बीकन के लिए एक सीरियल GPS कनेक्ट करें।" },
+    { "img": "../assets/features/SatelliteTracking.png", "badge": "उपग्रह", "title": "उपग्रह ट्रैकिंग", "desc": "लाइव पास प्रेडिक्शन, एंटीना एमिंग और डॉपलर-सुधारित अपलिंक और डाउनलिंक आवृत्तियों के साथ शौकिया रेडियो उपग्रहों को ट्रैक करें।" },
+    { "img": "../assets/features/AndroidAuto.png", "badge": "Android Auto", "title": "Android Auto", "desc": "अपने वाहन के Android Auto डिस्प्ले से चैनलों तक पहुँचें, कनेक्टेड रेडियो के बीच स्विच करें और APRS संदेशों का अनुसरण करें।" },
+    { "img": "../assets/features/Radiosonde.png", "badge": "रेडियोसॉन्ड", "title": "रेडियोसॉन्ड डिकोडिंग", "desc": "हवा में मौसम गुब्बारों को पकड़ें — कई परिवारों की रेडियोसॉन्ड को डिकोड करें और हर गुब्बारे के चढ़ने और उतरने को लाइव मानचित्र पर दर्शाएँ।" },
+    { "img": "../assets/features/MultiPlatform.png", "badge": "क्रॉस-प्लेटफ़ॉर्म", "title": "हर जगह चलता है", "desc": "एक ऐप जो ब्लूटूथ के ज़रिए Windows, macOS, Linux, iOS, Android और वेब पर चलती है।" },
+    { "img": "../assets/features/MultiLanguage.png", "badge": "भाषाएँ", "title": "कई भाषाएँ", "desc": "स्पेनिश से चीनी तक कई भाषाओं में अनुवादित, ताकि दुनिया भर के ऑपरेटर घर जैसा महसूस करें।" },
+    { "img": "../assets/features/LightAndDarkModes.png", "badge": "थीम", "title": "लाइट और डार्क थीम", "desc": "एक आधुनिक इंटरफ़ेस जो आपके सिस्टम की लाइट या डार्क थीम का अनुसरण करता है, दिन हो या रात, आँखों के लिए आरामदायक।" },
+    { "img": "../assets/features/EchoLink.png", "badge": "EchoLink", "title": "EchoLink लिंकिंग", "desc": "इंटरनेट पर EchoLink नोड्स, लिंक, रिपीटर और कॉन्फ़्रेंस से जुड़ें — कॉलसाइन या स्थान से खोजें और उन्हें चैनल के रूप में जोड़ें।" },
+    { "img": "../assets/features/OfflineCallsignLookup.png", "badge": "कॉलसाइन", "title": "ऑफ़लाइन कॉलसाइन खोज", "desc": "किसी भी कॉलसाइन को पूरी तरह ऑफ़लाइन देखें — देश, महाद्वीप और नाम, श्रेणी, स्थिति और समाप्ति जैसे पूर्ण लाइसेंस विवरण।" },
+    { "img": "../assets/features/MqttHomeAssistant.png", "badge": "Home Assistant", "title": "MQTT के ज़रिए Home Assistant", "desc": "MQTT के ज़रिए अपने Benshi हैंडहेल्ड को एक प्रथम-श्रेणी Home Assistant डिवाइस में बदलें — बैटरी, GPS, वॉल्यूम, स्क्वेल्च, स्कैन, चैनल और आने वाले APRS संदेश आपके डैशबोर्ड पर।" },
+    { "img": "../assets/features/RepeaterBook.png", "badge": "RepeaterBook", "title": "RepeaterBook आयात", "desc": "आस-पास के रिपीटर के लिए RepeaterBook.com निर्देशिका खोजें और उन्हें सीधे अपने रेडियो के चैनलों में खींचें। रिपीटर डेटा RepeaterBook.com के सौजन्य से।" }
+  ]
+  </script>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Benshi हैंडहेल्ड रेडियो के लिए एक क्रॉस-प्लेटफ़ॉर्म सहयोगी। हैम रेडियो समुदाय के लिए बनाया गया। प्रसारण के लिए एक हैम रेडियो लाइसेंस आवश्यक है।</p>
+        </div>
+        <div>
+          <h4>ऐप</h4>
+          <ul>
+            <li><a href="index.html#features">विशेषताएँ</a></li>
+            <li><a href="screens.html">स्क्रीन</a></li>
+            <li><a href="features.html">विस्तार से</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>परियोजना</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">रिलीज़</a></li>
+            <li><a href="blog.html">तकनीकी ब्लॉग</a></li>
+            <li><a href="https://ylianst.github.io/HTCommander/spec/HTCommander-Spec.pdf" target="_blank" rel="noopener">विनिर्देश (PDF)</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">लाइसेंस प्राप्त करें</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>कानूनी</h4>
+          <ul>
+            <li><a href="privacy.html">गोपनीयता नीति</a></li>
+            <li><a href="license.html">लाइसेंस (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Apache 2.0 लाइसेंस के तहत जारी।</span>
+        <span>प्रसारण के लिए एक हैम रेडियो लाइसेंस आवश्यक है।</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "hi", page: "feature-gallery.html", root: "../" };</script>
+  <script src="../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>功能指南 — HTCommander</title>
+  <meta name="description" content="Individual guides for every HTCommander feature: channel programming, APRS, maps, Winlink email, terminal, BBS, torrent file transfer, packet capture, GPS, satellite tracking, Android Auto, SSTV, Bluetooth audio, speech-to-text and AGWPE." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/index.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/index.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/index.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/index.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/index.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/index.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/index.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/index.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/index.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/index.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">功能</a>
+        <a href="../radios.html">支持的电台</a>
+        <a href="../screens.html">截图</a>
+        <a href="../blog.html">博客</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">查看源码</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">下载</a>
+        <button class="nav__toggle" id="navToggle" aria-label="切换菜单" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">功能指南</span>
+      <h1>每项功能的指南</h1>
+      <p>HTCommander 将一整个电台的工具集于一个应用之中。下面每项功能都有自己的指南，包含细节、截图以及指向技术文档的链接。</p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">为你的电台编程</h2>
+      <p class="group-sub">信道 · 存储 · 分享</p>
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="channels.html">
+          <span class="kicker">信道</span>
+          <h3>信道编程</h3>
+          <p>配置、导入、导出并拖放信道，打造完美的存储布局——然后只需一条消息即可通过空中分享某个信道。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">消息与地图</h2>
+      <p class="group-sub">APRS · BSS · 地图 · 联系人</p>
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="aprs.html">
+          <span class="kicker">APRS</span>
+          <h3>APRS 消息</h3>
+          <p>发送和接收 APRS 消息、设置路径、通过短信向普通手机发信息、请求天气报告并发送经过认证的消息。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="map.html">
+          <span class="kicker">地图</span>
+          <h3>实时 APRS 地图</h3>
+          <p>在 OpenStreetMap 视图上标绘每个 APRS 台站，缓存区域以供离线使用，并保护你的隐私——没有隐藏的遥测。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="bss.html">
+          <span class="kicker">BSS</span>
+          <h3>BSS 协议支持</h3>
+          <p>解码 Baofeng / BTech 的专有短消息二进制协议，已经过逆向工程和文档化。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="address-book.html">
+          <span class="kicker">通讯录</span>
+          <h3>通讯录</h3>
+          <p>将你的 APRS、Winlink 和终端联系人集中保存在一个共享通讯录中，方便在整个应用中快速访问。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">邮件、终端与文件传输</h2>
+      <p class="group-sub">Winlink · 分组 · BBS · 种子</p>
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="winlink.html">
+          <span class="kicker">Winlink</span>
+          <h3>Winlink 电子邮件</h3>
+          <p>在全球 Winlink 网络上收发真正的电子邮件——含附件——通过分组无线电或互联网。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="terminal.html">
+          <span class="kicker">终端</span>
+          <h3>分组终端</h3>
+          <p>在经典的分组模式下连接其他台站、用户和 BBS 系统——同时电台持续监视 APRS。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="bbs.html">
+          <span class="kicker">BBS</span>
+          <h3>内置 BBS</h3>
+          <p>运行你自己的公告板——私有 Winlink 网关和多人文字冒险游戏，附带实时台站统计。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="torrent.html">
+          <span class="kicker">Torrent</span>
+          <h3>种子文件交换</h3>
+          <p>一次性把文件分享给整个通联网——在 1200 波特 FM-AFSK 上的多对多文件传输。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight" style="background: var(--bg-2);">
+    <div class="container">
+      <h2 class="group-title">数据模式与 DSP</h2>
+      <p class="group-sub">分组捕获 · SSTV · AGWPE</p>
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="capture.html">
+          <span class="kicker">捕获</span>
+          <h3>分组捕获</h3>
+          <p>观察空中的每一帧并打开完整的 AX.25 / APRS 解码——非常适合排查问题或学习分组无线电。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="sstv.html">
+          <span class="kicker">SSTV</span>
+          <h3>SSTV</h3>
+          <p>发送和接收慢扫描电视图像。传入的传输会自动检测并就地解码；发送即拖放。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="agwpe.html">
+          <span class="kicker">AGWPE</span>
+          <h3>AGWPE Protocol</h3>
+          <p>使用流行的 AGWPE 协议，通过你的电台转发其他分组无线电应用程序的流量。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <h2 class="group-title">定位与音频</h2>
+      <p class="group-sub">GPS · 卫星 · Android Auto · 蓝牙音频 · 语音转文字</p>
+      <div class="grid grid--blog mt-40">
+        <a class="post" href="gps.html">
+          <span class="kicker">GPS</span>
+          <h3>GPS 支持</h3>
+          <p>在受支持的固件上读取电台内置的 GPS，在地图上查看你的位置，并一键重新居中。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="satellite.html">
+          <span class="kicker">卫星</span>
+          <h3>卫星跟踪</h3>
+          <p>通过实时过境预测、天线瞄准以及经多普勒校正的上行和下行频率来跟踪业余无线电卫星。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="android-auto.html">
+          <span class="kicker">在车里</span>
+          <h3>Android Auto</h3>
+          <p>从车辆的 Android Auto 显示屏访问信道、选择已连接的电台并跟进 APRS 消息。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="bluetooth-audio.html">
+          <span class="kicker">音频</span>
+          <h3>蓝牙音频</h3>
+          <p>通过电脑的扬声器、麦克风或耳机进行发射和接收——配有实时可视化和完整的设备控制。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+        <a class="post" href="voice.html">
+          <span class="kicker">语音</span>
+          <h3>语音转文字</h3>
+          <p>实时将接收到的无线电音频转录为文字，借助 Whisper 完全离线，外加空中文字转语音。</p>
+          <span class="post__more">阅读更多 →</span>
+        </a>
+      </div>
+      <div class="center mt-56">
+        <a class="btn btn--primary" href="../downloads.html">下载 HTCommander</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>面向 Benshi 手持电台的跨平台伴侣软件。为业余无线电社区打造。发射需持有业余无线电执照。</p>
+        </div>
+        <div>
+          <h4>应用</h4>
+          <ul>
+            <li><a href="../index.html#features">功能</a></li>
+            <li><a href="../screens.html">截图</a></li>
+            <li><a href="../features.html">深入了解</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>项目</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">发布版本</a></li>
+            <li><a href="../blog.html">技术博客</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">获取执照</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>法律</h4>
+          <ul>
+            <li><a href="../privacy.html">隐私政策</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">许可证（Apache 2.0）</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. 基于 Apache 2.0 许可证发布。</span>
+        <span>发射需持有业余无线电执照。</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "zh", page: "features/index.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

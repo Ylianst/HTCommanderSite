@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galerie des fonctionnalités — HTCommander</title>
+  <meta name="description" content="Parcourez les fonctionnalités de HTCommander une par une, à votre rythme — Winlink, APRS, cartes, programmation de canaux, transfert de fichiers, SSTV, suivi des aéronefs et plus encore." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/feature-gallery.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/feature-gallery.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/feature-gallery.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/feature-gallery.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/feature-gallery.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/feature-gallery.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/feature-gallery.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/feature-gallery.html" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="features.html">Fonctions</a>
+        <a href="radios.html">Radios</a>
+        <a href="screens.html">Captures</a>
+        <a href="videos.html">Vidéos</a>
+        <a href="blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Voir le code</a>
+        <a class="btn btn--primary btn--sm" href="downloads.html">Télécharger</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Basculer le menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= GALLERY ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <div class="gallery" id="gallery" aria-roledescription="carrousel">
+        <button class="gallery__nav gallery__nav--prev" id="galleryPrev" aria-label="Fonctionnalité précédente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+
+        <div class="gallery__viewport">
+          <div class="gallery__stage" id="galleryStage" aria-live="polite">
+            <img class="gallery__image" id="galleryImage" src="" alt="" />
+          </div>
+          <div class="gallery__info">
+            <h2 class="gallery__title" id="galleryTitle"></h2>
+            <p class="gallery__desc" id="galleryDesc"></p>
+            <p class="gallery__counter"><span id="galleryIndex">1</span> / <span id="galleryTotal">30</span></p>
+          </div>
+        </div>
+
+        <button class="gallery__nav gallery__nav--next" id="galleryNext" aria-label="Fonctionnalité suivante">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div class="gallery__dots" id="galleryDots" role="tablist" aria-label="Choisir une fonctionnalité"></div>
+
+      <div class="center mt-56">
+        <a class="btn btn--ghost" href="features.html">Voir l'analyse complète →</a>
+        <a class="btn btn--primary" href="downloads.html">Télécharger HTCommander</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature data (image / badge / title / description) -->
+  <script type="application/json" id="galleryData">
+  [
+    { "img": "../assets/features/Winlink.png", "badge": "E-mail", "title": "E-mail Winlink", "desc": "Envoyez et recevez des e-mails Winlink par radio packet et par Internet, pièces jointes comprises, directement depuis votre radio." },
+    { "img": "../assets/features/Aprs.png", "badge": "APRS", "title": "Messagerie APRS", "desc": "Recevez et envoyez des messages APRS, définissez des routes personnalisées, écrivez à des téléphones ordinaires par SMS et demandez des bulletins météo." },
+    { "img": "../assets/features/AprsMessaging.png", "badge": "APRS", "title": "Écrivez à vos amis", "desc": "Discutez avec vos amis par messagerie APRS et attribuez un avatar personnel à chaque contact pour les reconnaître d'un coup d'œil." },
+    { "img": "../assets/features/AprsPushMessaging.png", "badge": "APRS", "title": "Notifications APRS", "desc": "Recevez les messages APRS sous forme de notifications push sur Android et iOS pour rester en contact même lorsque l'application est fermée." },
+    { "img": "../assets/features/AprsMap.png", "badge": "Carte", "title": "Carte APRS en direct", "desc": "Une carte basée sur OpenStreetMap positionne chaque station APRS autour de vous avec l'historique des positions et le détail des stations." },
+    { "img": "../assets/features/Aprs-is.png", "badge": "APRS-IS", "title": "Passerelle Internet APRS-IS", "desc": "Connectez-vous au réseau APRS-IS pour voir et échanger le trafic APRS du monde entier via Internet, au-delà de la portée de votre radio." },
+    { "img": "../assets/features/PacketTerminal.png", "badge": "Terminal", "title": "Terminal packet", "desc": "Discutez en mode packet avec d'autres stations, utilisateurs et BBS, avec un carnet d'adresses intégré pour un accès rapide." },
+    { "img": "../assets/features/ChannelEditing.png", "badge": "Canaux", "title": "Édition de canaux", "desc": "Édition rapide des canaux avec une disposition claire par glisser-déposer — nom, fréquences, mode, bande passante, puissance et tonalités." },
+    { "img": "../assets/features/BatchChannelProgramming.png", "badge": "Programmation", "title": "Programmation de canaux par lots", "desc": "Importez des listes de canaux et glissez-déposez les entrées dans les emplacements de la radio pour programmer une banque mémoire complète en quelques secondes." },
+    { "img": "../assets/features/ChannelSharing.png", "badge": "Partage", "title": "Partagez des canaux par les ondes", "desc": "Envoyez un canal à quiconque sur la fréquence sous forme de message cliquable — il suffit d'appuyer dessus pour le charger dans sa propre radio." },
+    { "img": "../assets/features/RadioSettings.png", "badge": "Paramètres", "title": "Réglages radio complets", "desc": "Réglez chaque paramètre de la radio depuis l'application — relâchement PTT, balise, boutons, appareils appairés, audio, puissance, émission, affichage et options avancées." },
+    { "img": "../assets/features/Contacts.png", "badge": "Carnet d'adresses", "title": "Carnet d'adresses partagé", "desc": "Conservez vos contacts APRS, Winlink et terminal dans un carnet d'adresses partagé pour avoir les bonnes informations à portée de clic." },
+    { "img": "../assets/features/FileTransferTorrent.png", "badge": "Fichiers", "title": "Échange de fichiers par torrent", "desc": "Transfert de fichiers de plusieurs à plusieurs en FM-AFSK à 1200 bauds, pour qu'un réseau entier partage un fichier en même temps." },
+    { "img": "../assets/features/SstvSupport.png", "badge": "SSTV", "title": "Prise en charge SSTV", "desc": "Envoyez et recevez des images de télévision à balayage lent directement via HTCommander." },
+    { "img": "../assets/features/Dump1090Airplanes.png", "badge": "ADS-B", "title": "Suivi des aéronefs", "desc": "Suivez les aéronefs proches en temps réel grâce à l'intégration ADS-B dump1090." },
+    { "img": "../assets/features/SpeechToText.png", "badge": "Voix", "title": "Reconnaissance vocale", "desc": "Transcription vocale en texte en temps réel et hors ligne de l'audio reçu." },
+    { "img": "../assets/features/MorseKey.png", "badge": "Morse", "title": "Manipulateur morse", "desc": "Envoyez et recevez du morse (CW) directement dans HTCommander, avec un manipulateur intégré et un décodage à l'écran." },
+    { "img": "../assets/features/FmBroadcastRadio.png", "badge": "Radio", "title": "Radio FM", "desc": "Accordez et écoutez les stations de radio FM classiques." },
+    { "img": "../assets/features/PacketCapture.png", "badge": "Paquets", "title": "Capture de paquets", "desc": "Capturez et inspectez le trafic packet brut pour déboguer et comprendre ce qui passe sur les ondes." },
+    { "img": "../assets/features/HighPerformanceSoftwareModem.png", "badge": "Modem", "title": "Modem logiciel", "desc": "Un modem défini par logiciel, intégré et haute performance — aucun TNC externe requis." },
+    { "img": "../assets/features/AudioControls.png", "badge": "Audio", "title": "Contrôles audio", "desc": "Contrôles audio complets avec mesure de niveau pour régler un audio d'émission et de réception propre et bien équilibré." },
+    { "img": "../assets/features/SerialGps.png", "badge": "GPS", "title": "GPS série", "desc": "Connectez un GPS série pour un positionnement en direct et des balises APRS précises." },
+    { "img": "../assets/features/SatelliteTracking.png", "badge": "Satellite", "title": "Suivi de satellites", "desc": "Suivez les satellites radioamateurs avec des prédictions de passage en direct, le pointage d'antenne et des fréquences montantes et descendantes corrigées de l'effet Doppler." },
+    { "img": "../assets/features/AndroidAuto.png", "badge": "Android Auto", "title": "Android Auto", "desc": "Accédez aux canaux, basculez entre les radios connectées et suivez les messages APRS depuis l'écran Android Auto de votre véhicule." },
+    { "img": "../assets/features/Radiosonde.png", "badge": "Radiosonde", "title": "Décodage de radiosondes", "desc": "Captez des ballons-sondes sur les ondes — décodez des radiosondes de plusieurs familles et tracez la montée et la descente de chaque ballon sur la carte en direct." },
+    { "img": "../assets/features/MultiPlatform.png", "badge": "Multiplateforme", "title": "Fonctionne partout", "desc": "Une seule application qui fonctionne sur Windows, macOS, Linux, iOS, Android et le web via Bluetooth." },
+    { "img": "../assets/features/MultiLanguage.png", "badge": "Langues", "title": "Plusieurs langues", "desc": "Traduite dans de nombreuses langues, de l'espagnol au chinois, pour que les opérateurs du monde entier se sentent chez eux." },
+    { "img": "../assets/features/LightAndDarkModes.png", "badge": "Thèmes", "title": "Thèmes clair et sombre", "desc": "Une interface moderne qui suit le thème clair ou sombre de votre système, agréable pour les yeux de jour comme de nuit." },
+    { "img": "../assets/features/EchoLink.png", "badge": "EchoLink", "title": "Liaison EchoLink", "desc": "Connectez-vous aux nœuds, liens, relais et conférences EchoLink via Internet — recherchez par indicatif ou par lieu et ajoutez-les comme canaux." },
+    { "img": "../assets/features/OfflineCallsignLookup.png", "badge": "Indicatif", "title": "Recherche d'indicatifs hors ligne", "desc": "Recherchez n'importe quel indicatif entièrement hors ligne — pays, continent et tous les détails de la licence comme le nom, la classe, le statut et l'expiration." },
+    { "img": "../assets/features/MqttHomeAssistant.png", "badge": "Home Assistant", "title": "Home Assistant via MQTT", "desc": "Transformez votre portatif Benshi en un appareil Home Assistant à part entière via MQTT — batterie, GPS, volume, squelch, balayage, canaux et messages APRS entrants sur votre tableau de bord." },
+    { "img": "../assets/features/RepeaterBook.png", "badge": "RepeaterBook", "title": "Import RepeaterBook", "desc": "Recherchez des relais proches dans l'annuaire RepeaterBook.com et glissez-les directement dans les canaux de votre radio. Données des relais avec l'aimable autorisation de RepeaterBook.com." }
+  ]
+  </script>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Un compagnon multiplateforme pour les radios portables Benshi. Conçu pour la communauté radioamateur. Une licence radioamateur est requise pour émettre.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="index.html#features">Fonctions</a></li>
+            <li><a href="screens.html">Captures</a></li>
+            <li><a href="features.html">En détail</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projet</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versions</a></li>
+            <li><a href="blog.html">Blog technique</a></li>
+            <li><a href="https://ylianst.github.io/HTCommander/spec/HTCommander-Spec.pdf" target="_blank" rel="noopener">Spécification (PDF)</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Obtenir une licence</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Mentions légales</h4>
+          <ul>
+            <li><a href="privacy.html">Politique de confidentialité</a></li>
+            <li><a href="license.html">Licence (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Publié sous licence Apache 2.0.</span>
+        <span>Une licence radioamateur est requise pour émettre.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "fr", page: "feature-gallery.html", root: "../" };</script>
+  <script src="../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

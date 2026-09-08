@@ -1,0 +1,16 @@
+{
+  "baseUrl": "https://ylianst.github.io/HTCommanderSite/",
+  "languages": [
+    { "code": "en", "label": "EN", "name": "English" },
+    { "code": "de", "label": "DE", "name": "Deutsch" },
+    { "code": "es", "label": "ES", "name": "Español" },
+    { "code": "fr", "label": "FR", "name": "Français" },
+    { "code": "hi", "label": "HI", "name": "हिन्दी" },
+    { "code": "it", "label": "IT", "name": "Italiano" },
+    { "code": "ja", "label": "JA", "name": "日本語" },
+    { "code": "pl", "label": "PL", "name": "Polski" },
+    { "code": "zh", "label": "ZH", "name": "中文" }
+  ],
+  "pages": ["index.html", "downloads.html", "radios.html", "screens.html", "privacy.html", "license.html", "videos.html", "feature-gallery.html", "blog.html", "channel-tool.html", "features.html", "features/aprs.html", "features/map.html", "features/address-book.html", "features/terminal.html", "features/gps.html", "features/satellite.html", "features/bbs.html", "features/voice.html", "features/channels.html", "features/winlink.html", "features/capture.html", "features/sstv.html", "features/bss.html", "features/agwpe.html", "features/android-auto.html", "features/bluetooth-audio.html", "features/torrent.html", "features/index.html"],
+  "handTranslated": []
+}

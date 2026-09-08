@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Packet-Terminal — HTCommander</title>
+  <meta name="description" content="Connect to other stations, users and BBS systems in classic packet mode with HTCommander's built-in terminal — while still monitoring APRS." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/terminal.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/terminal.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/terminal.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/terminal.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/terminal.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/terminal.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/terminal.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/terminal.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/terminal.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/terminal.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Funktionen</a>
+        <a href="../radios.html">Funkgeräte</a>
+        <a href="../screens.html">Screenshots</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Quellcode ansehen</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Herunterladen</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Menü umschalten" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">E-Mail, Terminal &amp; Dateiübertragung</span>
+      <h1>Packet-Terminal</h1>
+      <p>Wie in den alten Zeiten von Modems und Mailboxen — sende und empfange Daten direkt an einen anderen Endpunkt im klassischen Packet-Modus, während das Funkgerät gleichzeitig APRS im Auge behält.</p>
+      <p class="article__back-top"><a href="../features.html">← Alle Funktionen</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/PacketTerminal.png" alt="Packet terminal in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>Ein Modem-Terminal für Packet Radio</h2>
+        <p>HTCommander enthält ein integriertes Terminal, mit dem du Daten direkt an einen anderen Endpunkt senden und von dort empfangen kannst — ideal für Eins-zu-eins-Chats oder die Verbindung zu einer entfernten Mailbox. Das Terminal steht nur Funkern zur Verfügung, die eine Lizenz besitzen und der App das Senden erlaubt haben; andernfalls bleibt die Option ausgeblendet.</p>
+
+        <h2>Verbindung herstellen</h2>
+        <p>Öffne den Terminal-Tab und klicke oben rechts auf <strong>Connect</strong>, um ein neues Verbindungsprofil zu erstellen oder eine bestehende Verbindung wiederherzustellen. Gib die Gegenstation an, das zu verwendende Protokoll — derzeit RAW-AX.25-Frames und APRS-Frames — und den Kanal für die Verbindung. Sobald das Profil erstellt ist, wird das Funkgerät automatisch auf den richtigen Kanal eingestellt und dort <strong>gesperrt</strong>, bis du die Verbindung trennst oder den Kanal am Funkgerät selbst änderst.</p>
+
+        <h2>Cleverer als reines KISS</h2>
+        <p>Du solltest das Terminal <strong>nicht</strong> auf dem APRS-Kanal betreiben — es ist für die Nutzung auf anderen Kanälen gedacht. Das Clevere daran: Während das Terminal verbunden ist, kann das Funkgerät weiterhin den APRS-Kanal überwachen und eingehende APRS-Nachrichten anzeigen, und du kannst sogar APRS-Nachrichten senden, während der Hauptkanal gesperrt bleibt. Weil HTCommander weiß, welcher Kanal welcher ist, kann es sowohl den APRS- als auch den Terminal-Kanal überwachen und auf beiden senden, ohne die Verwirrung, in die ein reines KISS-Setup geraten würde.</p>
+
+        <hr>
+        <p><em>Auf allen Plattformen verfügbar: Windows, macOS, Linux, iOS, Android und Web. Siehe auch die integrierte <a href="bbs.html">BBS</a>.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Alle Funktionen</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/terminal.md" target="_blank" rel="noopener">Quellcode auf GitHub ansehen →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Eine plattformübergreifende Begleit-App für Benshi-Handfunkgeräte. Für die Amateurfunkgemeinschaft entwickelt. Zum Senden ist eine Amateurfunklizenz erforderlich.</p>
+        </div>
+        <div>
+          <h4>App</h4>
+          <ul>
+            <li><a href="../index.html#features">Funktionen</a></li>
+            <li><a href="../screens.html">Screenshots</a></li>
+            <li><a href="../features.html">Im Detail</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projekt</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Versionen</a></li>
+            <li><a href="../blog.html">Technik-Blog</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Lizenz erwerben</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Rechtliches</h4>
+          <ul>
+            <li><a href="../privacy.html">Datenschutzerklärung</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Lizenz (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Veröffentlicht unter der Apache-2.0-Lizenz.</span>
+        <span>Zum Senden ist eine Amateurfunklizenz erforderlich.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "de", page: "features/terminal.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

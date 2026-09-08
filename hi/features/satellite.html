@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>उपग्रह ट्रैकिंग — HTCommander</title>
+  <meta name="description" content="HTCommander tracks amateur radio satellites: see which satellites are overhead and coming up, get pass predictions with antenna aiming, and work them with Doppler-corrected uplink and downlink frequencies." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/satellite.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/satellite.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/satellite.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/satellite.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/satellite.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/satellite.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/satellite.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/satellite.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/satellite.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/satellite.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">विशेषताएँ</a>
+        <a href="../radios.html">रेडियो</a>
+        <a href="../screens.html">स्क्रीन</a>
+        <a href="../blog.html">ब्लॉग</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">स्रोत देखें</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">डाउनलोड</a>
+        <button class="nav__toggle" id="navToggle" aria-label="मेन्यू टॉगल करें" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">स्थान और श्रवण</span>
+      <h1>उपग्रह ट्रैकिंग</h1>
+      <p>आत्मविश्वास के साथ हैम रेडियो उपग्रहों पर काम करें — देखें कि ऊपर क्या है और आगे क्या आ रहा है, ठीक-ठीक जानें कि कब और कहाँ निशाना लगाना है, और डॉपलर शिफ्ट को HTCommander पर छोड़ दें।</p>
+      <p class="article__back-top"><a href="../features.html">← सभी विशेषताएँ</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/SatelliteTracking.png" alt="Satellite tracking with pass predictions in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>जानें ऊपर क्या है — और आगे क्या</h2>
+        <p>HTCommander हैम रेडियो उपग्रहों की एक लाइव सूची रखता है, जो इस आधार पर क्रमबद्ध होती है कि अभी क्या दृश्य में है और आगे क्या आ रहा है। इस समय क्षितिज के ऊपर मौजूद उपग्रह अपनी रीयल-टाइम ऊँचाई (elevation) दिखाते हैं, जबकि आगामी पास सिग्नल प्राप्ति (AOS) तक का समय और पास द्वारा पहुँची जाने वाली अधिकतम ऊँचाई सूचीबद्ध करते हैं — ताकि आप एक नज़र में बता सकें कि तैयारी करना सार्थक है या नहीं।</p>
+
+        <h2>लाइव ट्रैकिंग और एंटीना लक्ष्य-निर्धारण</h2>
+        <p>किसी उपग्रह को चुनें और उसकी लाइव स्थिति देखें: दिगंश (azimuth), ऊँचाई (elevation), दूरी, भू-उपबिंदु और तुंगता, साथ ही कम्पास और एलिवेशन डायल जो किसी हैंडहेल्ड या दिशात्मक एंटीना को लक्ष्य करना आसान बनाते हैं। जैसे-जैसे उपग्रह आकाश में गति करता है, रीडआउट लगातार अपडेट होते रहते हैं ताकि आप उसे अपने बीम में केंद्रित रख सकें।</p>
+
+        <h2>डॉपलर-सुधारित आवृत्तियाँ</h2>
+        <p>तेज़ गति वाले उपग्रह पास आते और दूर जाते समय अपनी आभासी आवृत्ति बदलते हैं। HTCommander प्रत्येक उपग्रह की अपलिंक (TX) और डाउनलिंक (RX) आवृत्तियाँ, ऑपरेटिंग मोड और CTCSS टोन के साथ दिखाता है, और उन्हें रीयल-टाइम में डॉपलर के लिए सुधारता है — ताकि आप लगातार सिग्नल का पीछा किए बिना उपग्रह पर ट्यून रहें।</p>
+
+        <h2>आगामी पास एक नज़र में</h2>
+        <p>एक पास शेड्यूल अगली संभावनाओं को प्रारंभ और समाप्ति समय, अधिकतम ऊँचाई, उस दिगंश परिसर जिससे उपग्रह गुज़रेगा, और उसके प्रकट होने में कितना समय बाकी है — के साथ सूचीबद्ध करता है। अनुमान लगाने के बजाय सर्वोत्तम पास के इर्द-गिर्द अपने संचालन की योजना बनाएँ।</p>
+
+        <hr>
+        <p><em>सभी प्लेटफ़ॉर्म पर उपलब्ध: Windows, macOS, Linux, iOS, Android और वेब।</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← सभी विशेषताएँ</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub पर स्रोत देखें →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Benshi हैंडहेल्ड रेडियो के लिए एक क्रॉस-प्लेटफ़ॉर्म सहयोगी। हैम रेडियो समुदाय के लिए बनाया गया। प्रसारण के लिए एक हैम रेडियो लाइसेंस आवश्यक है।</p>
+        </div>
+        <div>
+          <h4>ऐप</h4>
+          <ul>
+            <li><a href="../index.html#features">विशेषताएँ</a></li>
+            <li><a href="../screens.html">स्क्रीन</a></li>
+            <li><a href="../features.html">विस्तार से</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>परियोजना</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">रिलीज़</a></li>
+            <li><a href="../blog.html">तकनीकी ब्लॉग</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">लाइसेंस प्राप्त करें</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>कानूनी</h4>
+          <ul>
+            <li><a href="../privacy.html">गोपनीयता नीति</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">लाइसेंस (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Apache 2.0 लाइसेंस के तहत जारी।</span>
+        <span>प्रसारण के लिए एक हैम रेडियो लाइसेंस आवश्यक है।</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "hi", page: "features/satellite.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

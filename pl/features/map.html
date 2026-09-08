@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa APRS na żywo — HTCommander</title>
+  <meta name="description" content="HTCommander plots every APRS station on an OpenStreetMap view, with offline caching, privacy by design and mini-maps for individual stations." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/map.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/map.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/map.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/map.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/map.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/map.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/map.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/map.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/map.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/map.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">Funkcje</a>
+        <a href="../radios.html">Radiotelefony</a>
+        <a href="../screens.html">Zrzuty ekranu</a>
+        <a href="../blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz kod</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">Pobierz</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Przełącz menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">Wiadomości i mapy</span>
+      <h1>Mapa APRS na żywo</h1>
+      <p>Dzięki obsłudze OpenStreetMap zobaczysz na pierwszy rzut oka każdą stację APRS wokół siebie — przybliżaj, przesuwaj, buforuj obszary do użytku offline i zachowaj prywatność.</p>
+      <p class="article__back-top"><a href="../features.html">← Wszystkie funkcje</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/AprsMap.png" alt="APRS map in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>Każda stacja na pierwszy rzut oka</h2>
+        <p>HTCommander ma wbudowaną obsługę OpenStreetMap i nanosi stacje wysyłające telemetrię APRS bezpośrednio na mapę. Do wczytania kafelków mapy potrzebny jest dostęp do internetu. Przybliżaj i oddalaj, przesuwaj widok i kliknij stację, aby zobaczyć jej znak wywoławczy i szczegóły.</p>
+
+        <h2>Buforuj obszary do użytku offline</h2>
+        <p>Kliknij prawym przyciskiem i przeciągnij, aby zaznaczyć obszar mapy, a następnie użyj menu mapy, aby zapisać go na dysku. Po zbuforowaniu możesz przełączyć mapę w <strong>tryb offline</strong> — do serwerów OpenStreetMap nie są wysyłane żadne kolejne żądania. To idealne rozwiązanie do korzystania z mapy bez połączenia, na przykład w terenie.</p>
+
+        <h2>Prywatny z założenia</h2>
+        <p>HTCommander w ogóle nie łączy się z internetem poza wczytywaniem kafelków OpenStreetMap. Nie ma żadnej ukrytej telemetrii. Stoi to w celowej opozycji do oficjalnej aplikacji tych radiotelefonów, która wysyła dane o użytkowaniu do Chin.</p>
+
+        <h2>Mini-mapy z karty APRS</h2>
+        <p>In the <a href="aprs.html">karcie APRS</a> możesz kliknąć prawym przyciskiem dowolną stację, która wysłała współrzędne, i zobaczyć jej położenie na mini-mapie — to szybki sposób na zlokalizowanie stacji bez przełączania karty.</p>
+
+        <hr>
+        <p><em>Dostępne na wszystkich platformach: Windows, macOS, Linux, iOS, Android i sieć. Dane mapy dostarczone przez <a href="https://openstreetmap.org" target="_blank" rel="noopener">openstreetmap.org</a>.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← Wszystkie funkcje</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/Map.md" target="_blank" rel="noopener">Zobacz źródło na GitHub →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Wieloplatformowy program towarzyszący dla radiotelefonów Benshi. Stworzony dla społeczności krótkofalowców. Do nadawania wymagane jest pozwolenie radioamatorskie.</p>
+        </div>
+        <div>
+          <h4>Aplikacja</h4>
+          <ul>
+            <li><a href="../index.html#features">Funkcje</a></li>
+            <li><a href="../screens.html">Zrzuty ekranu</a></li>
+            <li><a href="../features.html">Szczegóły</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projekt</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Wydania</a></li>
+            <li><a href="../blog.html">Blog techniczny</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Zdobądź pozwolenie</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Informacje prawne</h4>
+          <ul>
+            <li><a href="../privacy.html">Polityka prywatności</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Licencja (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Udostępniono na licencji Apache 2.0.</span>
+        <span>Do nadawania wymagane jest pozwolenie radioamatorskie.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "pl", page: "features/map.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

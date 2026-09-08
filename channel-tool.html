@@ -66,6 +66,16 @@
     .hint { font-size: 0.78rem; color: var(--text-faint); margin-top: 5px; }
     .ct-examples { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
   </style>
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/channel-tool.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/channel-tool.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/channel-tool.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/channel-tool.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/channel-tool.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/channel-tool.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/channel-tool.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/channel-tool.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/channel-tool.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/channel-tool.html" />
 </head>
 <body>
   <!-- ================= NAV ================= -->
@@ -83,6 +93,7 @@
         <a href="blog.html">Blog</a>
       </nav>
       <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
         <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a>
         <a class="btn btn--primary btn--sm" href="downloads.html">Download</a>
         <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
@@ -666,5 +677,7 @@
     runDecode();
   })();
   </script>
+  <script>window.HT_PAGE = { lang: "en", page: "channel-tool.html", root: "" };</script>
+  <script src="assets/js/i18n.js?v=20260719"></script>
 </body>
 </html>

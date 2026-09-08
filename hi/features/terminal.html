@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>पैकेट टर्मिनल — HTCommander</title>
+  <meta name="description" content="Connect to other stations, users and BBS systems in classic packet mode with HTCommander's built-in terminal — while still monitoring APRS." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../assets/css/style.css?v=20260719" />
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/features/terminal.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/features/terminal.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/features/terminal.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/features/terminal.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/features/terminal.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/features/terminal.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/features/terminal.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/features/terminal.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/features/terminal.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/features/terminal.html" />
+</head>
+<body class="feature-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="../index.html">
+        <img src="../../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="../features.html">विशेषताएँ</a>
+        <a href="../radios.html">रेडियो</a>
+        <a href="../screens.html">स्क्रीन</a>
+        <a href="../blog.html">ब्लॉग</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">स्रोत देखें</a>
+        <a class="btn btn--primary btn--sm" href="../downloads.html">डाउनलोड</a>
+        <button class="nav__toggle" id="navToggle" aria-label="मेन्यू टॉगल करें" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero page-hero--article">
+    <div class="container">
+      <span class="eyebrow">ईमेल, टर्मिनल और फ़ाइल ट्रांसफर</span>
+      <h1>पैकेट टर्मिनल</h1>
+      <p>मॉडेम और BBS के पुराने दिनों की तरह — क्लासिक पैकेट मोड में सीधे किसी दूसरे एंडपॉइंट को डेटा भेजें और प्राप्त करें, और साथ ही रेडियो APRS पर नज़र रखता रहे।</p>
+      <p class="article__back-top"><a href="../features.html">← सभी विशेषताएँ</a></p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <article class="article">
+
+        <figure class="post-figure">
+          <img src="../../assets/features/PacketTerminal.png" alt="Packet terminal in HTCommander" loading="lazy" />
+        </figure>
+
+        <h2>पैकेट रेडियो के लिए एक मॉडेम टर्मिनल</h2>
+        <p>HTCommander में एक अंतर्निहित टर्मिनल है जो आपको सीधे किसी दूसरे एंडपॉइंट को डेटा भेजने और प्राप्त करने देता है — आमने-सामने बातचीत करने या किसी दूरस्थ BBS से जुड़ने के लिए बढ़िया। टर्मिनल केवल उन ऑपरेटरों के लिए उपलब्ध है जिनके पास लाइसेंस है और जिन्होंने ऐप को प्रसारण की अनुमति दी है; अन्यथा यह विकल्प छिपा रहता है।</p>
+
+        <h2>कनेक्ट करना</h2>
+        <p>टर्मिनल टैब खोलें और नया कनेक्शन प्रोफ़ाइल बनाने या किसी मौजूदा से फिर से जुड़ने के लिए ऊपरी-दाएँ में <strong>Connect</strong> दबाएँ। दूरस्थ स्टेशन, उपयोग किया जाने वाला प्रोटोकॉल — फ़िलहाल RAW AX.25 फ़्रेम और APRS फ़्रेम — और जिस चैनल पर जुड़ना है, वह निर्दिष्ट करें। प्रोफ़ाइल बनते ही रेडियो अपने आप सही चैनल पर सेट हो जाता है और वहीं <strong>लॉक</strong> रहता है जब तक कि आप डिस्कनेक्ट न करें या रेडियो पर ही चैनल न बदलें।</p>
+
+        <h2>साधारण KISS से ज़्यादा स्मार्ट</h2>
+        <p>आपको टर्मिनल को APRS चैनल पर <strong>नहीं</strong> चलाना चाहिए — यह अन्य चैनलों पर उपयोग के लिए बना है। चतुराई की बात यह है कि जब टर्मिनल जुड़ा होता है, तब भी रेडियो APRS चैनल की निगरानी कर सकता है और आने वाले APRS संदेश दिखा सकता है, और आप मुख्य चैनल लॉक रहते हुए भी APRS संदेश भेज सकते हैं। चूँकि HTCommander समझता है कि कौन-सा चैनल कौन-सा है, यह APRS और टर्मिनल दोनों चैनलों की निगरानी और उन पर प्रसारण कर सकता है, बिना उस उलझन के जिसमें एक साधारण KISS सेटअप फँस जाता।</p>
+
+        <hr>
+        <p><em>सभी प्लेटफ़ॉर्म पर उपलब्ध: Windows, macOS, Linux, iOS, Android और वेब। साथ ही देखें: अंतर्निहित <a href="bbs.html">BBS</a>.</em></p>
+
+        <div class="article__foot">
+          <a class="btn btn--ghost" href="../features.html">← सभी विशेषताएँ</a>
+          <a class="btn btn--ghost" href="https://github.com/Ylianst/HTCommander/blob/main/docs/terminal.md" target="_blank" rel="noopener">GitHub पर स्रोत देखें →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="../index.html"><img src="../../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Benshi हैंडहेल्ड रेडियो के लिए एक क्रॉस-प्लेटफ़ॉर्म सहयोगी। हैम रेडियो समुदाय के लिए बनाया गया। प्रसारण के लिए एक हैम रेडियो लाइसेंस आवश्यक है।</p>
+        </div>
+        <div>
+          <h4>ऐप</h4>
+          <ul>
+            <li><a href="../index.html#features">विशेषताएँ</a></li>
+            <li><a href="../screens.html">स्क्रीन</a></li>
+            <li><a href="../features.html">विस्तार से</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>परियोजना</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">रिलीज़</a></li>
+            <li><a href="../blog.html">तकनीकी ब्लॉग</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">लाइसेंस प्राप्त करें</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>कानूनी</h4>
+          <ul>
+            <li><a href="../privacy.html">गोपनीयता नीति</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">लाइसेंस (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Apache 2.0 लाइसेंस के तहत जारी।</span>
+        <span>प्रसारण के लिए एक हैम रेडियो लाइसेंस आवश्यक है।</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/main.js?v=20260719"></script>
+  <script>window.HT_PAGE = { lang: "hi", page: "features/terminal.html", root: "../../" };</script>
+  <script src="../../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>

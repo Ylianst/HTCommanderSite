@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Filmy — HTCommander</title>
+  <meta name="description" content="Zobacz HTCommander w akcji — rosnąca kolekcja filmów społeczności, recenzji i dem wieloplatformowej (Flutter) wersji HTCommander, obejmująca APRS, SSTV, EchoLink, AllStarLink, satelity i więcej." />
+  <meta name="theme-color" content="#07090d" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    /* ---- Video gallery ---- */
+    .grid--videos { grid-template-columns: repeat(3, 1fr); }
+    .video {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      padding: 0;
+      overflow: hidden;
+      background: var(--bg-2, #11151c);
+      border: 1px solid var(--border, rgba(255,255,255,0.08));
+      border-radius: 14px;
+      cursor: pointer;
+      color: inherit;
+      font: inherit;
+      box-shadow: 0 14px 34px -12px rgba(23, 33, 46, 0.45);
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+    .video:hover { transform: translateY(-4px); border-color: var(--border-2, rgba(255,255,255,0.18)); }
+    .video:focus-visible { outline: 2px solid var(--accent-2, #57b6ff); outline-offset: 3px; }
+    .video__frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+    .video__frame img,
+    .video__frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      object-fit: cover;
+    }
+    .video__play {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 68px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(18, 18, 18, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+    .video:hover .video__play { background: #ff0000; transform: scale(1.06); }
+    .video__play svg { width: 26px; height: 26px; fill: #fff; }
+    .video__body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 6px; }
+    .video__body .kicker {
+      font-family: var(--font-mono, monospace);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-2, #57b6ff);
+      font-weight: 600;
+    }
+    .video__body h3 { font-size: 1.05rem; margin: 0; line-height: 1.35; }
+    .video__body p { font-size: 0.88rem; margin: 0; color: var(--text-dim, #9aa4b2); }
+    .video-divider {
+      grid-column: 1 / -1;
+      margin-top: 24px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+    }
+    .video-divider h2 { font-size: 1.5rem; margin-bottom: 8px; }
+    .video-divider p { margin: 0; }
+    @media (max-width: 900px) { .grid--videos { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 620px) { .grid--videos { grid-template-columns: 1fr; } }
+  </style>
+  <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/videos.html" />
+  <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/videos.html" />
+  <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/videos.html" />
+  <link rel="alternate" hreflang="es" href="https://ylianst.github.io/HTCommanderSite/es/videos.html" />
+  <link rel="alternate" hreflang="fr" href="https://ylianst.github.io/HTCommanderSite/fr/videos.html" />
+  <link rel="alternate" hreflang="hi" href="https://ylianst.github.io/HTCommanderSite/hi/videos.html" />
+  <link rel="alternate" hreflang="it" href="https://ylianst.github.io/HTCommanderSite/it/videos.html" />
+  <link rel="alternate" hreflang="ja" href="https://ylianst.github.io/HTCommanderSite/ja/videos.html" />
+  <link rel="alternate" hreflang="pl" href="https://ylianst.github.io/HTCommanderSite/pl/videos.html" />
+  <link rel="alternate" hreflang="zh" href="https://ylianst.github.io/HTCommanderSite/zh/videos.html" />
+</head>
+<body>
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">
+        <img src="../assets/img/appicon.png" alt="HTCommander icon" />
+        <span><b>HTCommander</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="features.html">Funkcje</a>
+        <a href="radios.html">Radiotelefony</a>
+        <a href="screens.html">Zrzuty ekranu</a>
+        <a href="videos.html">Filmy</a>
+        <a href="blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <div class="nav__lang" id="langSwitch"></div>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">Zobacz kod</a>
+        <a class="btn btn--primary btn--sm" href="downloads.html">Pobierz</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Przełącz menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= PAGE HERO ================= -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">Oglądaj</span>
+      <h1>HTCommander na wideo</h1>
+      <p>Recenzje, dema i przewodniki po wieloplatformowym HTCommander od społeczności krótkofalowców. Kliknij dowolną miniaturę, aby odtworzyć. Nagrałeś film? <a href="https://github.com/Ylianst/HTCommander/issues/2" target="_blank" rel="noopener">Daj nam znać</a> a dodamy go tutaj.</p>
+    </div>
+  </section>
+
+  <!-- ================= VIDEO GALLERY ================= -->
+  <section class="section--tight">
+    <div class="container">
+      <div class="grid grid--videos mt-40" id="videoGrid">
+        <!--
+          To add a new video, copy one <button class="video"> block below and change:
+            - data-id           : the YouTube video ID (the part after v= or youtu.be/)
+            - the <img> src      : https://i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg
+            - the kicker, title and channel text
+        -->
+
+        <button class="video" data-id="TOyZQanWZoo" aria-label="Play: HTCommander Messenger — Text interface we all know and love">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/TOyZQanWZoo/hqdefault.jpg" alt="HTCommander Messenger — Text interface we all know and love" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Demo · Messenger</span>
+            <h3>HTCommander Messenger — Text interface we all know and love</h3>
+            <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="5Izd6ltqZHs" aria-label="Play: HTCommander NOW ON iOS! Quick take">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/5Izd6ltqZHs/hqdefault.jpg" alt="HTCommander NOW ON iOS! Quick take" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Zapowiedź · iOS</span>
+            <h3>HTCommander NOW ON iOS! Quick take</h3>
+            <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="OC4dvPhCUbQ" aria-label="Play: HTCommander Full Setup plus MORE FEATURES!">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/OC4dvPhCUbQ/hqdefault.jpg" alt="HTCommander Full Setup plus MORE FEATURES!" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Konfiguracja · Funkcje</span>
+            <h3>HTCommander Full Setup plus MORE FEATURES!</h3>
+            <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="9ILIh2KX2eg" aria-label="Play: HTCommander and MAJOR update and features">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/9ILIh2KX2eg/hqdefault.jpg" alt="HTCommander and MAJOR update and features" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Demo · Aktualizacja</span>
+            <h3>HTCommander and MAJOR update and features</h3>
+            <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="Zk-jCas7JaU" aria-label="Play: Świetna aplikacja do... VGC vr-n76 SSTV, APRS">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/Zk-jCas7JaU/hqdefault.jpg" alt="Świetna aplikacja do... VGC vr-n76 SSTV, APRS" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Recenzja · Polski</span>
+            <h3>Świetna aplikacja do… VGC VR-N76 — SSTV, APRS</h3>
+            <p>Tom Papa Alfa</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="E2w6QrfS0lc" aria-label="Play: Radiotelefon VGC VR-N76 - sposób na odbiór APRS i SSTV na komputerze">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/E2w6QrfS0lc/hqdefault.jpg" alt="Radiotelefon VGC VR-N76 - sposób na odbiór APRS i SSTV na komputerze" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Recenzja · Polski</span>
+            <h3>Radiotelefon VGC VR-N76 — odbiór APRS i SSTV na komputerze</h3>
+            <p>Sierra Echo</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="Fk0Lk273tCk" aria-label="Play: HTCommander Android App Quick Take">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/Fk0Lk273tCk/hqdefault.jpg" alt="HTCommander Android App Quick Take" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Demo · Android</span>
+            <h3>HTCommander Android App Quick Take</h3>
+            <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="SD29e1QXGhY" aria-label="Play: HTCommander in action">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/SD29e1QXGhY/hqdefault.jpg" alt="HTCommander in action" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Demo</span>
+            <h3>HTCommander in action</h3>
+            <p>Wideo społeczności</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="aaq8fCZMkRg" aria-label="Play: Got a UV 50 Pro and let's look at the updated HTCommander">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/aaq8fCZMkRg/hqdefault.jpg" alt="Got a UV 50 Pro and let's look at the updated HTCommander" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Recenzja · Komputer</span>
+            <h3>Got a UV 50 Pro — a look at the updated HTCommander</h3>
+            <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="9iRg1hlt4Lo" aria-label="Play: HTCommander now with iGate, EchoLink, and Satellite">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/9iRg1hlt4Lo/hqdefault.jpg" alt="HTCommander now with iGate, EchoLink, and Satellite" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Demo · iGate · EchoLink · Satelita</span>
+            <h3>HTCommander now with iGate, EchoLink, and Satellite</h3>
+            <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <div class="video-divider">
+          <h2>Starszy HTCommander dla Windows</h2>
+          <p>Te filmy przedstawiają poprzednią, dostępną tylko dla Windows wersję HTCommander w C#.</p>
+        </div>
+
+        <button class="video" data-id="McIHckn4Kr4" aria-label="Play: VR-N76 &amp; UV-PRO | 3rd Party Apps &amp; HT Commander">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/McIHckn4Kr4/hqdefault.jpg" alt="VR-N76 and UV-PRO third-party apps and HT Commander" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Starsza wersja · Windows</span>
+            <h3>VR-N76 &amp; UV-PRO | 3rd Party Apps &amp; HT Commander</h3>
+            <p>The Comms Channel</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="JJ6E7fRQD7o" aria-label="Play: HTCommander - Introduction (VGC N76 &amp; BTECH UV-PRO)">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/JJ6E7fRQD7o/hqdefault.jpg" alt="HTCommander introduction for VGC N76 and BTECH UV-PRO" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Starsza wersja · Windows</span>
+            <h3>HTCommander — Introduction (VGC N76 &amp; BTECH UV-PRO)</h3>
+            <p>AAlliieennX</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="hGDAr2O57i8" aria-label="Play: HTCommander for Windows">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/hGDAr2O57i8/hqdefault.jpg" alt="HTCommander for Windows" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Starsza wersja · Windows</span>
+            <h3>HTCommander for Windows</h3>
+            <p>Wideo społeczności</p>
+          </span>
+        </button>
+
+        <div class="video-divider">
+          <h2>Playlisty HTCommander</h2>
+          <p>Obejrzyj pełną serię HTCommander i krótkie wprowadzenia.</p>
+        </div>
+
+        <button class="video" data-id="OC4dvPhCUbQ" data-list="PLCEgW9rVi_7Q" aria-label="Play playlist: HTCommander">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/OC4dvPhCUbQ/hqdefault.jpg" alt="HTCommander playlist" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Playlista · Cała seria</span>
+            <h3>HTCommander</h3>
+            <p>Alliance Amateur Radio Network</p>
+          </span>
+        </button>
+
+        <button class="video" data-id="l_OI8vwn0lM" aria-label="Play: HTCommander Short - Introduction">
+          <span class="video__frame">
+            <img src="https://i.ytimg.com/vi/l_OI8vwn0lM/hqdefault.jpg" alt="HTCommander Short - Introduction" loading="lazy" />
+            <span class="video__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          </span>
+          <span class="video__body">
+            <span class="kicker">Playlista · Shorty</span>
+            <h3>HTCommander Short - Introduction</h3>
+            <p>HTCommander</p>
+          </span>
+        </button>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a class="brand" href="index.html"><img src="../assets/img/appicon.png" alt="" /><span><b>HTCommander</b></span></a>
+          <p>Wieloplatformowy program towarzyszący dla radiotelefonów Benshi. Stworzony dla społeczności krótkofalowców. Do nadawania wymagane jest pozwolenie radioamatorskie.</p>
+        </div>
+        <div>
+          <h4>Aplikacja</h4>
+          <ul>
+            <li><a href="index.html#features">Funkcje</a></li>
+            <li><a href="screens.html">Zrzuty ekranu</a></li>
+            <li><a href="videos.html">Filmy</a></li>
+            <li><a href="features.html">Szczegóły</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Projekt</h4>
+          <ul>
+            <li><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/releases" target="_blank" rel="noopener">Wydania</a></li>
+            <li><a href="blog.html">Blog techniczny</a></li>
+            <li><a href="https://ylianst.github.io/HTCommander/spec/HTCommander-Spec.pdf" target="_blank" rel="noopener">Specyfikacja (PDF)</a></li>
+            <li><a href="https://www.arrl.org/getting-licensed" target="_blank" rel="noopener">Zdobądź pozwolenie</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Informacje prawne</h4>
+          <ul>
+            <li><a href="privacy.html">Polityka prywatności</a></li>
+            <li><a href="https://github.com/Ylianst/HTCommander/blob/main/LICENSE" target="_blank" rel="noopener">Licencja (Apache 2.0)</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 HTCommander. Udostępniono na licencji Apache 2.0.</span>
+        <span>Do nadawania wymagane jest pozwolenie radioamatorskie.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script>
+    // Click-to-play YouTube facade: load the iframe only when the user asks for it.
+    document.getElementById('videoGrid').addEventListener('click', function (e) {
+      var card = e.target.closest('.video');
+      if (!card || card.dataset.loaded) return;
+      var id = card.dataset.id;
+      if (!id) return;
+      var list = card.dataset.list;
+      var frame = card.querySelector('.video__frame');
+      var iframe = document.createElement('iframe');
+      iframe.src = list
+        ? 'https://www.youtube-nocookie.com/embed/videoseries?list=' + encodeURIComponent(list) + '&autoplay=1&rel=0'
+        : 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0';
+      iframe.title = card.getAttribute('aria-label') ? card.getAttribute('aria-label').replace(/^Play:\s*/, '') : 'YouTube video';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      frame.innerHTML = '';
+      frame.appendChild(iframe);
+      card.dataset.loaded = '1';
+    });
+  </script>
+  <script>window.HT_PAGE = { lang: "pl", page: "videos.html", root: "../" };</script>
+  <script src="../assets/js/i18n.js?v=20260719"></script>
+</body>
+</html>
