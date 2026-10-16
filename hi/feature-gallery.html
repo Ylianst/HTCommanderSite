@@ -7,7 +7,7 @@
   <meta name="description" content="HTCommander की विशेषताओं को अपनी गति से एक-एक करके देखें — Winlink, APRS, मानचित्र, चैनल प्रोग्रामिंग, फ़ाइल ट्रांसफर, SSTV, विमान ट्रैकिंग और बहुत कुछ।" />
   <meta name="theme-color" content="#e7ebf0" />
   <link rel="icon" href="../favicon.ico" />
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261016" />
   <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
   <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
   <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/feature-gallery.html" />
@@ -55,7 +55,7 @@
 
         <div class="gallery__viewport">
           <div class="gallery__stage" id="galleryStage" aria-live="polite">
-            <img class="gallery__image" id="galleryImage" src="" alt="" />
+            <picture><img class="gallery__image" id="galleryImage" src="" alt="" data-sizes="(max-width: 1180px) calc(100vw - 48px), 1132px" /></picture>
           </div>
           <div class="gallery__info">
             <h2 class="gallery__title" id="galleryTitle"></h2>
@@ -81,38 +81,38 @@
   <!-- Feature data (image / badge / title / description) -->
   <script type="application/json" id="galleryData">
   [
-    { "img": "../assets/features/Winlink.png", "badge": "ईमेल", "title": "Winlink ईमेल", "desc": "पैकेट रेडियो और इंटरनेट के ज़रिए Winlink ईमेल भेजें और प्राप्त करें, अटैचमेंट सहित, सीधे अपने रेडियो से।" },
-    { "img": "../assets/features/Aprs.png", "badge": "APRS", "title": "APRS संदेश", "desc": "APRS संदेश प्राप्त करें और भेजें, कस्टम रूट सेट करें, SMS के ज़रिए सामान्य फ़ोन पर संदेश भेजें और मौसम रिपोर्ट का अनुरोध करें।" },
-    { "img": "../assets/features/AprsMessaging.png", "badge": "APRS", "title": "अपने दोस्तों को संदेश भेजें", "desc": "APRS संदेश के ज़रिए दोस्तों से चैट करें और हर संपर्क के लिए एक व्यक्तिगत अवतार सेट करें ताकि आप सभी को एक नज़र में पहचान सकें।" },
-    { "img": "../assets/features/AprsPushMessaging.png", "badge": "APRS", "title": "APRS पुश संदेश", "desc": "Android और iOS पर APRS संदेश पुश नोटिफ़िकेशन के रूप में पाएं ताकि ऐप बंद होने पर भी आप संपर्क में रहें।" },
-    { "img": "../assets/features/AprsMap.png", "badge": "मानचित्र", "title": "लाइव APRS मानचित्र", "desc": "OpenStreetMap-संचालित एक मानचित्र आपके आस-पास की हर APRS स्टेशन को स्थिति इतिहास और स्टेशन विवरण के साथ दर्शाता है।" },
-    { "img": "../assets/features/Aprs-is.png", "badge": "APRS-IS", "title": "APRS-IS इंटरनेट गेटवे", "desc": "APRS-IS नेटवर्क से जुड़ें ताकि आप अपने रेडियो की रेंज से परे, इंटरनेट पर दुनिया भर के APRS ट्रैफ़िक को देख और आदान-प्रदान कर सकें।" },
-    { "img": "../assets/features/PacketTerminal.png", "badge": "टर्मिनल", "title": "पैकेट टर्मिनल", "desc": "अन्य स्टेशनों, उपयोगकर्ताओं और BBS के साथ पैकेट मोड में चैट करें, त्वरित पहुँच के लिए अंतर्निहित पता पुस्तिका के साथ।" },
-    { "img": "../assets/features/ChannelEditing.png", "badge": "चैनल", "title": "चैनल संपादन", "desc": "साफ़-सुथरे ड्रैग एंड ड्रॉप लेआउट के साथ तेज़ चैनल संपादन — नाम, आवृत्तियाँ, मोड, बैंडविड्थ, पावर और टोन।" },
-    { "img": "../assets/features/BatchChannelProgramming.png", "badge": "प्रोग्रामिंग", "title": "बैच चैनल प्रोग्रामिंग", "desc": "चैनल सूचियाँ आयात करें और प्रविष्टियों को रेडियो के स्लॉट में ड्रैग एंड ड्रॉप करके सेकंडों में एक पूरा मेमोरी बैंक प्रोग्राम करें।" },
-    { "img": "../assets/features/ChannelSharing.png", "badge": "साझाकरण", "title": "चैनल हवा में साझा करें", "desc": "फ़्रीक्वेंसी पर किसी को भी एक चैनल टैप करने योग्य संदेश के रूप में भेजें — वे बस टैप करके इसे अपने रेडियो में लोड कर लेते हैं।" },
-    { "img": "../assets/features/RadioSettings.png", "badge": "सेटिंग्स", "title": "पूर्ण रेडियो सेटिंग्स", "desc": "ऐप से रेडियो की हर सेटिंग समायोजित करें — PTT रिलीज़, बीकन, बटन, पेयर किए गए डिवाइस, ऑडियो, पावर, ट्रांसमिट, डिस्प्ले और उन्नत विकल्प।" },
-    { "img": "../assets/features/Contacts.png", "badge": "पता पुस्तिका", "title": "साझा पता पुस्तिका", "desc": "अपने APRS, Winlink और टर्मिनल संपर्कों को एक साझा पता पुस्तिका में रखें ताकि सही विवरण एक क्लिक दूर हों।" },
-    { "img": "../assets/features/FileTransferTorrent.png", "badge": "फ़ाइलें", "title": "टोरेंट फ़ाइल विनिमय", "desc": "1200-बॉड FM-AFSK पर कई-से-कई फ़ाइल ट्रांसफर, ताकि पूरा नेट एक साथ एक फ़ाइल साझा कर सके।" },
-    { "img": "../assets/features/SstvSupport.png", "badge": "SSTV", "title": "SSTV समर्थन", "desc": "HTCommander के माध्यम से सीधे स्लो-स्कैन टेलीविज़न छवियाँ भेजें और प्राप्त करें।" },
-    { "img": "../assets/features/Dump1090Airplanes.png", "badge": "ADS-B", "title": "विमान ट्रैकिंग", "desc": "dump1090 ADS-B एकीकरण के साथ पास के विमानों को रीयल टाइम में ट्रैक करें।" },
-    { "img": "../assets/features/SpeechToText.png", "badge": "आवाज़", "title": "वाक् से पाठ", "desc": "प्राप्त ऑडियो का रीयल-टाइम, ऑफ़लाइन वाक्-से-पाठ ट्रांसक्रिप्शन।" },
-    { "img": "../assets/features/MorseKey.png", "badge": "Morse", "title": "मोर्स कुंजी", "desc": "अंतर्निहित कुंजी और ऑन-स्क्रीन डिकोड के साथ HTCommander में सीधे मोर्स कोड (CW) भेजें और प्राप्त करें।" },
-    { "img": "../assets/features/FmBroadcastRadio.png", "badge": "रेडियो", "title": "FM प्रसारण रेडियो", "desc": "सामान्य FM प्रसारण रेडियो स्टेशनों को ट्यून करें और सुनें।" },
-    { "img": "../assets/features/PacketCapture.png", "badge": "पैकेट", "title": "पैकेट कैप्चर", "desc": "यह डीबग करने और समझने के लिए कि हवा में क्या है, कच्चे पैकेट ट्रैफ़िक को कैप्चर और निरीक्षण करें।" },
-    { "img": "../assets/features/HighPerformanceSoftwareModem.png", "badge": "मॉडेम", "title": "सॉफ़्टवेयर मॉडेम", "desc": "एक उच्च-प्रदर्शन, अंतर्निहित सॉफ़्टवेयर-परिभाषित मॉडेम — किसी बाहरी TNC की आवश्यकता नहीं।" },
-    { "img": "../assets/features/AudioControls.png", "badge": "ऑडियो", "title": "ऑडियो नियंत्रण", "desc": "स्तर मापन के साथ पूर्ण ऑडियो नियंत्रण, ताकि स्वच्छ और संतुलित ट्रांसमिट और रिसीव ऑडियो सेट किया जा सके।" },
-    { "img": "../assets/features/SerialGps.png", "badge": "GPS", "title": "सीरियल GPS", "desc": "लाइव पोज़िशनिंग और सटीक APRS बीकन के लिए एक सीरियल GPS कनेक्ट करें।" },
-    { "img": "../assets/features/SatelliteTracking.png", "badge": "उपग्रह", "title": "उपग्रह ट्रैकिंग", "desc": "लाइव पास प्रेडिक्शन, एंटीना एमिंग और डॉपलर-सुधारित अपलिंक और डाउनलिंक आवृत्तियों के साथ शौकिया रेडियो उपग्रहों को ट्रैक करें।" },
-    { "img": "../assets/features/AndroidAuto.png", "badge": "Android Auto", "title": "Android Auto", "desc": "अपने वाहन के Android Auto डिस्प्ले से चैनलों तक पहुँचें, कनेक्टेड रेडियो के बीच स्विच करें और APRS संदेशों का अनुसरण करें।" },
-    { "img": "../assets/features/Radiosonde.png", "badge": "रेडियोसॉन्ड", "title": "रेडियोसॉन्ड डिकोडिंग", "desc": "हवा में मौसम गुब्बारों को पकड़ें — कई परिवारों की रेडियोसॉन्ड को डिकोड करें और हर गुब्बारे के चढ़ने और उतरने को लाइव मानचित्र पर दर्शाएँ।" },
-    { "img": "../assets/features/MultiPlatform.png", "badge": "क्रॉस-प्लेटफ़ॉर्म", "title": "हर जगह चलता है", "desc": "एक ऐप जो ब्लूटूथ के ज़रिए Windows, macOS, Linux, iOS, Android और वेब पर चलती है।" },
-    { "img": "../assets/features/MultiLanguage.png", "badge": "भाषाएँ", "title": "कई भाषाएँ", "desc": "स्पेनिश से चीनी तक कई भाषाओं में अनुवादित, ताकि दुनिया भर के ऑपरेटर घर जैसा महसूस करें।" },
-    { "img": "../assets/features/LightAndDarkModes.png", "badge": "थीम", "title": "लाइट और डार्क थीम", "desc": "एक आधुनिक इंटरफ़ेस जो आपके सिस्टम की लाइट या डार्क थीम का अनुसरण करता है, दिन हो या रात, आँखों के लिए आरामदायक।" },
-    { "img": "../assets/features/EchoLink.png", "badge": "EchoLink", "title": "EchoLink लिंकिंग", "desc": "इंटरनेट पर EchoLink नोड्स, लिंक, रिपीटर और कॉन्फ़्रेंस से जुड़ें — कॉलसाइन या स्थान से खोजें और उन्हें चैनल के रूप में जोड़ें।" },
-    { "img": "../assets/features/OfflineCallsignLookup.png", "badge": "कॉलसाइन", "title": "ऑफ़लाइन कॉलसाइन खोज", "desc": "किसी भी कॉलसाइन को पूरी तरह ऑफ़लाइन देखें — देश, महाद्वीप और नाम, श्रेणी, स्थिति और समाप्ति जैसे पूर्ण लाइसेंस विवरण।" },
-    { "img": "../assets/features/MqttHomeAssistant.png", "badge": "Home Assistant", "title": "MQTT के ज़रिए Home Assistant", "desc": "MQTT के ज़रिए अपने Benshi हैंडहेल्ड को एक प्रथम-श्रेणी Home Assistant डिवाइस में बदलें — बैटरी, GPS, वॉल्यूम, स्क्वेल्च, स्कैन, चैनल और आने वाले APRS संदेश आपके डैशबोर्ड पर।" },
-    { "img": "../assets/features/RepeaterBook.png", "badge": "RepeaterBook", "title": "RepeaterBook आयात", "desc": "आस-पास के रिपीटर के लिए RepeaterBook.com निर्देशिका खोजें और उन्हें सीधे अपने रेडियो के चैनलों में खींचें। रिपीटर डेटा RepeaterBook.com के सौजन्य से।" }
+    { "img": "../assets/features/Winlink.png", "w": 1319, "h": 974, "widths": [640, 960, 1319], "badge": "ईमेल", "title": "Winlink ईमेल", "desc": "पैकेट रेडियो और इंटरनेट के ज़रिए Winlink ईमेल भेजें और प्राप्त करें, अटैचमेंट सहित, सीधे अपने रेडियो से।" },
+    { "img": "../assets/features/Aprs.png", "w": 1313, "h": 991, "widths": [640, 960, 1313], "badge": "APRS", "title": "APRS संदेश", "desc": "APRS संदेश प्राप्त करें और भेजें, कस्टम रूट सेट करें, SMS के ज़रिए सामान्य फ़ोन पर संदेश भेजें और मौसम रिपोर्ट का अनुरोध करें।" },
+    { "img": "../assets/features/AprsMessaging.png", "w": 1218, "h": 918, "widths": [640, 960, 1218], "badge": "APRS", "title": "अपने दोस्तों को संदेश भेजें", "desc": "APRS संदेश के ज़रिए दोस्तों से चैट करें और हर संपर्क के लिए एक व्यक्तिगत अवतार सेट करें ताकि आप सभी को एक नज़र में पहचान सकें।" },
+    { "img": "../assets/features/AprsPushMessaging.png", "w": 1249, "h": 1010, "widths": [640, 960, 1249], "badge": "APRS", "title": "APRS पुश संदेश", "desc": "Android और iOS पर APRS संदेश पुश नोटिफ़िकेशन के रूप में पाएं ताकि ऐप बंद होने पर भी आप संपर्क में रहें।" },
+    { "img": "../assets/features/AprsMap.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "मानचित्र", "title": "लाइव APRS मानचित्र", "desc": "OpenStreetMap-संचालित एक मानचित्र आपके आस-पास की हर APRS स्टेशन को स्थिति इतिहास और स्टेशन विवरण के साथ दर्शाता है।" },
+    { "img": "../assets/features/Aprs-is.png", "w": 1241, "h": 919, "widths": [640, 960, 1241], "badge": "APRS-IS", "title": "APRS-IS इंटरनेट गेटवे", "desc": "APRS-IS नेटवर्क से जुड़ें ताकि आप अपने रेडियो की रेंज से परे, इंटरनेट पर दुनिया भर के APRS ट्रैफ़िक को देख और आदान-प्रदान कर सकें।" },
+    { "img": "../assets/features/PacketTerminal.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "टर्मिनल", "title": "पैकेट टर्मिनल", "desc": "अन्य स्टेशनों, उपयोगकर्ताओं और BBS के साथ पैकेट मोड में चैट करें, त्वरित पहुँच के लिए अंतर्निहित पता पुस्तिका के साथ।" },
+    { "img": "../assets/features/ChannelEditing.png", "w": 1237, "h": 978, "widths": [640, 960, 1237], "badge": "चैनल", "title": "चैनल संपादन", "desc": "साफ़-सुथरे ड्रैग एंड ड्रॉप लेआउट के साथ तेज़ चैनल संपादन — नाम, आवृत्तियाँ, मोड, बैंडविड्थ, पावर और टोन।" },
+    { "img": "../assets/features/BatchChannelProgramming.png", "w": 1244, "h": 971, "widths": [640, 960, 1244], "badge": "प्रोग्रामिंग", "title": "बैच चैनल प्रोग्रामिंग", "desc": "चैनल सूचियाँ आयात करें और प्रविष्टियों को रेडियो के स्लॉट में ड्रैग एंड ड्रॉप करके सेकंडों में एक पूरा मेमोरी बैंक प्रोग्राम करें।" },
+    { "img": "../assets/features/ChannelSharing.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "साझाकरण", "title": "चैनल हवा में साझा करें", "desc": "फ़्रीक्वेंसी पर किसी को भी एक चैनल टैप करने योग्य संदेश के रूप में भेजें — वे बस टैप करके इसे अपने रेडियो में लोड कर लेते हैं।" },
+    { "img": "../assets/features/RadioSettings.png", "w": 1444, "h": 1023, "widths": [640, 960, 1444], "badge": "सेटिंग्स", "title": "पूर्ण रेडियो सेटिंग्स", "desc": "ऐप से रेडियो की हर सेटिंग समायोजित करें — PTT रिलीज़, बीकन, बटन, पेयर किए गए डिवाइस, ऑडियो, पावर, ट्रांसमिट, डिस्प्ले और उन्नत विकल्प।" },
+    { "img": "../assets/features/Contacts.png", "w": 1313, "h": 958, "widths": [640, 960, 1313], "badge": "पता पुस्तिका", "title": "साझा पता पुस्तिका", "desc": "अपने APRS, Winlink और टर्मिनल संपर्कों को एक साझा पता पुस्तिका में रखें ताकि सही विवरण एक क्लिक दूर हों।" },
+    { "img": "../assets/features/FileTransferTorrent.png", "w": 1329, "h": 921, "widths": [640, 960, 1329], "badge": "फ़ाइलें", "title": "टोरेंट फ़ाइल विनिमय", "desc": "1200-बॉड FM-AFSK पर कई-से-कई फ़ाइल ट्रांसफर, ताकि पूरा नेट एक साथ एक फ़ाइल साझा कर सके।" },
+    { "img": "../assets/features/SstvSupport.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "SSTV", "title": "SSTV समर्थन", "desc": "HTCommander के माध्यम से सीधे स्लो-स्कैन टेलीविज़न छवियाँ भेजें और प्राप्त करें।" },
+    { "img": "../assets/features/Dump1090Airplanes.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "ADS-B", "title": "विमान ट्रैकिंग", "desc": "dump1090 ADS-B एकीकरण के साथ पास के विमानों को रीयल टाइम में ट्रैक करें।" },
+    { "img": "../assets/features/SpeechToText.png", "w": 1391, "h": 991, "widths": [640, 960, 1391], "badge": "आवाज़", "title": "वाक् से पाठ", "desc": "प्राप्त ऑडियो का रीयल-टाइम, ऑफ़लाइन वाक्-से-पाठ ट्रांसक्रिप्शन।" },
+    { "img": "../assets/features/MorseKey.png", "w": 1372, "h": 969, "widths": [640, 960, 1372], "badge": "Morse", "title": "मोर्स कुंजी", "desc": "अंतर्निहित कुंजी और ऑन-स्क्रीन डिकोड के साथ HTCommander में सीधे मोर्स कोड (CW) भेजें और प्राप्त करें।" },
+    { "img": "../assets/features/FmBroadcastRadio.png", "w": 1322, "h": 1027, "widths": [640, 960, 1322], "badge": "रेडियो", "title": "FM प्रसारण रेडियो", "desc": "सामान्य FM प्रसारण रेडियो स्टेशनों को ट्यून करें और सुनें।" },
+    { "img": "../assets/features/PacketCapture.png", "w": 1236, "h": 913, "widths": [640, 960, 1236], "badge": "पैकेट", "title": "पैकेट कैप्चर", "desc": "यह डीबग करने और समझने के लिए कि हवा में क्या है, कच्चे पैकेट ट्रैफ़िक को कैप्चर और निरीक्षण करें।" },
+    { "img": "../assets/features/HighPerformanceSoftwareModem.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "मॉडेम", "title": "सॉफ़्टवेयर मॉडेम", "desc": "एक उच्च-प्रदर्शन, अंतर्निहित सॉफ़्टवेयर-परिभाषित मॉडेम — किसी बाहरी TNC की आवश्यकता नहीं।" },
+    { "img": "../assets/features/AudioControls.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "ऑडियो", "title": "ऑडियो नियंत्रण", "desc": "स्तर मापन के साथ पूर्ण ऑडियो नियंत्रण, ताकि स्वच्छ और संतुलित ट्रांसमिट और रिसीव ऑडियो सेट किया जा सके।" },
+    { "img": "../assets/features/SerialGps.png", "w": 1416, "h": 1006, "widths": [640, 960, 1416], "badge": "GPS", "title": "सीरियल GPS", "desc": "लाइव पोज़िशनिंग और सटीक APRS बीकन के लिए एक सीरियल GPS कनेक्ट करें।" },
+    { "img": "../assets/features/SatelliteTracking.png", "w": 1350, "h": 920, "widths": [640, 960, 1350], "badge": "उपग्रह", "title": "उपग्रह ट्रैकिंग", "desc": "लाइव पास प्रेडिक्शन, एंटीना एमिंग और डॉपलर-सुधारित अपलिंक और डाउनलिंक आवृत्तियों के साथ शौकिया रेडियो उपग्रहों को ट्रैक करें।" },
+    { "img": "../assets/features/AndroidAuto.png", "w": 1372, "h": 929, "widths": [640, 960, 1372], "badge": "Android Auto", "title": "Android Auto", "desc": "अपने वाहन के Android Auto डिस्प्ले से चैनलों तक पहुँचें, कनेक्टेड रेडियो के बीच स्विच करें और APRS संदेशों का अनुसरण करें।" },
+    { "img": "../assets/features/Radiosonde.png", "w": 1313, "h": 944, "widths": [640, 960, 1313], "badge": "रेडियोसॉन्ड", "title": "रेडियोसॉन्ड डिकोडिंग", "desc": "हवा में मौसम गुब्बारों को पकड़ें — कई परिवारों की रेडियोसॉन्ड को डिकोड करें और हर गुब्बारे के चढ़ने और उतरने को लाइव मानचित्र पर दर्शाएँ।" },
+    { "img": "../assets/features/MultiPlatform.png", "w": 1305, "h": 791, "widths": [640, 960, 1305], "badge": "क्रॉस-प्लेटफ़ॉर्म", "title": "हर जगह चलता है", "desc": "एक ऐप जो ब्लूटूथ के ज़रिए Windows, macOS, Linux, iOS, Android और वेब पर चलती है।" },
+    { "img": "../assets/features/MultiLanguage.png", "w": 1406, "h": 893, "widths": [640, 960, 1406], "badge": "भाषाएँ", "title": "कई भाषाएँ", "desc": "स्पेनिश से चीनी तक कई भाषाओं में अनुवादित, ताकि दुनिया भर के ऑपरेटर घर जैसा महसूस करें।" },
+    { "img": "../assets/features/LightAndDarkModes.png", "w": 1213, "h": 773, "widths": [640, 960, 1213], "badge": "थीम", "title": "लाइट और डार्क थीम", "desc": "एक आधुनिक इंटरफ़ेस जो आपके सिस्टम की लाइट या डार्क थीम का अनुसरण करता है, दिन हो या रात, आँखों के लिए आरामदायक।" },
+    { "img": "../assets/features/EchoLink.png", "w": 1370, "h": 964, "widths": [640, 960, 1370], "badge": "EchoLink", "title": "EchoLink लिंकिंग", "desc": "इंटरनेट पर EchoLink नोड्स, लिंक, रिपीटर और कॉन्फ़्रेंस से जुड़ें — कॉलसाइन या स्थान से खोजें और उन्हें चैनल के रूप में जोड़ें।" },
+    { "img": "../assets/features/OfflineCallsignLookup.png", "w": 1258, "h": 921, "widths": [640, 960, 1258], "badge": "कॉलसाइन", "title": "ऑफ़लाइन कॉलसाइन खोज", "desc": "किसी भी कॉलसाइन को पूरी तरह ऑफ़लाइन देखें — देश, महाद्वीप और नाम, श्रेणी, स्थिति और समाप्ति जैसे पूर्ण लाइसेंस विवरण।" },
+    { "img": "../assets/features/MqttHomeAssistant.png", "w": 1298, "h": 988, "widths": [640, 960, 1298], "badge": "Home Assistant", "title": "MQTT के ज़रिए Home Assistant", "desc": "MQTT के ज़रिए अपने Benshi हैंडहेल्ड को एक प्रथम-श्रेणी Home Assistant डिवाइस में बदलें — बैटरी, GPS, वॉल्यूम, स्क्वेल्च, स्कैन, चैनल और आने वाले APRS संदेश आपके डैशबोर्ड पर।" },
+    { "img": "../assets/features/RepeaterBook.png", "w": 1201, "h": 919, "widths": [640, 960, 1201], "badge": "RepeaterBook", "title": "RepeaterBook आयात", "desc": "आस-पास के रिपीटर के लिए RepeaterBook.com निर्देशिका खोजें और उन्हें सीधे अपने रेडियो के चैनलों में खींचें। रिपीटर डेटा RepeaterBook.com के सौजन्य से।" }
   ]
   </script>
 
@@ -157,8 +157,8 @@
     </div>
   </footer>
 
-  <script src="../assets/js/main.js?v=20260719"></script>
+  <script src="../assets/js/main.js?v=20261016"></script>
   <script>window.HT_PAGE = { lang: "hi", page: "feature-gallery.html", root: "../" };</script>
-  <script src="../assets/js/i18n.js?v=20260719"></script>
+  <script src="../assets/js/i18n.js?v=20261016"></script>
 </body>
 </html>

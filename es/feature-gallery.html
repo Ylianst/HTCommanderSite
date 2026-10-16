@@ -7,7 +7,7 @@
   <meta name="description" content="Explora las funciones de HTCommander una a una y a tu ritmo: Winlink, APRS, mapas, programación de canales, transferencia de archivos, SSTV, seguimiento de aeronaves y mucho más." />
   <meta name="theme-color" content="#e7ebf0" />
   <link rel="icon" href="../favicon.ico" />
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261016" />
   <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
   <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
   <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/feature-gallery.html" />
@@ -55,7 +55,7 @@
 
         <div class="gallery__viewport">
           <div class="gallery__stage" id="galleryStage" aria-live="polite">
-            <img class="gallery__image" id="galleryImage" src="" alt="" />
+            <picture><img class="gallery__image" id="galleryImage" src="" alt="" data-sizes="(max-width: 1180px) calc(100vw - 48px), 1132px" /></picture>
           </div>
           <div class="gallery__info">
             <h2 class="gallery__title" id="galleryTitle"></h2>
@@ -81,38 +81,38 @@
   <!-- Feature data (image / badge / title / description) -->
   <script type="application/json" id="galleryData">
   [
-    { "img": "../assets/features/Winlink.png", "badge": "Correo", "title": "Correo Winlink", "desc": "Envía y recibe correo Winlink por radio de paquetes y por Internet, con archivos adjuntos, directamente desde tu radio." },
-    { "img": "../assets/features/Aprs.png", "badge": "APRS", "title": "Mensajería APRS", "desc": "Recibe y envía mensajes APRS, define rutas personalizadas, escribe a teléfonos normales por SMS y solicita informes meteorológicos." },
-    { "img": "../assets/features/AprsMessaging.png", "badge": "APRS", "title": "Mensajea a tus amigos", "desc": "Chatea con amigos mediante mensajería APRS y asigna un avatar personal a cada contacto para distinguir a todos de un vistazo." },
-    { "img": "../assets/features/AprsPushMessaging.png", "badge": "APRS", "title": "Mensajería push de APRS", "desc": "Recibe mensajes APRS como notificaciones push en Android e iOS para seguir en contacto aunque la app no esté abierta." },
-    { "img": "../assets/features/AprsMap.png", "badge": "Mapa", "title": "Mapa APRS en vivo", "desc": "Un mapa basado en OpenStreetMap ubica cada estación APRS a tu alrededor con historial de posiciones y detalle de estación." },
-    { "img": "../assets/features/Aprs-is.png", "badge": "APRS-IS", "title": "Pasarela de Internet APRS-IS", "desc": "Conéctate a la red APRS-IS para ver e intercambiar tráfico APRS de todo el mundo por Internet, más allá del alcance de tu radio." },
-    { "img": "../assets/features/PacketTerminal.png", "badge": "Terminal", "title": "Terminal de paquetes", "desc": "Chatea en modo paquete con otras estaciones, usuarios y BBS, con una agenda integrada para un acceso rápido." },
-    { "img": "../assets/features/ChannelEditing.png", "badge": "Canales", "title": "Edición de canales", "desc": "Edición rápida de canales con un diseño limpio de arrastrar y soltar: nombre, frecuencias, modo, ancho de banda, potencia y tonos." },
-    { "img": "../assets/features/BatchChannelProgramming.png", "badge": "Programación", "title": "Programación de canales por lotes", "desc": "Importa listas de canales y arrastra las entradas a las ranuras de la radio para programar un banco de memoria completo en segundos." },
-    { "img": "../assets/features/ChannelSharing.png", "badge": "Compartir", "title": "Comparte canales por el aire", "desc": "Envía un canal a cualquiera en la frecuencia como un mensaje que se puede tocar: solo tienen que tocarlo para cargarlo en su propia radio." },
-    { "img": "../assets/features/RadioSettings.png", "badge": "Ajustes", "title": "Ajustes completos de la radio", "desc": "Ajusta cada opción de la radio desde la app: liberación de PTT, baliza, botones, dispositivos emparejados, audio, potencia, transmisión, pantalla y opciones avanzadas." },
-    { "img": "../assets/features/Contacts.png", "badge": "Agenda", "title": "Agenda compartida", "desc": "Guarda tus contactos de APRS, Winlink y terminal en una agenda compartida para tener los datos correctos a un clic." },
-    { "img": "../assets/features/FileTransferTorrent.png", "badge": "Archivos", "title": "Intercambio de archivos por torrent", "desc": "Transferencia de archivos de muchos a muchos por FM-AFSK a 1200 baudios, para que toda una red comparta un archivo a la vez." },
-    { "img": "../assets/features/SstvSupport.png", "badge": "SSTV", "title": "Compatibilidad con SSTV", "desc": "Envía y recibe imágenes de televisión de barrido lento directamente a través de HTCommander." },
-    { "img": "../assets/features/Dump1090Airplanes.png", "badge": "ADS-B", "title": "Seguimiento de aeronaves", "desc": "Rastrea aeronaves cercanas en tiempo real con la integración ADS-B de dump1090." },
-    { "img": "../assets/features/SpeechToText.png", "badge": "Voz", "title": "Voz a texto", "desc": "Transcripción de voz a texto en tiempo real y sin conexión del audio recibido." },
-    { "img": "../assets/features/MorseKey.png", "badge": "Morse", "title": "Manipulador de código Morse", "desc": "Envía y recibe código Morse (CW) directamente en HTCommander, con un manipulador integrado y decodificación en pantalla." },
-    { "img": "../assets/features/FmBroadcastRadio.png", "badge": "Radio", "title": "Radio FM comercial", "desc": "Sintoniza y escucha emisoras de radio FM comerciales normales." },
-    { "img": "../assets/features/PacketCapture.png", "badge": "Paquetes", "title": "Captura de paquetes", "desc": "Captura e inspecciona el tráfico de paquetes en bruto para depurar y entender qué hay en el aire." },
-    { "img": "../assets/features/HighPerformanceSoftwareModem.png", "badge": "Módem", "title": "Módem por software", "desc": "Un módem definido por software, integrado y de alto rendimiento: sin necesidad de un TNC externo." },
-    { "img": "../assets/features/AudioControls.png", "badge": "Audio", "title": "Controles de audio", "desc": "Controles de audio completos con medición de niveles para lograr un audio de transmisión y recepción limpio y equilibrado." },
-    { "img": "../assets/features/SerialGps.png", "badge": "GPS", "title": "GPS serie", "desc": "Conecta un GPS serie para posicionamiento en vivo y balizas APRS precisas." },
-    { "img": "../assets/features/SatelliteTracking.png", "badge": "Satélite", "title": "Seguimiento de satélites", "desc": "Rastrea satélites de radioaficionado con predicciones de paso en vivo, apuntado de antena y frecuencias de subida y bajada corregidas por Doppler." },
-    { "img": "../assets/features/AndroidAuto.png", "badge": "Android Auto", "title": "Android Auto", "desc": "Accede a los canales, cambia entre radios conectadas y sigue los mensajes APRS desde la pantalla de Android Auto de tu vehículo." },
-    { "img": "../assets/features/Radiosonde.png", "badge": "Radiosonda", "title": "Decodificación de radiosondas", "desc": "Capta globos meteorológicos en el aire: decodifica radiosondas de varias familias y traza el ascenso y descenso de cada globo en el mapa en vivo." },
-    { "img": "../assets/features/MultiPlatform.png", "badge": "Multiplataforma", "title": "Funciona en todas partes", "desc": "Una sola app que funciona en Windows, macOS, Linux, iOS, Android y la web por Bluetooth." },
-    { "img": "../assets/features/MultiLanguage.png", "badge": "Idiomas", "title": "Varios idiomas", "desc": "Traducida a muchos idiomas, del español al chino, para que los operadores de todo el mundo se sientan como en casa." },
-    { "img": "../assets/features/LightAndDarkModes.png", "badge": "Temas", "title": "Temas claro y oscuro", "desc": "Una interfaz moderna que sigue el tema claro u oscuro de tu sistema, cómoda para la vista de día o de noche." },
-    { "img": "../assets/features/EchoLink.png", "badge": "EchoLink", "title": "Conexión EchoLink", "desc": "Conéctate a nodos, enlaces, repetidores y conferencias de EchoLink por Internet: busca por indicativo o ubicación y añádelos como canales." },
-    { "img": "../assets/features/OfflineCallsignLookup.png", "badge": "Indicativo", "title": "Búsqueda de indicativos sin conexión", "desc": "Consulta cualquier indicativo totalmente sin conexión: país, continente y todos los datos de la licencia como nombre, clase, estado y caducidad." },
-    { "img": "../assets/features/MqttHomeAssistant.png", "badge": "Home Assistant", "title": "Home Assistant por MQTT", "desc": "Convierte tu portátil Benshi en un dispositivo Home Assistant de primera clase por MQTT: batería, GPS, volumen, silenciador, escaneo, canales y mensajes APRS entrantes en tu panel." },
-    { "img": "../assets/features/RepeaterBook.png", "badge": "RepeaterBook", "title": "Importación desde RepeaterBook", "desc": "Busca repetidores cercanos en el directorio de RepeaterBook.com y arrástralos directamente a los canales de tu radio. Datos de repetidores cortesía de RepeaterBook.com." }
+    { "img": "../assets/features/Winlink.png", "w": 1319, "h": 974, "widths": [640, 960, 1319], "badge": "Correo", "title": "Correo Winlink", "desc": "Envía y recibe correo Winlink por radio de paquetes y por Internet, con archivos adjuntos, directamente desde tu radio." },
+    { "img": "../assets/features/Aprs.png", "w": 1313, "h": 991, "widths": [640, 960, 1313], "badge": "APRS", "title": "Mensajería APRS", "desc": "Recibe y envía mensajes APRS, define rutas personalizadas, escribe a teléfonos normales por SMS y solicita informes meteorológicos." },
+    { "img": "../assets/features/AprsMessaging.png", "w": 1218, "h": 918, "widths": [640, 960, 1218], "badge": "APRS", "title": "Mensajea a tus amigos", "desc": "Chatea con amigos mediante mensajería APRS y asigna un avatar personal a cada contacto para distinguir a todos de un vistazo." },
+    { "img": "../assets/features/AprsPushMessaging.png", "w": 1249, "h": 1010, "widths": [640, 960, 1249], "badge": "APRS", "title": "Mensajería push de APRS", "desc": "Recibe mensajes APRS como notificaciones push en Android e iOS para seguir en contacto aunque la app no esté abierta." },
+    { "img": "../assets/features/AprsMap.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "Mapa", "title": "Mapa APRS en vivo", "desc": "Un mapa basado en OpenStreetMap ubica cada estación APRS a tu alrededor con historial de posiciones y detalle de estación." },
+    { "img": "../assets/features/Aprs-is.png", "w": 1241, "h": 919, "widths": [640, 960, 1241], "badge": "APRS-IS", "title": "Pasarela de Internet APRS-IS", "desc": "Conéctate a la red APRS-IS para ver e intercambiar tráfico APRS de todo el mundo por Internet, más allá del alcance de tu radio." },
+    { "img": "../assets/features/PacketTerminal.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "Terminal", "title": "Terminal de paquetes", "desc": "Chatea en modo paquete con otras estaciones, usuarios y BBS, con una agenda integrada para un acceso rápido." },
+    { "img": "../assets/features/ChannelEditing.png", "w": 1237, "h": 978, "widths": [640, 960, 1237], "badge": "Canales", "title": "Edición de canales", "desc": "Edición rápida de canales con un diseño limpio de arrastrar y soltar: nombre, frecuencias, modo, ancho de banda, potencia y tonos." },
+    { "img": "../assets/features/BatchChannelProgramming.png", "w": 1244, "h": 971, "widths": [640, 960, 1244], "badge": "Programación", "title": "Programación de canales por lotes", "desc": "Importa listas de canales y arrastra las entradas a las ranuras de la radio para programar un banco de memoria completo en segundos." },
+    { "img": "../assets/features/ChannelSharing.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "Compartir", "title": "Comparte canales por el aire", "desc": "Envía un canal a cualquiera en la frecuencia como un mensaje que se puede tocar: solo tienen que tocarlo para cargarlo en su propia radio." },
+    { "img": "../assets/features/RadioSettings.png", "w": 1444, "h": 1023, "widths": [640, 960, 1444], "badge": "Ajustes", "title": "Ajustes completos de la radio", "desc": "Ajusta cada opción de la radio desde la app: liberación de PTT, baliza, botones, dispositivos emparejados, audio, potencia, transmisión, pantalla y opciones avanzadas." },
+    { "img": "../assets/features/Contacts.png", "w": 1313, "h": 958, "widths": [640, 960, 1313], "badge": "Agenda", "title": "Agenda compartida", "desc": "Guarda tus contactos de APRS, Winlink y terminal en una agenda compartida para tener los datos correctos a un clic." },
+    { "img": "../assets/features/FileTransferTorrent.png", "w": 1329, "h": 921, "widths": [640, 960, 1329], "badge": "Archivos", "title": "Intercambio de archivos por torrent", "desc": "Transferencia de archivos de muchos a muchos por FM-AFSK a 1200 baudios, para que toda una red comparta un archivo a la vez." },
+    { "img": "../assets/features/SstvSupport.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "SSTV", "title": "Compatibilidad con SSTV", "desc": "Envía y recibe imágenes de televisión de barrido lento directamente a través de HTCommander." },
+    { "img": "../assets/features/Dump1090Airplanes.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "ADS-B", "title": "Seguimiento de aeronaves", "desc": "Rastrea aeronaves cercanas en tiempo real con la integración ADS-B de dump1090." },
+    { "img": "../assets/features/SpeechToText.png", "w": 1391, "h": 991, "widths": [640, 960, 1391], "badge": "Voz", "title": "Voz a texto", "desc": "Transcripción de voz a texto en tiempo real y sin conexión del audio recibido." },
+    { "img": "../assets/features/MorseKey.png", "w": 1372, "h": 969, "widths": [640, 960, 1372], "badge": "Morse", "title": "Manipulador de código Morse", "desc": "Envía y recibe código Morse (CW) directamente en HTCommander, con un manipulador integrado y decodificación en pantalla." },
+    { "img": "../assets/features/FmBroadcastRadio.png", "w": 1322, "h": 1027, "widths": [640, 960, 1322], "badge": "Radio", "title": "Radio FM comercial", "desc": "Sintoniza y escucha emisoras de radio FM comerciales normales." },
+    { "img": "../assets/features/PacketCapture.png", "w": 1236, "h": 913, "widths": [640, 960, 1236], "badge": "Paquetes", "title": "Captura de paquetes", "desc": "Captura e inspecciona el tráfico de paquetes en bruto para depurar y entender qué hay en el aire." },
+    { "img": "../assets/features/HighPerformanceSoftwareModem.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "Módem", "title": "Módem por software", "desc": "Un módem definido por software, integrado y de alto rendimiento: sin necesidad de un TNC externo." },
+    { "img": "../assets/features/AudioControls.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "Audio", "title": "Controles de audio", "desc": "Controles de audio completos con medición de niveles para lograr un audio de transmisión y recepción limpio y equilibrado." },
+    { "img": "../assets/features/SerialGps.png", "w": 1416, "h": 1006, "widths": [640, 960, 1416], "badge": "GPS", "title": "GPS serie", "desc": "Conecta un GPS serie para posicionamiento en vivo y balizas APRS precisas." },
+    { "img": "../assets/features/SatelliteTracking.png", "w": 1350, "h": 920, "widths": [640, 960, 1350], "badge": "Satélite", "title": "Seguimiento de satélites", "desc": "Rastrea satélites de radioaficionado con predicciones de paso en vivo, apuntado de antena y frecuencias de subida y bajada corregidas por Doppler." },
+    { "img": "../assets/features/AndroidAuto.png", "w": 1372, "h": 929, "widths": [640, 960, 1372], "badge": "Android Auto", "title": "Android Auto", "desc": "Accede a los canales, cambia entre radios conectadas y sigue los mensajes APRS desde la pantalla de Android Auto de tu vehículo." },
+    { "img": "../assets/features/Radiosonde.png", "w": 1313, "h": 944, "widths": [640, 960, 1313], "badge": "Radiosonda", "title": "Decodificación de radiosondas", "desc": "Capta globos meteorológicos en el aire: decodifica radiosondas de varias familias y traza el ascenso y descenso de cada globo en el mapa en vivo." },
+    { "img": "../assets/features/MultiPlatform.png", "w": 1305, "h": 791, "widths": [640, 960, 1305], "badge": "Multiplataforma", "title": "Funciona en todas partes", "desc": "Una sola app que funciona en Windows, macOS, Linux, iOS, Android y la web por Bluetooth." },
+    { "img": "../assets/features/MultiLanguage.png", "w": 1406, "h": 893, "widths": [640, 960, 1406], "badge": "Idiomas", "title": "Varios idiomas", "desc": "Traducida a muchos idiomas, del español al chino, para que los operadores de todo el mundo se sientan como en casa." },
+    { "img": "../assets/features/LightAndDarkModes.png", "w": 1213, "h": 773, "widths": [640, 960, 1213], "badge": "Temas", "title": "Temas claro y oscuro", "desc": "Una interfaz moderna que sigue el tema claro u oscuro de tu sistema, cómoda para la vista de día o de noche." },
+    { "img": "../assets/features/EchoLink.png", "w": 1370, "h": 964, "widths": [640, 960, 1370], "badge": "EchoLink", "title": "Conexión EchoLink", "desc": "Conéctate a nodos, enlaces, repetidores y conferencias de EchoLink por Internet: busca por indicativo o ubicación y añádelos como canales." },
+    { "img": "../assets/features/OfflineCallsignLookup.png", "w": 1258, "h": 921, "widths": [640, 960, 1258], "badge": "Indicativo", "title": "Búsqueda de indicativos sin conexión", "desc": "Consulta cualquier indicativo totalmente sin conexión: país, continente y todos los datos de la licencia como nombre, clase, estado y caducidad." },
+    { "img": "../assets/features/MqttHomeAssistant.png", "w": 1298, "h": 988, "widths": [640, 960, 1298], "badge": "Home Assistant", "title": "Home Assistant por MQTT", "desc": "Convierte tu portátil Benshi en un dispositivo Home Assistant de primera clase por MQTT: batería, GPS, volumen, silenciador, escaneo, canales y mensajes APRS entrantes en tu panel." },
+    { "img": "../assets/features/RepeaterBook.png", "w": 1201, "h": 919, "widths": [640, 960, 1201], "badge": "RepeaterBook", "title": "Importación desde RepeaterBook", "desc": "Busca repetidores cercanos en el directorio de RepeaterBook.com y arrástralos directamente a los canales de tu radio. Datos de repetidores cortesía de RepeaterBook.com." }
   ]
   </script>
 
@@ -157,8 +157,8 @@
     </div>
   </footer>
 
-  <script src="../assets/js/main.js?v=20260719"></script>
+  <script src="../assets/js/main.js?v=20261016"></script>
   <script>window.HT_PAGE = { lang: "es", page: "feature-gallery.html", root: "../" };</script>
-  <script src="../assets/js/i18n.js?v=20260719"></script>
+  <script src="../assets/js/i18n.js?v=20261016"></script>
 </body>
 </html>

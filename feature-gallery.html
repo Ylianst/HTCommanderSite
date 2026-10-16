@@ -7,7 +7,7 @@
   <meta name="description" content="Browse HTCommander's features one at a time at your own pace — Winlink, APRS, maps, channel programming, file transfer, SSTV, aircraft tracking and more." />
   <meta name="theme-color" content="#e7ebf0" />
   <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="assets/css/style.css?v=20260719" />
+  <link rel="stylesheet" href="assets/css/style.css?v=20261016" />
   <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
   <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
   <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/feature-gallery.html" />
@@ -55,7 +55,7 @@
 
         <div class="gallery__viewport">
           <div class="gallery__stage" id="galleryStage" aria-live="polite">
-            <img class="gallery__image" id="galleryImage" src="" alt="" />
+            <picture><img class="gallery__image" id="galleryImage" src="" alt="" data-sizes="(max-width: 1180px) calc(100vw - 48px), 1132px" /></picture>
           </div>
           <div class="gallery__info">
             <h2 class="gallery__title" id="galleryTitle"></h2>
@@ -81,38 +81,38 @@
   <!-- Feature data (image / badge / title / description) -->
   <script type="application/json" id="galleryData">
   [
-    { "img": "assets/features/Winlink.png", "badge": "Email", "title": "Winlink email", "desc": "Send and receive Winlink email over packet radio and the Internet, attachments included, right from your radio." },
-    { "img": "assets/features/Aprs.png", "badge": "APRS", "title": "APRS messaging", "desc": "Receive and send APRS messages, set custom routes, text ordinary phones over SMS and request weather reports." },
-    { "img": "assets/features/AprsMessaging.png", "badge": "APRS", "title": "Message your friends", "desc": "Chat with friends over APRS messaging and set a personal avatar for each contact so you can tell everyone apart at a glance." },
-    { "img": "assets/features/AprsPushMessaging.png", "badge": "APRS", "title": "APRS push messaging", "desc": "Get APRS messages as push notifications on Android and iOS so you stay in touch even when the app isn't open." },
-    { "img": "assets/features/AprsMap.png", "badge": "Map", "title": "Live APRS map", "desc": "An OpenStreetMap-powered map plots every APRS station around you with position history and station detail." },
-    { "img": "assets/features/Aprs-is.png", "badge": "APRS-IS", "title": "APRS-IS Internet gateway", "desc": "Connect to the APRS-IS network to view and exchange APRS traffic worldwide over the Internet, beyond your radio's range." },
-    { "img": "assets/features/PacketTerminal.png", "badge": "Terminal", "title": "Packet terminal", "desc": "Chat in packet mode with other stations, users and BBSes, with a built-in address book for quick access." },
-    { "img": "assets/features/ChannelEditing.png", "badge": "Channels", "title": "Channel editing", "desc": "Fast channel editing with a clean drag & drop layout — name, frequencies, mode, bandwidth, power and tones." },
-    { "img": "assets/features/BatchChannelProgramming.png", "badge": "Programming", "title": "Batch channel programming", "desc": "Import channel lists and drag & drop entries into the radio's slots to program a full memory bank in seconds." },
-    { "img": "assets/features/ChannelSharing.png", "badge": "Sharing", "title": "Share channels over the air", "desc": "Send a channel to anyone on frequency as a tappable message — they just tap to load it into their own radio." },
-    { "img": "assets/features/RadioSettings.png", "badge": "Settings", "title": "Full radio settings", "desc": "Adjust every radio setting from the app — PTT release, beacon, buttons, paired devices, audio, power, transmit, display and advanced options." },
-    { "img": "assets/features/Contacts.png", "badge": "Address book", "title": "Shared address book", "desc": "Keep your APRS, Winlink and terminal contacts in one shared address book so the right details are a click away." },
-    { "img": "assets/features/FileTransferTorrent.png", "badge": "Files", "title": "Torrent file exchange", "desc": "Many-to-many file transfer over 1200-baud FM-AFSK, so a whole net can share a file at the same time." },
-    { "img": "assets/features/SstvSupport.png", "badge": "SSTV", "title": "SSTV support", "desc": "Send and receive slow-scan television images directly through HTCommander." },
-    { "img": "assets/features/Dump1090Airplanes.png", "badge": "ADS-B", "title": "Aircraft tracking", "desc": "Track nearby aircraft in real time with dump1090 ADS-B integration." },
-    { "img": "assets/features/SpeechToText.png", "badge": "Voice", "title": "Speech to text", "desc": "Real-time, offline speech-to-text transcription of received audio." },
-    { "img": "assets/features/MorseKey.png", "badge": "Morse", "title": "Morse code keyer", "desc": "Send and receive Morse code (CW) directly in HTCommander, with a built-in keyer and on-screen decode." },
-    { "img": "assets/features/FmBroadcastRadio.png", "badge": "Radio", "title": "FM broadcast radio", "desc": "Tune in and listen to regular FM broadcast radio stations." },
-    { "img": "assets/features/PacketCapture.png", "badge": "Packets", "title": "Packet capture", "desc": "Capture and inspect raw packet traffic to debug and understand what's on the air." },
-    { "img": "assets/features/HighPerformanceSoftwareModem.png", "badge": "Modem", "title": "Software modem", "desc": "A high-performance, built-in software-defined modem — no external TNC required." },
-    { "img": "assets/features/AudioControls.png", "badge": "Audio", "title": "Audio controls", "desc": "Full audio controls with level metering to dial in clean, well-balanced transmit and receive audio." },
-    { "img": "assets/features/SerialGps.png", "badge": "GPS", "title": "Serial GPS", "desc": "Connect a serial GPS for live positioning and accurate APRS beacons." },
-    { "img": "assets/features/SatelliteTracking.png", "badge": "Satellite", "title": "Satellite tracking", "desc": "Track amateur radio satellites with live pass predictions, antenna aiming and Doppler-corrected uplink and downlink frequencies." },
-    { "img": "assets/features/AndroidAuto.png", "badge": "Android Auto", "title": "Android Auto", "desc": "Access channels, switch between connected radios and follow APRS messages from your vehicle's Android Auto display." },
-    { "img": "assets/features/Radiosonde.png", "badge": "Radiosonde", "title": "Radiosonde decoding", "desc": "Catch weather balloons on the air — decode radiosondes from several families and plot each balloon's climb and descent on the live map." },
-    { "img": "assets/features/MultiPlatform.png", "badge": "Cross-platform", "title": "Runs everywhere", "desc": "One app that runs on Windows, macOS, Linux, iOS, Android and the web over Bluetooth." },
-    { "img": "assets/features/MultiLanguage.png", "badge": "Languages", "title": "Multiple languages", "desc": "Translated into many languages, from Spanish to Chinese, so operators worldwide feel at home." },
-    { "img": "assets/features/LightAndDarkModes.png", "badge": "Themes", "title": "Light & dark themes", "desc": "A modern interface that follows your system's light or dark theme, easy on the eyes day or night." },
-    { "img": "assets/features/EchoLink.png", "badge": "EchoLink", "title": "EchoLink linking", "desc": "Connect to EchoLink nodes, links, repeaters and conferences over the Internet — search by callsign or location and add them as channels." },
-    { "img": "assets/features/OfflineCallsignLookup.png", "badge": "Callsign", "title": "Offline callsign lookup", "desc": "Look up any callsign fully offline — country, continent and full license details like name, class, status and expiry." },
-    { "img": "assets/features/MqttHomeAssistant.png", "badge": "Home Assistant", "title": "Home Assistant over MQTT", "desc": "Turn your Benshi handheld into a first-class Home Assistant device over MQTT — battery, GPS, volume, squelch, scan, channels and incoming APRS messages on your dashboard." },
-    { "img": "assets/features/RepeaterBook.png", "badge": "RepeaterBook", "title": "RepeaterBook import", "desc": "Search the RepeaterBook.com directory for nearby repeaters and drag them straight into your radio's channels. Repeater data courtesy of RepeaterBook.com." }
+    { "img": "assets/features/Winlink.png", "w": 1319, "h": 974, "widths": [640, 960, 1319], "badge": "Email", "title": "Winlink email", "desc": "Send and receive Winlink email over packet radio and the Internet, attachments included, right from your radio." },
+    { "img": "assets/features/Aprs.png", "w": 1313, "h": 991, "widths": [640, 960, 1313], "badge": "APRS", "title": "APRS messaging", "desc": "Receive and send APRS messages, set custom routes, text ordinary phones over SMS and request weather reports." },
+    { "img": "assets/features/AprsMessaging.png", "w": 1218, "h": 918, "widths": [640, 960, 1218], "badge": "APRS", "title": "Message your friends", "desc": "Chat with friends over APRS messaging and set a personal avatar for each contact so you can tell everyone apart at a glance." },
+    { "img": "assets/features/AprsPushMessaging.png", "w": 1249, "h": 1010, "widths": [640, 960, 1249], "badge": "APRS", "title": "APRS push messaging", "desc": "Get APRS messages as push notifications on Android and iOS so you stay in touch even when the app isn't open." },
+    { "img": "assets/features/AprsMap.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "Map", "title": "Live APRS map", "desc": "An OpenStreetMap-powered map plots every APRS station around you with position history and station detail." },
+    { "img": "assets/features/Aprs-is.png", "w": 1241, "h": 919, "widths": [640, 960, 1241], "badge": "APRS-IS", "title": "APRS-IS Internet gateway", "desc": "Connect to the APRS-IS network to view and exchange APRS traffic worldwide over the Internet, beyond your radio's range." },
+    { "img": "assets/features/PacketTerminal.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "Terminal", "title": "Packet terminal", "desc": "Chat in packet mode with other stations, users and BBSes, with a built-in address book for quick access." },
+    { "img": "assets/features/ChannelEditing.png", "w": 1237, "h": 978, "widths": [640, 960, 1237], "badge": "Channels", "title": "Channel editing", "desc": "Fast channel editing with a clean drag & drop layout — name, frequencies, mode, bandwidth, power and tones." },
+    { "img": "assets/features/BatchChannelProgramming.png", "w": 1244, "h": 971, "widths": [640, 960, 1244], "badge": "Programming", "title": "Batch channel programming", "desc": "Import channel lists and drag & drop entries into the radio's slots to program a full memory bank in seconds." },
+    { "img": "assets/features/ChannelSharing.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "Sharing", "title": "Share channels over the air", "desc": "Send a channel to anyone on frequency as a tappable message — they just tap to load it into their own radio." },
+    { "img": "assets/features/RadioSettings.png", "w": 1444, "h": 1023, "widths": [640, 960, 1444], "badge": "Settings", "title": "Full radio settings", "desc": "Adjust every radio setting from the app — PTT release, beacon, buttons, paired devices, audio, power, transmit, display and advanced options." },
+    { "img": "assets/features/Contacts.png", "w": 1313, "h": 958, "widths": [640, 960, 1313], "badge": "Address book", "title": "Shared address book", "desc": "Keep your APRS, Winlink and terminal contacts in one shared address book so the right details are a click away." },
+    { "img": "assets/features/FileTransferTorrent.png", "w": 1329, "h": 921, "widths": [640, 960, 1329], "badge": "Files", "title": "Torrent file exchange", "desc": "Many-to-many file transfer over 1200-baud FM-AFSK, so a whole net can share a file at the same time." },
+    { "img": "assets/features/SstvSupport.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "SSTV", "title": "SSTV support", "desc": "Send and receive slow-scan television images directly through HTCommander." },
+    { "img": "assets/features/Dump1090Airplanes.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "ADS-B", "title": "Aircraft tracking", "desc": "Track nearby aircraft in real time with dump1090 ADS-B integration." },
+    { "img": "assets/features/SpeechToText.png", "w": 1391, "h": 991, "widths": [640, 960, 1391], "badge": "Voice", "title": "Speech to text", "desc": "Real-time, offline speech-to-text transcription of received audio." },
+    { "img": "assets/features/MorseKey.png", "w": 1372, "h": 969, "widths": [640, 960, 1372], "badge": "Morse", "title": "Morse code keyer", "desc": "Send and receive Morse code (CW) directly in HTCommander, with a built-in keyer and on-screen decode." },
+    { "img": "assets/features/FmBroadcastRadio.png", "w": 1322, "h": 1027, "widths": [640, 960, 1322], "badge": "Radio", "title": "FM broadcast radio", "desc": "Tune in and listen to regular FM broadcast radio stations." },
+    { "img": "assets/features/PacketCapture.png", "w": 1236, "h": 913, "widths": [640, 960, 1236], "badge": "Packets", "title": "Packet capture", "desc": "Capture and inspect raw packet traffic to debug and understand what's on the air." },
+    { "img": "assets/features/HighPerformanceSoftwareModem.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "Modem", "title": "Software modem", "desc": "A high-performance, built-in software-defined modem — no external TNC required." },
+    { "img": "assets/features/AudioControls.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "Audio", "title": "Audio controls", "desc": "Full audio controls with level metering to dial in clean, well-balanced transmit and receive audio." },
+    { "img": "assets/features/SerialGps.png", "w": 1416, "h": 1006, "widths": [640, 960, 1416], "badge": "GPS", "title": "Serial GPS", "desc": "Connect a serial GPS for live positioning and accurate APRS beacons." },
+    { "img": "assets/features/SatelliteTracking.png", "w": 1350, "h": 920, "widths": [640, 960, 1350], "badge": "Satellite", "title": "Satellite tracking", "desc": "Track amateur radio satellites with live pass predictions, antenna aiming and Doppler-corrected uplink and downlink frequencies." },
+    { "img": "assets/features/AndroidAuto.png", "w": 1372, "h": 929, "widths": [640, 960, 1372], "badge": "Android Auto", "title": "Android Auto", "desc": "Access channels, switch between connected radios and follow APRS messages from your vehicle's Android Auto display." },
+    { "img": "assets/features/Radiosonde.png", "w": 1313, "h": 944, "widths": [640, 960, 1313], "badge": "Radiosonde", "title": "Radiosonde decoding", "desc": "Catch weather balloons on the air — decode radiosondes from several families and plot each balloon's climb and descent on the live map." },
+    { "img": "assets/features/MultiPlatform.png", "w": 1305, "h": 791, "widths": [640, 960, 1305], "badge": "Cross-platform", "title": "Runs everywhere", "desc": "One app that runs on Windows, macOS, Linux, iOS, Android and the web over Bluetooth." },
+    { "img": "assets/features/MultiLanguage.png", "w": 1406, "h": 893, "widths": [640, 960, 1406], "badge": "Languages", "title": "Multiple languages", "desc": "Translated into many languages, from Spanish to Chinese, so operators worldwide feel at home." },
+    { "img": "assets/features/LightAndDarkModes.png", "w": 1213, "h": 773, "widths": [640, 960, 1213], "badge": "Themes", "title": "Light & dark themes", "desc": "A modern interface that follows your system's light or dark theme, easy on the eyes day or night." },
+    { "img": "assets/features/EchoLink.png", "w": 1370, "h": 964, "widths": [640, 960, 1370], "badge": "EchoLink", "title": "EchoLink linking", "desc": "Connect to EchoLink nodes, links, repeaters and conferences over the Internet — search by callsign or location and add them as channels." },
+    { "img": "assets/features/OfflineCallsignLookup.png", "w": 1258, "h": 921, "widths": [640, 960, 1258], "badge": "Callsign", "title": "Offline callsign lookup", "desc": "Look up any callsign fully offline — country, continent and full license details like name, class, status and expiry." },
+    { "img": "assets/features/MqttHomeAssistant.png", "w": 1298, "h": 988, "widths": [640, 960, 1298], "badge": "Home Assistant", "title": "Home Assistant over MQTT", "desc": "Turn your Benshi handheld into a first-class Home Assistant device over MQTT — battery, GPS, volume, squelch, scan, channels and incoming APRS messages on your dashboard." },
+    { "img": "assets/features/RepeaterBook.png", "w": 1201, "h": 919, "widths": [640, 960, 1201], "badge": "RepeaterBook", "title": "RepeaterBook import", "desc": "Search the RepeaterBook.com directory for nearby repeaters and drag them straight into your radio's channels. Repeater data courtesy of RepeaterBook.com." }
   ]
   </script>
 
@@ -157,8 +157,8 @@
     </div>
   </footer>
 
-  <script src="assets/js/main.js?v=20260719"></script>
+  <script src="assets/js/main.js?v=20261016"></script>
   <script>window.HT_PAGE = { lang: "en", page: "feature-gallery.html", root: "" };</script>
-  <script src="assets/js/i18n.js?v=20260719"></script>
+  <script src="assets/js/i18n.js?v=20261016"></script>
 </body>
 </html>

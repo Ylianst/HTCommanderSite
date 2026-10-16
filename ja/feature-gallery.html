@@ -7,7 +7,7 @@
   <meta name="description" content="HTCommander の機能を自分のペースで一つずつご覧ください — Winlink、APRS、地図、チャンネルのプログラミング、ファイル転送、SSTV、航空機の追尾など。" />
   <meta name="theme-color" content="#e7ebf0" />
   <link rel="icon" href="../favicon.ico" />
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260719" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261016" />
   <link rel="alternate" hreflang="x-default" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
   <link rel="alternate" hreflang="en" href="https://ylianst.github.io/HTCommanderSite/feature-gallery.html" />
   <link rel="alternate" hreflang="de" href="https://ylianst.github.io/HTCommanderSite/de/feature-gallery.html" />
@@ -55,7 +55,7 @@
 
         <div class="gallery__viewport">
           <div class="gallery__stage" id="galleryStage" aria-live="polite">
-            <img class="gallery__image" id="galleryImage" src="" alt="" />
+            <picture><img class="gallery__image" id="galleryImage" src="" alt="" data-sizes="(max-width: 1180px) calc(100vw - 48px), 1132px" /></picture>
           </div>
           <div class="gallery__info">
             <h2 class="gallery__title" id="galleryTitle"></h2>
@@ -81,38 +81,38 @@
   <!-- Feature data (image / badge / title / description) -->
   <script type="application/json" id="galleryData">
   [
-    { "img": "../assets/features/Winlink.png", "badge": "メール", "title": "Winlink メール", "desc": "パケット無線とインターネット経由で、添付ファイルも含めて Winlink メールを無線機から直接送受信できます。" },
-    { "img": "../assets/features/Aprs.png", "badge": "APRS", "title": "APRS メッセージング", "desc": "APRS メッセージの送受信、カスタム経路の設定、SMS による一般の電話への送信、気象情報の要求ができます。" },
-    { "img": "../assets/features/AprsMessaging.png", "badge": "APRS", "title": "友だちにメッセージ", "desc": "APRS メッセージで友だちとチャットし、連絡先ごとに個人アバターを設定して、ひと目で相手を見分けられます。" },
-    { "img": "../assets/features/AprsPushMessaging.png", "badge": "APRS", "title": "APRS プッシュ通知", "desc": "APRS メッセージを Android と iOS のプッシュ通知として受け取り、アプリを開いていないときでも連絡を保てます。" },
-    { "img": "../assets/features/AprsMap.png", "badge": "マップ", "title": "リアルタイム APRS マップ", "desc": "OpenStreetMap ベースの地図が、周囲のすべての APRS 局を位置履歴や局の詳細とともに表示します。" },
-    { "img": "../assets/features/Aprs-is.png", "badge": "APRS-IS", "title": "APRS-IS インターネットゲートウェイ", "desc": "APRS-IS ネットワークに接続すれば、無線機の到達範囲を超えて、インターネット経由で世界中の APRS トラフィックを閲覧・交換できます。" },
-    { "img": "../assets/features/PacketTerminal.png", "badge": "ターミナル", "title": "パケットターミナル", "desc": "パケットモードで他局・ユーザー・BBS とチャットできます。すばやくアクセスできる内蔵アドレス帳付き。" },
-    { "img": "../assets/features/ChannelEditing.png", "badge": "チャンネル", "title": "チャンネル編集", "desc": "すっきりしたドラッグ＆ドロップ配置による高速なチャンネル編集 — 名前、周波数、モード、帯域幅、出力、トーン。" },
-    { "img": "../assets/features/BatchChannelProgramming.png", "badge": "プログラミング", "title": "チャンネルの一括プログラミング", "desc": "チャンネルリストをインポートし、項目を無線機のスロットにドラッグ＆ドロップすれば、メモリーバンク全体を数秒でプログラミングできます。" },
-    { "img": "../assets/features/ChannelSharing.png", "badge": "共有", "title": "電波でチャンネルを共有", "desc": "周波数上の相手に、タップできるメッセージとしてチャンネルを送信できます — 相手はタップするだけで自分の無線機に読み込めます。" },
-    { "img": "../assets/features/RadioSettings.png", "badge": "設定", "title": "無線機の全設定", "desc": "PTT リリース、ビーコン、ボタン、ペアリング済みデバイス、オーディオ、出力、送信、ディスプレイ、詳細オプションなど、無線機のあらゆる設定をアプリから調整できます。" },
-    { "img": "../assets/features/Contacts.png", "badge": "アドレス帳", "title": "共有アドレス帳", "desc": "APRS・Winlink・ターミナルの連絡先を 1 つの共有アドレス帳にまとめ、必要な情報にワンクリックでアクセスできます。" },
-    { "img": "../assets/features/FileTransferTorrent.png", "badge": "ファイル", "title": "トレント方式のファイル交換", "desc": "1200 ボー FM-AFSK による多対多のファイル転送で、ネット全体が同時に 1 つのファイルを共有できます。" },
-    { "img": "../assets/features/SstvSupport.png", "badge": "SSTV", "title": "SSTV 対応", "desc": "スロースキャンテレビ（SSTV）の画像を HTCommander から直接送受信できます。" },
-    { "img": "../assets/features/Dump1090Airplanes.png", "badge": "ADS-B", "title": "航空機の追尾", "desc": "dump1090 の ADS-B 連携で、近くの航空機をリアルタイムに追尾できます。" },
-    { "img": "../assets/features/SpeechToText.png", "badge": "音声", "title": "音声認識（音声からテキスト）", "desc": "受信した音声を、オフラインでリアルタイムに音声からテキストへ書き起こします。" },
-    { "img": "../assets/features/MorseKey.png", "badge": "Morse", "title": "モールス電鍵", "desc": "内蔵電鍵と画面上のデコードにより、モールス信号（CW）を HTCommander で直接送受信できます。" },
-    { "img": "../assets/features/FmBroadcastRadio.png", "badge": "ラジオ", "title": "FM ラジオ放送", "desc": "通常の FM ラジオ放送局を選局して聴けます。" },
-    { "img": "../assets/features/PacketCapture.png", "badge": "パケット", "title": "パケットキャプチャ", "desc": "生のパケットトラフィックをキャプチャして調べ、電波上で何が起きているかをデバッグ・把握できます。" },
-    { "img": "../assets/features/HighPerformanceSoftwareModem.png", "badge": "モデム", "title": "ソフトウェアモデム", "desc": "高性能な内蔵のソフトウェア無線モデム — 外付け TNC は不要です。" },
-    { "img": "../assets/features/AudioControls.png", "badge": "オーディオ", "title": "オーディオコントロール", "desc": "レベルメーター付きの充実したオーディオコントロールで、クリアでバランスの取れた送受信音声に調整できます。" },
-    { "img": "../assets/features/SerialGps.png", "badge": "GPS", "title": "シリアル GPS", "desc": "シリアル GPS を接続すれば、リアルタイム測位と正確な APRS ビーコンが得られます。" },
-    { "img": "../assets/features/SatelliteTracking.png", "badge": "衛星", "title": "衛星追尾", "desc": "アマチュア無線衛星を、リアルタイムのパス予測、アンテナ指向、ドップラー補正済みのアップリンク・ダウンリンク周波数とともに追尾できます。" },
-    { "img": "../assets/features/AndroidAuto.png", "badge": "Android Auto", "title": "Android Auto", "desc": "車両の Android Auto 画面から、チャンネルへのアクセス、接続中の無線機の切り替え、APRS メッセージの確認ができます。" },
-    { "img": "../assets/features/Radiosonde.png", "badge": "ラジオゾンデ", "title": "ラジオゾンデのデコード", "desc": "上空の気象観測気球を捉えます — 複数系統のラジオゾンデをデコードし、各気球の上昇と下降をリアルタイム地図に描画します。" },
-    { "img": "../assets/features/MultiPlatform.png", "badge": "マルチプラットフォーム", "title": "どこでも動作", "desc": "Windows・macOS・Linux・iOS・Android・Web で Bluetooth 経由で動作する 1 つのアプリ。" },
-    { "img": "../assets/features/MultiLanguage.png", "badge": "言語", "title": "多言語対応", "desc": "スペイン語から中国語まで多くの言語に翻訳されており、世界中のオペレーターが親しみやすく使えます。" },
-    { "img": "../assets/features/LightAndDarkModes.png", "badge": "テーマ", "title": "ライト＆ダークテーマ", "desc": "システムのライト／ダークテーマに合わせるモダンな UI で、昼も夜も目にやさしい表示です。" },
-    { "img": "../assets/features/EchoLink.png", "badge": "EchoLink", "title": "EchoLink 接続", "desc": "インターネット経由で EchoLink のノード・リンク・レピーター・カンファレンスに接続 — コールサインや場所で検索し、チャンネルとして追加できます。" },
-    { "img": "../assets/features/OfflineCallsignLookup.png", "badge": "コールサイン", "title": "オフラインでのコールサイン検索", "desc": "任意のコールサインを完全オフラインで検索 — 国、大陸、そして氏名・クラス・状態・有効期限などの免許情報の詳細を確認できます。" },
-    { "img": "../assets/features/MqttHomeAssistant.png", "badge": "Home Assistant", "title": "MQTT で Home Assistant", "desc": "MQTT を通じて Benshi のハンディ機を一級の Home Assistant デバイスに — バッテリー、GPS、音量、スケルチ、スキャン、チャンネル、受信 APRS メッセージをダッシュボードに表示できます。" },
-    { "img": "../assets/features/RepeaterBook.png", "badge": "RepeaterBook", "title": "RepeaterBook のインポート", "desc": "RepeaterBook.com のディレクトリで近くのレピーターを検索し、無線機のチャンネルへ直接ドラッグできます。レピーターのデータは RepeaterBook.com のご提供によります。" }
+    { "img": "../assets/features/Winlink.png", "w": 1319, "h": 974, "widths": [640, 960, 1319], "badge": "メール", "title": "Winlink メール", "desc": "パケット無線とインターネット経由で、添付ファイルも含めて Winlink メールを無線機から直接送受信できます。" },
+    { "img": "../assets/features/Aprs.png", "w": 1313, "h": 991, "widths": [640, 960, 1313], "badge": "APRS", "title": "APRS メッセージング", "desc": "APRS メッセージの送受信、カスタム経路の設定、SMS による一般の電話への送信、気象情報の要求ができます。" },
+    { "img": "../assets/features/AprsMessaging.png", "w": 1218, "h": 918, "widths": [640, 960, 1218], "badge": "APRS", "title": "友だちにメッセージ", "desc": "APRS メッセージで友だちとチャットし、連絡先ごとに個人アバターを設定して、ひと目で相手を見分けられます。" },
+    { "img": "../assets/features/AprsPushMessaging.png", "w": 1249, "h": 1010, "widths": [640, 960, 1249], "badge": "APRS", "title": "APRS プッシュ通知", "desc": "APRS メッセージを Android と iOS のプッシュ通知として受け取り、アプリを開いていないときでも連絡を保てます。" },
+    { "img": "../assets/features/AprsMap.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "マップ", "title": "リアルタイム APRS マップ", "desc": "OpenStreetMap ベースの地図が、周囲のすべての APRS 局を位置履歴や局の詳細とともに表示します。" },
+    { "img": "../assets/features/Aprs-is.png", "w": 1241, "h": 919, "widths": [640, 960, 1241], "badge": "APRS-IS", "title": "APRS-IS インターネットゲートウェイ", "desc": "APRS-IS ネットワークに接続すれば、無線機の到達範囲を超えて、インターネット経由で世界中の APRS トラフィックを閲覧・交換できます。" },
+    { "img": "../assets/features/PacketTerminal.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "ターミナル", "title": "パケットターミナル", "desc": "パケットモードで他局・ユーザー・BBS とチャットできます。すばやくアクセスできる内蔵アドレス帳付き。" },
+    { "img": "../assets/features/ChannelEditing.png", "w": 1237, "h": 978, "widths": [640, 960, 1237], "badge": "チャンネル", "title": "チャンネル編集", "desc": "すっきりしたドラッグ＆ドロップ配置による高速なチャンネル編集 — 名前、周波数、モード、帯域幅、出力、トーン。" },
+    { "img": "../assets/features/BatchChannelProgramming.png", "w": 1244, "h": 971, "widths": [640, 960, 1244], "badge": "プログラミング", "title": "チャンネルの一括プログラミング", "desc": "チャンネルリストをインポートし、項目を無線機のスロットにドラッグ＆ドロップすれば、メモリーバンク全体を数秒でプログラミングできます。" },
+    { "img": "../assets/features/ChannelSharing.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "共有", "title": "電波でチャンネルを共有", "desc": "周波数上の相手に、タップできるメッセージとしてチャンネルを送信できます — 相手はタップするだけで自分の無線機に読み込めます。" },
+    { "img": "../assets/features/RadioSettings.png", "w": 1444, "h": 1023, "widths": [640, 960, 1444], "badge": "設定", "title": "無線機の全設定", "desc": "PTT リリース、ビーコン、ボタン、ペアリング済みデバイス、オーディオ、出力、送信、ディスプレイ、詳細オプションなど、無線機のあらゆる設定をアプリから調整できます。" },
+    { "img": "../assets/features/Contacts.png", "w": 1313, "h": 958, "widths": [640, 960, 1313], "badge": "アドレス帳", "title": "共有アドレス帳", "desc": "APRS・Winlink・ターミナルの連絡先を 1 つの共有アドレス帳にまとめ、必要な情報にワンクリックでアクセスできます。" },
+    { "img": "../assets/features/FileTransferTorrent.png", "w": 1329, "h": 921, "widths": [640, 960, 1329], "badge": "ファイル", "title": "トレント方式のファイル交換", "desc": "1200 ボー FM-AFSK による多対多のファイル転送で、ネット全体が同時に 1 つのファイルを共有できます。" },
+    { "img": "../assets/features/SstvSupport.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "SSTV", "title": "SSTV 対応", "desc": "スロースキャンテレビ（SSTV）の画像を HTCommander から直接送受信できます。" },
+    { "img": "../assets/features/Dump1090Airplanes.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "ADS-B", "title": "航空機の追尾", "desc": "dump1090 の ADS-B 連携で、近くの航空機をリアルタイムに追尾できます。" },
+    { "img": "../assets/features/SpeechToText.png", "w": 1391, "h": 991, "widths": [640, 960, 1391], "badge": "音声", "title": "音声認識（音声からテキスト）", "desc": "受信した音声を、オフラインでリアルタイムに音声からテキストへ書き起こします。" },
+    { "img": "../assets/features/MorseKey.png", "w": 1372, "h": 969, "widths": [640, 960, 1372], "badge": "Morse", "title": "モールス電鍵", "desc": "内蔵電鍵と画面上のデコードにより、モールス信号（CW）を HTCommander で直接送受信できます。" },
+    { "img": "../assets/features/FmBroadcastRadio.png", "w": 1322, "h": 1027, "widths": [640, 960, 1322], "badge": "ラジオ", "title": "FM ラジオ放送", "desc": "通常の FM ラジオ放送局を選局して聴けます。" },
+    { "img": "../assets/features/PacketCapture.png", "w": 1236, "h": 913, "widths": [640, 960, 1236], "badge": "パケット", "title": "パケットキャプチャ", "desc": "生のパケットトラフィックをキャプチャして調べ、電波上で何が起きているかをデバッグ・把握できます。" },
+    { "img": "../assets/features/HighPerformanceSoftwareModem.png", "w": 1245, "h": 921, "widths": [640, 960, 1245], "badge": "モデム", "title": "ソフトウェアモデム", "desc": "高性能な内蔵のソフトウェア無線モデム — 外付け TNC は不要です。" },
+    { "img": "../assets/features/AudioControls.png", "w": 1244, "h": 921, "widths": [640, 960, 1244], "badge": "オーディオ", "title": "オーディオコントロール", "desc": "レベルメーター付きの充実したオーディオコントロールで、クリアでバランスの取れた送受信音声に調整できます。" },
+    { "img": "../assets/features/SerialGps.png", "w": 1416, "h": 1006, "widths": [640, 960, 1416], "badge": "GPS", "title": "シリアル GPS", "desc": "シリアル GPS を接続すれば、リアルタイム測位と正確な APRS ビーコンが得られます。" },
+    { "img": "../assets/features/SatelliteTracking.png", "w": 1350, "h": 920, "widths": [640, 960, 1350], "badge": "衛星", "title": "衛星追尾", "desc": "アマチュア無線衛星を、リアルタイムのパス予測、アンテナ指向、ドップラー補正済みのアップリンク・ダウンリンク周波数とともに追尾できます。" },
+    { "img": "../assets/features/AndroidAuto.png", "w": 1372, "h": 929, "widths": [640, 960, 1372], "badge": "Android Auto", "title": "Android Auto", "desc": "車両の Android Auto 画面から、チャンネルへのアクセス、接続中の無線機の切り替え、APRS メッセージの確認ができます。" },
+    { "img": "../assets/features/Radiosonde.png", "w": 1313, "h": 944, "widths": [640, 960, 1313], "badge": "ラジオゾンデ", "title": "ラジオゾンデのデコード", "desc": "上空の気象観測気球を捉えます — 複数系統のラジオゾンデをデコードし、各気球の上昇と下降をリアルタイム地図に描画します。" },
+    { "img": "../assets/features/MultiPlatform.png", "w": 1305, "h": 791, "widths": [640, 960, 1305], "badge": "マルチプラットフォーム", "title": "どこでも動作", "desc": "Windows・macOS・Linux・iOS・Android・Web で Bluetooth 経由で動作する 1 つのアプリ。" },
+    { "img": "../assets/features/MultiLanguage.png", "w": 1406, "h": 893, "widths": [640, 960, 1406], "badge": "言語", "title": "多言語対応", "desc": "スペイン語から中国語まで多くの言語に翻訳されており、世界中のオペレーターが親しみやすく使えます。" },
+    { "img": "../assets/features/LightAndDarkModes.png", "w": 1213, "h": 773, "widths": [640, 960, 1213], "badge": "テーマ", "title": "ライト＆ダークテーマ", "desc": "システムのライト／ダークテーマに合わせるモダンな UI で、昼も夜も目にやさしい表示です。" },
+    { "img": "../assets/features/EchoLink.png", "w": 1370, "h": 964, "widths": [640, 960, 1370], "badge": "EchoLink", "title": "EchoLink 接続", "desc": "インターネット経由で EchoLink のノード・リンク・レピーター・カンファレンスに接続 — コールサインや場所で検索し、チャンネルとして追加できます。" },
+    { "img": "../assets/features/OfflineCallsignLookup.png", "w": 1258, "h": 921, "widths": [640, 960, 1258], "badge": "コールサイン", "title": "オフラインでのコールサイン検索", "desc": "任意のコールサインを完全オフラインで検索 — 国、大陸、そして氏名・クラス・状態・有効期限などの免許情報の詳細を確認できます。" },
+    { "img": "../assets/features/MqttHomeAssistant.png", "w": 1298, "h": 988, "widths": [640, 960, 1298], "badge": "Home Assistant", "title": "MQTT で Home Assistant", "desc": "MQTT を通じて Benshi のハンディ機を一級の Home Assistant デバイスに — バッテリー、GPS、音量、スケルチ、スキャン、チャンネル、受信 APRS メッセージをダッシュボードに表示できます。" },
+    { "img": "../assets/features/RepeaterBook.png", "w": 1201, "h": 919, "widths": [640, 960, 1201], "badge": "RepeaterBook", "title": "RepeaterBook のインポート", "desc": "RepeaterBook.com のディレクトリで近くのレピーターを検索し、無線機のチャンネルへ直接ドラッグできます。レピーターのデータは RepeaterBook.com のご提供によります。" }
   ]
   </script>
 
@@ -157,8 +157,8 @@
     </div>
   </footer>
 
-  <script src="../assets/js/main.js?v=20260719"></script>
+  <script src="../assets/js/main.js?v=20261016"></script>
   <script>window.HT_PAGE = { lang: "ja", page: "feature-gallery.html", root: "../" };</script>
-  <script src="../assets/js/i18n.js?v=20260719"></script>
+  <script src="../assets/js/i18n.js?v=20261016"></script>
 </body>
 </html>

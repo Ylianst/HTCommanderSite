@@ -58,6 +58,19 @@
   var featureCaption = document.getElementById("featureCaption");
   if (featureShow && featureCaption) {
     var slides = featureShow.querySelectorAll(".feature-show__slide");
+    // Slide images ship as data-src/data-srcset so only the visible and the
+    // upcoming slide are downloaded, not the whole slideshow up front.
+    var hydrate = function (slide) {
+      if (!slide) { return; }
+      slide.querySelectorAll("source[data-srcset]").forEach(function (source) {
+        source.setAttribute("srcset", source.getAttribute("data-srcset"));
+        source.removeAttribute("data-srcset");
+      });
+      slide.querySelectorAll("img[data-src]").forEach(function (img) {
+        img.setAttribute("src", img.getAttribute("data-src"));
+        img.removeAttribute("data-src");
+      });
+    };
     var captions = [];
     try {
       captions = JSON.parse(featureCaption.getAttribute("data-captions") || "[]");
@@ -65,11 +78,15 @@
       captions = [];
     }
 
+    if (slides.length === 1) { hydrate(slides[0]); }
+
     if (slides.length > 1) {
       var current = Math.floor(Math.random() * slides.length);
       slides.forEach(function (slide, index) {
         slide.classList.toggle("is-active", index === current);
       });
+      hydrate(slides[current]);
+      hydrate(slides[(current + 1) % slides.length]);
       if (captions[current] != null) {
         featureCaption.textContent = captions[current];
       }
@@ -77,7 +94,9 @@
         var next = (current + 1) % slides.length;
 
         slides[current].classList.remove("is-active");
+        hydrate(slides[next]);
         slides[next].classList.add("is-active");
+        hydrate(slides[(next + 1) % slides.length]);
 
         featureCaption.classList.add("is-fading");
         window.setTimeout(function () {
@@ -136,6 +155,21 @@
 
       if (gTotal) { gTotal.textContent = String(items.length); }
 
+      // Serve the AVIF/WebP renditions made by tools/image-optimizer when
+      // the item lists its widths; the PNG in "img" stays as the fallback.
+      var gSources = [];
+      var gPicture = galleryImage.parentNode;
+      if (gPicture && gPicture.nodeName === "PICTURE") {
+        var gSizes = galleryImage.getAttribute("data-sizes") || "100vw";
+        [["avif", "image/avif"], ["webp", "image/webp"]].forEach(function (fmt) {
+          var source = document.createElement("source");
+          source.type = fmt[1];
+          source.setAttribute("sizes", gSizes);
+          gPicture.insertBefore(source, galleryImage);
+          gSources.push({ el: source, ext: fmt[0] });
+        });
+      }
+
       var dotButtons = [];
       if (gDots) {
         items.forEach(function (item, index) {
@@ -152,6 +186,16 @@
 
       var render = function () {
         var item = items[gCurrent];
+        var parts = item.widths ? item.img.match(/^(.*\/)?([^\/]+)\.png$/) : null;
+        gSources.forEach(function (source) {
+          if (parts) {
+            source.el.setAttribute("srcset", item.widths.map(function (w) {
+              return (parts[1] || "") + "web/" + parts[2] + "-" + w + "." + source.ext + " " + w + "w";
+            }).join(", "));
+          } else {
+            source.el.removeAttribute("srcset");
+          }
+        });
         galleryImage.src = item.img;
         galleryImage.alt = item.title || "";
         if (gBadge) { gBadge.textContent = item.badge || ""; }

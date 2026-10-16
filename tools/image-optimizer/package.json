@@ -1,0 +1,14 @@
+{
+  "name": "htcommander-image-optimizer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generates responsive AVIF/WebP versions of the HTCommander feature screenshots and rewrites the English pages to serve them via <picture>.",
+  "type": "module",
+  "scripts": {
+    "build": "node optimize.mjs",
+    "force": "node optimize.mjs --force"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
+  }
+}

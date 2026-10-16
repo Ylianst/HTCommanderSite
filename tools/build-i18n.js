@@ -23,7 +23,7 @@ const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
 const I18N = path.join(ROOT, "i18n");
-const ASSET_VER = "20260719";
+const ASSET_VER = "20261016";
 
 function readJSON(p) { return JSON.parse(fs.readFileSync(p, "utf8")); }
 function read(p) { return fs.readFileSync(p, "utf8"); }
@@ -84,16 +84,24 @@ function wireEnglish(html, page) {
 function rewritePaths(html, page) {
   const pageDir = path.posix.dirname(page) === "." ? "" : path.posix.dirname(page);
   const up = "../".repeat(page.split("/").length); // depth incl. the /<lang>/ level
-  return html.replace(/\b(src|href|content)="([^"]*)"/g, (m, attr, val) => {
-    if (/^(https?:|mailto:|tel:|data:|\/\/|#)/.test(val)) return m;
-    if (attr === "content" && !/^assets\//.test(val)) return m;
+  const rewriteUrl = (val) => {
+    if (/^(https?:|mailto:|tel:|data:|\/\/|#)/.test(val)) return val;
     const parts = val.match(/^([^#?]*)([?#].*)?$/);
     const pathPart = parts[1];
     const rest = parts[2] || "";
-    if (pathPart === "") return m;
+    if (pathPart === "") return val;
     const rootRel = path.posix.normalize(path.posix.join(pageDir, pathPart));
-    if (TRANSLATED.has(rootRel)) return m;
-    return `${attr}="${up}${rootRel}${rest}"`;
+    if (TRANSLATED.has(rootRel)) return val;
+    return `${up}${rootRel}${rest}`;
+  };
+  return html.replace(/\b(src|srcset|href|content)="([^"]*)"/g, (m, attr, val) => {
+    if (attr === "content" && !/^assets\//.test(val)) return m;
+    if (attr === "srcset") {
+      // Comma-separated "url descriptor" candidates (also matches data-srcset).
+      const list = val.split(",").map(c => c.trim().replace(/^(\S+)/, u => rewriteUrl(u)));
+      return `${attr}="${list.join(", ")}"`;
+    }
+    return `${attr}="${rewriteUrl(val)}"`;
   });
 }
 
@@ -182,7 +190,7 @@ function build() {
         shielded.push(v);
         return a + "\u0001" + (shielded.length - 1) + "\u0001" + b;
       };
-      html = html.replace(/(\b(?:src|href|alt)=")([^"]*)(")/g, stash);
+      html = html.replace(/(\b(?:src|srcset|sizes|href|alt)=")([^"]*)(")/g, stash);
       html = html.replace(/("img":\s*")([^"]*)(")/g, stash);
       html = translate(html, catalog, code);
       shielded.forEach((v, i) => { html = html.split("\u0001" + i + "\u0001").join(v); });
