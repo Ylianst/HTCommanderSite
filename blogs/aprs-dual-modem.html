@@ -49,7 +49,7 @@ hardware modem (its TNC) listens to the air, decodes every AX.25 packet it can,
 and hands the finished data frames to the app over Bluetooth. The app never
 touches the raw audio — it only ever sees the packets the radio already decoded.</p>
 <figure class="post-figure">
-  <img src="images/normal-aprs-decode-path.png" alt="In normal apps, only the radio&#39;s hardware modem decodes APRS">
+  <picture data-opt><source type="image/avif" srcset="images/web/normal-aprs-decode-path-640.avif 640w, images/web/normal-aprs-decode-path-960.avif 960w, images/web/normal-aprs-decode-path-1047.avif 1047w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/normal-aprs-decode-path-640.webp 640w, images/web/normal-aprs-decode-path-960.webp 960w, images/web/normal-aprs-decode-path-1047.webp 1047w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/normal-aprs-decode-path.png" alt="In normal apps, only the radio&#39;s hardware modem decodes APRS" loading="lazy" width="1047" height="422" /></picture>
   <figcaption>In normal apps, only the radio&#39;s hardware modem decodes APRS</figcaption>
 </figure>
 <p>That works, but the radio&#39;s TNC is a modest modem — and for good reason: it runs
@@ -87,7 +87,7 @@ uses for DART and PSK — and it can run a full <strong>AFSK 1200</strong> APRS 
 there too.</p>
 <p>So the same over-the-air signal gets decoded twice, in parallel:</p>
 <figure class="post-figure">
-  <img src="images/dual-modem-aprs-decode-path.png" alt="In HTCommander, two modems decode the same signal in parallel">
+  <picture data-opt><source type="image/avif" srcset="images/web/dual-modem-aprs-decode-path-640.avif 640w, images/web/dual-modem-aprs-decode-path-960.avif 960w, images/web/dual-modem-aprs-decode-path-1172.avif 1172w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/dual-modem-aprs-decode-path-640.webp 640w, images/web/dual-modem-aprs-decode-path-960.webp 960w, images/web/dual-modem-aprs-decode-path-1172.webp 1172w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/dual-modem-aprs-decode-path.png" alt="In HTCommander, two modems decode the same signal in parallel" loading="lazy" width="1172" height="692" /></picture>
   <figcaption>In HTCommander, two modems decode the same signal in parallel</figcaption>
 </figure>
 <ul>
@@ -124,7 +124,7 @@ Leave <strong>FX.25 FEC</strong> enabled too, so the software modem can use forw
 correction on packets that carry it.</li>
 </ol>
 <figure class="post-figure">
-  <img src="images/htcommand-aprs-dual-modem-setup.png" alt="Enabling the software APRS modem from the Audio menu">
+  <picture data-opt><source type="image/avif" srcset="images/web/htcommand-aprs-dual-modem-setup-640.avif 640w, images/web/htcommand-aprs-dual-modem-setup-960.avif 960w, images/web/htcommand-aprs-dual-modem-setup-1640.avif 1640w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/htcommand-aprs-dual-modem-setup-640.webp 640w, images/web/htcommand-aprs-dual-modem-setup-960.webp 960w, images/web/htcommand-aprs-dual-modem-setup-1640.webp 1640w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/htcommand-aprs-dual-modem-setup.png" alt="Enabling the software APRS modem from the Audio menu" loading="lazy" width="1947" height="1045" /></picture>
   <figcaption>Enabling the software APRS modem from the Audio menu</figcaption>
 </figure>
 <p>That&#39;s it. From now on both modems are running, and the deduplicator quietly

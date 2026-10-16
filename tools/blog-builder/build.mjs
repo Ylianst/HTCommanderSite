@@ -87,6 +87,11 @@ function renderBody(md) {
     return `<figure class="post-figure">\n  ${img}${caption}\n</figure>`;
   });
 
+  // Post images sit below the title and lead, so let the browser defer them.
+  html = html.replace(/<img\b([^>]*?)\s*\/?>/g, (m, attrs) =>
+    /\bloading=/.test(attrs) ? m : `<img${attrs} loading="lazy">`
+  );
+
   // Make tables horizontally scrollable on narrow screens.
   html = html
     .replace(/<table>/g, '<div class="table-wrap">\n<table>')
@@ -199,9 +204,19 @@ function footer(prefix) {
   </footer>`;
 }
 
+// Mermaid is ~1 MB of JavaScript, so it is only fetched once a diagram comes
+// within 200px of the viewport.
 const MERMAID = `  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+    const diagrams = document.querySelectorAll('pre.mermaid');
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      observer.disconnect();
+      import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs').then(({ default: mermaid }) => {
+        mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+        mermaid.run({ nodes: diagrams });
+      });
+    }, { rootMargin: '200px 0px' });
+    diagrams.forEach((d) => observer.observe(d));
   </script>`;
 
 /* ---------- post page ---------- */

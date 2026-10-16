@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 /* =========================================================================
-   HTCommander site — feature image optimizer
+   HTCommander site — image optimizer
 
-   The PNG screenshots in assets/features/ are the untouched originals. This
-   script:
-     1. Generates AVIF + WebP copies of each PNG at 640 px, 960 px and full
-        width into assets/features/web/ (only when missing or out of date).
-     2. Rewrites every <img> in the English pages (the pages listed in
-        i18n/config.json) that points at assets/features/<Name>.png into a
-        <picture data-opt> element with AVIF/WebP sources, keeping the PNG as
-        the fallback and adding width/height.
-     3. Adds "w", "h" and "widths" to the feature-gallery JSON entries so
-        assets/js/main.js can build the same sources at runtime.
+   The PNG/JPEG files in the folders listed in SETS are the untouched
+   originals. This script:
+     1. Generates AVIF + WebP copies of each image, at the widths configured
+        for its folder, into <folder>/web/ (only when missing or out of date).
+     2. Rewrites every <img> pointing at one of those originals, in the
+        English pages listed in i18n/config.json and in the blog posts
+        (blogs/*.html), into a <picture data-opt> element with AVIF/WebP
+        sources, keeping the original as the fallback and adding width/height.
+     3. Adds "w", "h" and "widths" to "img" entries of inline JSON data (the
+        feature gallery) so assets/js/main.js can build the same sources.
 
    Re-running is idempotent. Afterwards run `node tools/build-i18n.js` to
-   regenerate the localized pages.
+   regenerate the localized pages. Re-run this after rebuilding the blog.
 
    An <img> written with data-src instead of src (the home-page slideshow)
    gets data-srcset on its sources so main.js can load it on demand.
@@ -29,64 +29,110 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const SRC_DIR = path.join(ROOT, "assets", "features");
-const OUT_DIR = path.join(SRC_DIR, "web");
-const WIDTHS = [640, 960];
 const FORMATS = [
   { ext: "avif", type: "image/avif", encode: s => s.avif({ quality: 60, effort: 6 }) },
   { ext: "webp", type: "image/webp", encode: s => s.webp({ quality: 85, alphaQuality: 90, effort: 6 }) },
 ];
 
-// `sizes` used when an image has none yet; must match the CSS layout of each page.
-const DEFAULT_SIZES = [
-  { match: p => p === "index.html", sizes: "(max-width: 960px) calc(84vw - 40px), 520px" },
-  { match: p => p === "features.html", sizes: "(max-width: 960px) calc(100vw - 48px), 542px" },
-  { match: p => p.startsWith("features/"), sizes: "(max-width: 868px) calc(100vw - 48px), 820px" },
+/* Image folders. `widths` are the downscaled renditions; the largest
+   rendition is the original width capped at `maxWidth` (about 2x the largest
+   on-screen size). `sizes(page)` must match the CSS layout. */
+const SETS = [
+  {
+    dirs: ["assets/features"],
+    widths: [640, 960],
+    maxWidth: Infinity,
+    sizes: page =>
+      page === "index.html" ? "(max-width: 960px) calc(84vw - 40px), 520px"
+      : page === "features.html" ? "(max-width: 960px) calc(100vw - 48px), 542px"
+      : page.startsWith("features/") ? "(max-width: 868px) calc(100vw - 48px), 820px"
+      : "100vw",
+  },
+  {
+    // Screens page, 3-column grid (shown at most ~420 px wide).
+    dirs: ["assets/img/windows", "assets/img/macos", "assets/img/ipad"],
+    widths: [480],
+    maxWidth: 960,
+    sizes: () => "(max-width: 560px) calc(100vw - 143px), (max-width: 960px) calc(50vw - 121px), (max-width: 1200px) calc(33.3vw - 113px), 285px",
+  },
+  {
+    // Screens page, 4-column grid of phone screenshots (at most ~210 px wide).
+    dirs: ["assets/img/android", "assets/img/iphone"],
+    widths: [240],
+    maxWidth: 480,
+    sizes: () => "(max-width: 560px) calc(50vw - 121px), (max-width: 960px) calc(33.3vw - 113px), (max-width: 1200px) calc(25vw - 109px), 190px",
+  },
+  {
+    dirs: ["assets/img/radios"],
+    widths: [300],
+    maxWidth: 700,
+    sizes: () => "300px",
+  },
+  {
+    dirs: ["blogs/images"],
+    widths: [640, 960],
+    maxWidth: 1640,
+    sizes: () => "(max-width: 868px) calc(100vw - 63px), 820px",
+  },
 ];
-const FALLBACK_SIZES = "100vw";
 
 const force = process.argv.includes("--force");
+const kb = bytes => (bytes / 1024).toFixed(0) + " KB";
 
-function widthsFor(width) {
-  return WIDTHS.filter(w => w < width).concat(width);
+function renditionWidths(set, width) {
+  const top = Math.min(width, set.maxWidth);
+  return set.widths.filter(w => w < top).concat(top);
 }
 
-function kb(bytes) {
-  return (bytes / 1024).toFixed(0) + " KB";
+function setForDir(dir) {
+  return SETS.find(s => s.dirs.includes(dir));
 }
 
 /* ---------- 1. Image generation ---------- */
 
 async function generate() {
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  const info = new Map();
-  const expected = new Set();
+  const info = new Map(); // "dir/Name" -> { set, width, height, widths, srcBytes, outDir, name }
   const jobs = [];
 
-  const sources = fs.readdirSync(SRC_DIR).filter(f => /\.png$/i.test(f)).sort();
-  for (const file of sources) {
-    const src = path.join(SRC_DIR, file);
-    const name = file.replace(/\.png$/i, "");
-    const { width, height } = await sharp(src).metadata();
-    const widths = widthsFor(width);
-    info.set(name, { width, height, widths, srcBytes: fs.statSync(src).size });
+  for (const set of SETS) {
+    for (const dir of set.dirs) {
+      const srcDir = path.join(ROOT, dir);
+      if (!fs.existsSync(srcDir)) continue;
+      const outDir = path.join(srcDir, "web");
+      fs.mkdirSync(outDir, { recursive: true });
+      const expected = new Set();
 
-    const srcTime = fs.statSync(src).mtimeMs;
-    for (const w of widths) {
-      for (const fmt of FORMATS) {
-        const outName = `${name}-${w}.${fmt.ext}`;
-        const out = path.join(OUT_DIR, outName);
-        expected.add(outName);
-        if (!force && fs.existsSync(out) && fs.statSync(out).mtimeMs >= srcTime) continue;
-        jobs.push({ src, out, w, full: w === width, fmt });
+      const sources = fs.readdirSync(srcDir).filter(f => /\.(png|jpe?g)$/i.test(f)).sort();
+      for (const file of sources) {
+        const src = path.join(srcDir, file);
+        const name = file.replace(/\.(png|jpe?g)$/i, "");
+        const key = `${dir}/${name}`;
+        if (info.has(key)) {
+          console.warn(`! ${dir}: ${file} collides with another image named "${name}", skipped`);
+          continue;
+        }
+        const { width, height } = await sharp(src).metadata();
+        const widths = renditionWidths(set, width);
+        const stat = fs.statSync(src);
+        info.set(key, { set, width, height, widths, srcBytes: stat.size, outDir, name });
+
+        for (const w of widths) {
+          for (const fmt of FORMATS) {
+            const outName = `${name}-${w}.${fmt.ext}`;
+            const out = path.join(outDir, outName);
+            expected.add(outName);
+            if (!force && fs.existsSync(out) && fs.statSync(out).mtimeMs >= stat.mtimeMs) continue;
+            jobs.push({ src, out, w, resize: w !== width, fmt });
+          }
+        }
       }
-    }
-  }
 
-  for (const f of fs.readdirSync(OUT_DIR)) {
-    if (/\.(avif|webp)$/i.test(f) && !expected.has(f)) {
-      fs.unlinkSync(path.join(OUT_DIR, f));
-      console.log(`- removed stale ${f}`);
+      for (const f of fs.readdirSync(outDir)) {
+        if (/\.(avif|webp)$/i.test(f) && !expected.has(f)) {
+          fs.unlinkSync(path.join(outDir, f));
+          console.log(`- removed stale ${dir}/web/${f}`);
+        }
+      }
     }
   }
 
@@ -96,11 +142,11 @@ async function generate() {
     while (queue.length) {
       const job = queue.shift();
       let img = sharp(job.src);
-      if (!job.full) img = img.resize({ width: job.w });
+      if (job.resize) img = img.resize({ width: job.w });
       const buf = await job.fmt.encode(img).toBuffer();
       fs.writeFileSync(job.out, buf);
       done++;
-      console.log(`✓ [${done}/${jobs.length}] ${path.basename(job.out)}  ${kb(buf.length)}`);
+      console.log(`✓ [${done}/${jobs.length}] ${path.relative(ROOT, job.out).replace(/\\/g, "/")}  ${kb(buf.length)}`);
     }
   };
   const parallel = Math.max(1, Math.min(4, os.cpus().length));
@@ -131,41 +177,41 @@ const setAttr = (attrs, name, value) => {
 const renderImg = attrs =>
   "<img " + attrs.map(([n, v]) => (v == null ? n : `${n}="${v}"`)).join(" ") + " />";
 
-function defaultSizes(page) {
-  const rule = DEFAULT_SIZES.find(r => r.match(page));
-  return rule ? rule.sizes : FALLBACK_SIZES;
+/* Map an image URL used on `page` to its info entry, or null. */
+function lookup(url, page, info) {
+  if (!url || /^(https?:|data:|\/\/)/.test(url)) return null;
+  const m = url.match(/^(.*\/)?([^/]+)\.(png|jpe?g)$/i);
+  if (!m) return null;
+  const pageDir = path.posix.dirname(page);
+  const dir = path.posix.dirname(path.posix.normalize(path.posix.join(pageDir, url)));
+  if (!setForDir(dir)) return null;
+  const meta = info.get(`${dir}/${m[2]}`);
+  if (!meta) {
+    console.warn(`! ${page}: no source image for ${url}`);
+    return null;
+  }
+  return { meta, webBase: `${m[1] || ""}web/${m[2]}` };
 }
 
 function rewriteImage(block, page, info, stats) {
-  const isPicture = block.startsWith("<picture");
-  const imgTag = isPicture ? (block.match(/<img\b[^>]*>/) || [])[0] : block;
+  const imgTag = block.startsWith("<picture") ? (block.match(/<img\b[^>]*>/) || [])[0] : block;
   if (!imgTag) return block;
 
   const attrs = parseAttrs(imgTag);
   const deferred = getAttr(attrs, "data-src") != null;
-  const src = getAttr(attrs, deferred ? "data-src" : "src");
-  const m = src && src.match(/^(.*?)assets\/features\/([^/"]+)\.png$/);
-  if (!m) return block;
-  const [, prefix, name] = m;
-  const meta = info.get(name);
-  if (!meta) {
-    console.warn(`! ${page}: no source image for ${src}`);
-    return block;
-  }
+  const hit = lookup(getAttr(attrs, deferred ? "data-src" : "src"), page, info);
+  if (!hit) return block;
+  const { meta, webBase } = hit;
 
-  // The first <source> carries the sizes once converted; a bare <img> may carry its own.
-  const existingSizes = isPicture ? (block.match(/<source\b[^>]*\bsizes="([^"]*)"/) || [])[1] : undefined;
-  const sizes = existingSizes || getAttr(attrs, "sizes") || defaultSizes(page);
-  delAttr(attrs, "sizes");
+  // A sizes attribute on the <img> is a per-image override and is kept there.
+  const sizes = getAttr(attrs, "sizes") || meta.set.sizes(page);
   delAttr(attrs, "srcset");
   setAttr(attrs, "width", String(meta.width));
   setAttr(attrs, "height", String(meta.height));
 
   const srcsetAttr = deferred ? "data-srcset" : "srcset";
   const sources = FORMATS.map(fmt => {
-    const srcset = meta.widths
-      .map(w => `${prefix}assets/features/web/${name}-${w}.${fmt.ext} ${w}w`)
-      .join(", ");
+    const srcset = meta.widths.map(w => `${webBase}-${w}.${fmt.ext} ${w}w`).join(", ");
     return `<source type="${fmt.type}" ${srcsetAttr}="${srcset}" sizes="${sizes}" />`;
   }).join("");
 
@@ -173,33 +219,41 @@ function rewriteImage(block, page, info, stats) {
   return `<picture data-opt>${sources}${renderImg(attrs)}</picture>`;
 }
 
-function rewriteGalleryJson(html, info, stats) {
+function rewriteJson(html, page, info, stats) {
   return html.replace(
-    /("img":\s*"[^"]*?assets\/features\/([^"/]+)\.png")(?:,\s*"w":\s*\d+,\s*"h":\s*\d+,\s*"widths":\s*\[[^\]]*\])?/g,
-    (m, head, name) => {
-      const meta = info.get(name);
-      if (!meta) return m;
+    /("img":\s*"([^"]+)")(?:,\s*"w":\s*\d+,\s*"h":\s*\d+,\s*"widths":\s*\[[^\]]*\])?/g,
+    (m, head, url) => {
+      const hit = lookup(url, page, info);
+      if (!hit) return m;
       stats.json++;
-      return `${head}, "w": ${meta.width}, "h": ${meta.height}, "widths": [${meta.widths.join(", ")}]`;
+      return `${head}, "w": ${hit.meta.width}, "h": ${hit.meta.height}, "widths": [${hit.meta.widths.join(", ")}]`;
     }
   );
 }
 
-function rewritePages(info) {
+function pagesToRewrite() {
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, "i18n", "config.json"), "utf8"));
+  const blogDir = path.join(ROOT, "blogs");
+  const blogs = fs.existsSync(blogDir)
+    ? fs.readdirSync(blogDir).filter(f => f.endsWith(".html")).sort().map(f => `blogs/${f}`)
+    : [];
+  return [...config.pages, ...blogs];
+}
+
+function rewritePages(info) {
   let changed = 0;
-  for (const page of config.pages) {
+  for (const page of pagesToRewrite()) {
     const file = path.join(ROOT, page);
     if (!fs.existsSync(file)) continue;
     const before = fs.readFileSync(file, "utf8");
     const stats = { images: 0, json: 0 };
     let html = before.replace(/<picture data-opt>[\s\S]*?<\/picture>|<img\b[^>]*>/g,
       block => rewriteImage(block, page, info, stats));
-    html = rewriteGalleryJson(html, info, stats);
+    html = rewriteJson(html, page, info, stats);
     if (html !== before) {
       fs.writeFileSync(file, html, "utf8");
       changed++;
-      console.log(`✓ ${page}: ${stats.images} image(s), ${stats.json} gallery entr${stats.json === 1 ? "y" : "ies"}`);
+      console.log(`✓ ${page}: ${stats.images} image(s), ${stats.json} JSON entr${stats.json === 1 ? "y" : "ies"}`);
     }
   }
   console.log(changed ? `${changed} page(s) updated.` : "Pages are up to date.");
@@ -210,19 +264,18 @@ function rewritePages(info) {
 const info = await generate();
 rewritePages(info);
 
-let srcTotal = 0;
-const outTotals = {};
-for (const [name, meta] of info) {
-  srcTotal += meta.srcBytes;
-  for (const w of meta.widths) {
-    for (const fmt of FORMATS) {
-      const key = `${fmt.ext} @${w === meta.width ? "full" : w}`;
-      outTotals[key] = (outTotals[key] || 0) + fs.statSync(path.join(OUT_DIR, `${name}-${w}.${fmt.ext}`)).size;
-    }
+const totals = new Map(); // folder -> bytes of originals and of the smallest rendition per format
+for (const meta of info.values()) {
+  const folder = path.relative(ROOT, path.dirname(meta.outDir)).replace(/\\/g, "/");
+  const t = totals.get(folder) || { src: 0, avif: 0, webp: 0 };
+  t.src += meta.srcBytes;
+  for (const fmt of FORMATS) {
+    t[fmt.ext] += fs.statSync(path.join(meta.outDir, `${meta.name}-${meta.widths[0]}.${fmt.ext}`)).size;
   }
+  totals.set(folder, t);
 }
-console.log(`\nOriginal PNGs: ${kb(srcTotal)}`);
-for (const [key, bytes] of Object.entries(outTotals)) {
-  console.log(`  ${key.padEnd(10)} ${kb(bytes).padStart(9)}  (${((100 * bytes) / srcTotal).toFixed(0)}%)`);
+console.log("\nOriginals vs. smallest rendition (all images per folder):");
+for (const [folder, t] of totals) {
+  console.log(`  ${folder.padEnd(22)} ${kb(t.src).padStart(9)}  ->  avif ${kb(t.avif).padStart(7)}  webp ${kb(t.webp).padStart(7)}`);
 }
 console.log("\nNext: node tools/build-i18n.js");

@@ -132,7 +132,7 @@ real radio is ~6× slower than that guess. Measuring beat assuming.</p>
 <strong>round and centered</strong>, not sheared or spiraled. The phase is being tracked; the
 remaining spread is just additive noise:</p>
 <figure class="post-figure">
-  <img src="images/real-qpsk.png" alt="Real-link QPSK, phase tracked">
+  <picture data-opt><source type="image/avif" srcset="images/web/real-qpsk-480.avif 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/real-qpsk-480.webp 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/real-qpsk.png" alt="Real-link QPSK, phase tracked" loading="lazy" width="480" height="480" /></picture>
   <figcaption>Real-link QPSK, phase tracked</figcaption>
 </figure>
 <h2>The payoff: a rung of throughput</h2>
@@ -140,7 +140,7 @@ remaining spread is just additive noise:</p>
 2/3 (Level 2)</strong> — the first rung that failed in Part 1 — now decodes cleanly on
 the real link, every capture:</p>
 <figure class="post-figure">
-  <img src="images/real-qpsk23-recovered.png" alt="Real-link QPSK R2/3, recovered">
+  <picture data-opt><source type="image/avif" srcset="images/web/real-qpsk23-recovered-480.avif 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/real-qpsk23-recovered-480.webp 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/real-qpsk23-recovered.png" alt="Real-link QPSK R2/3, recovered" loading="lazy" width="480" height="480" /></picture>
   <figcaption>Real-link QPSK R2/3, recovered</figcaption>
 </figure>
 <p>That moved the <strong>reliable ceiling from Level 1 to Level 2 (~2 → ~3 kbps, +50%)</strong>,
@@ -156,7 +156,7 @@ correlation rose 0.80 → 0.88, because the radio rolls off the top of the band)
 <p>So why do 8PSK and 16QAM still fail? We finally have a clean answer. Here&#39;s 16QAM
 over the real link:</p>
 <figure class="post-figure">
-  <img src="images/real-16qam-snr-limited.png" alt="Real-link 16QAM, SNR-limited">
+  <picture data-opt><source type="image/avif" srcset="images/web/real-16qam-snr-limited-480.avif 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/real-16qam-snr-limited-480.webp 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/real-16qam-snr-limited.png" alt="Real-link 16QAM, SNR-limited" loading="lazy" width="480" height="480" /></picture>
   <figcaption>Real-link 16QAM, SNR-limited</figcaption>
 </figure>
 <p>A diffuse cloud that never resolves into the 16-point grid — but the <strong>phase drift

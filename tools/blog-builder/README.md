@@ -26,6 +26,10 @@ It will:
 4. Regenerate `HTCommanderSite/blog.html` (the card index) from the posts'
    `README.md` — sections, order and blurbs all come from that file.
 
+Then run the image optimizer (`npm run build` in `tools/image-optimizer`) so the
+post images are served as resized AVIF/WebP. A fresh blog build writes plain
+`<img>` tags, and the optimizer converts them again.
+
 ## How a post becomes a page
 
 - The first `# Heading` is the page title.
@@ -34,6 +38,9 @@ It will:
 - The rest of the markdown is rendered to the site's dark theme: tables, code
   blocks, block quotes, images (with captions from their alt text) and
   ```mermaid``` diagrams (rendered client-side via mermaid.js).
+- Post images get `loading="lazy"`. mermaid.js (about 1 MB) is only downloaded
+  once a diagram comes within 200 px of the viewport, so pages whose diagrams
+  are further down load without it.
 
 ## Adding a new post
 

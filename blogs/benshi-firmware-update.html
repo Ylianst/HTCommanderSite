@@ -398,8 +398,16 @@ an explicit second-phase confirmation.</li>
 
   <script src="../assets/js/main.js"></script>
   <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+    const diagrams = document.querySelectorAll('pre.mermaid');
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      observer.disconnect();
+      import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs').then(({ default: mermaid }) => {
+        mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'strict', themeVariables: { fontFamily: 'inherit' } });
+        mermaid.run({ nodes: diagrams });
+      });
+    }, { rootMargin: '200px 0px' });
+    diagrams.forEach((d) => observer.observe(d));
   </script>
 </body>
 </html>

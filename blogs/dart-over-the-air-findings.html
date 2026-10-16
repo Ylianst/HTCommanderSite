@@ -227,14 +227,14 @@ settle at Level 1.</p>
 <h3>The constellations tell the story</h3>
 <p><strong>Level 0 — BPSK (decoded ✅)</strong></p>
 <figure class="post-figure">
-  <img src="images/DART-0.png" alt="BPSK constellation, over the air">
+  <picture data-opt><source type="image/avif" srcset="images/web/DART-0-480.avif 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/DART-0-480.webp 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/DART-0.png" alt="BPSK constellation, over the air" loading="lazy" width="480" height="480" /></picture>
   <figcaption>BPSK constellation, over the air</figcaption>
 </figure>
 <p>Two heavily-smeared clusters, but they stay cleanly separated left/right of the
 axis. BPSK only cares about <em>sign</em>, so even a very noisy link recovers the bits.</p>
 <p><strong>Level 1 — QPSK (decoded ✅)</strong></p>
 <figure class="post-figure">
-  <img src="images/DART-1.png" alt="QPSK constellation, over the air">
+  <picture data-opt><source type="image/avif" srcset="images/web/DART-1-480.avif 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/DART-1-480.webp 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/DART-1.png" alt="QPSK constellation, over the air" loading="lazy" width="480" height="480" /></picture>
   <figcaption>QPSK constellation, over the air</figcaption>
 </figure>
 <p>Four clusters, one per quadrant. Spread and overlapping toward the center, but
@@ -242,14 +242,14 @@ the rate-1/2 FEC has enough margin to clean up the residual errors. <strong>This
 fastest mode that reliably worked.</strong></p>
 <p><strong>Level 3 — 8PSK (failed ❌)</strong></p>
 <figure class="post-figure">
-  <img src="images/DART-3.png" alt="8PSK constellation, over the air">
+  <picture data-opt><source type="image/avif" srcset="images/web/DART-3-480.avif 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/DART-3-480.webp 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/DART-3.png" alt="8PSK constellation, over the air" loading="lazy" width="480" height="480" /></picture>
   <figcaption>8PSK constellation, over the air</figcaption>
 </figure>
 <p>Eight phase points need 45° of resolution. Instead we get a smeared ring that
 never resolves into eight clusters — the phase precision simply isn&#39;t there.</p>
 <p><strong>Level 4 — 16QAM (failed ❌)</strong></p>
 <figure class="post-figure">
-  <img src="images/DART-4.png" alt="16QAM constellation, over the air">
+  <picture data-opt><source type="image/avif" srcset="images/web/DART-4-480.avif 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/DART-4-480.webp 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/DART-4.png" alt="16QAM constellation, over the air" loading="lazy" width="480" height="480" /></picture>
   <figcaption>16QAM constellation, over the air</figcaption>
 </figure>
 <p>16QAM needs precise <strong>amplitude <em>and</em> phase</strong>. The received symbols land nowhere
@@ -313,7 +313,7 @@ problem, 16QAM should fail here too.</p>
 <p>It didn&#39;t. Not even close:</p>
 <p><strong>Level 5 — 16QAM through simulated SBC + 25 dB noise (decoded ✅, 0 corrections)</strong></p>
 <figure class="post-figure">
-  <img src="images/DART-5-sim.png" alt="16QAM constellation, simulated SBC + noise">
+  <picture data-opt><source type="image/avif" srcset="images/web/DART-5-sim-480.avif 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/DART-5-sim-480.webp 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/DART-5-sim.png" alt="16QAM constellation, simulated SBC + noise" loading="lazy" width="480" height="480" /></picture>
   <figcaption>16QAM constellation, simulated SBC + noise</figcaption>
 </figure>
 <p>Sixteen tight, perfectly-resolved clusters on the ideal grid. EVM <strong>2.9%</strong> versus
@@ -327,7 +327,7 @@ the FM radio audio path</strong> — something additive-noise simulation doesn&#
 <p>Sharp-eyed readers will notice the bottom-left of that simulated constellation is
 denser than the rest:</p>
 <figure class="post-figure">
-  <img src="images/DART-5-long.png" alt="16QAM with a longer payload — clusters even out">
+  <picture data-opt><source type="image/avif" srcset="images/web/DART-5-long-480.avif 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><source type="image/webp" srcset="images/web/DART-5-long-480.webp 480w" sizes="(max-width: 868px) calc(100vw - 63px), 820px" /><img src="images/DART-5-long.png" alt="16QAM with a longer payload — clusters even out" loading="lazy" width="480" height="480" /></picture>
   <figcaption>16QAM with a longer payload — clusters even out</figcaption>
 </figure>
 <p>That is <strong>not</strong> a channel effect — it&#39;s the <strong>zero-padding of a short message</strong>.
