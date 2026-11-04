@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Satellite tracker - HTCommander</title>
+  <meta name="description" content="Explore amateur radio satellites on an interactive 3D globe. See current positions, orbits, local visibility, upcoming passes and radio frequencies." />
+  <meta name="theme-color" content="#e7ebf0" />
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="assets/css/style.css?v=20261016" />
+  <link rel="stylesheet" href="assets/css/satellites.css?v=20261104" />
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/","satellite.js":"https://cdn.jsdelivr.net/npm/satellite.js@6.0.1/dist/satellite.es.js"}}</script>
+</head>
+<body class="satellite-page">
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html"><img src="assets/img/appicon.png" alt="HTCommander icon" /><span><b>HTCommander</b></span></a>
+      <nav class="nav__links" id="navLinks">
+        <a href="features.html">Features</a><a href="radios.html">Radios</a><a href="screens.html">Screens</a><a href="satellites.html" aria-current="page">Satellites</a><a href="blog.html">Blog</a>
+      </nav>
+      <div class="nav__cta">
+        <a class="btn btn--primary btn--sm" href="downloads.html">Download</a>
+        <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false"><i data-lucide="menu"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="tracker-heading container">
+      <div><span class="eyebrow">Amateur radio / Orbital tracking</span><h1>Satellite tracker</h1></div>
+      <div class="tracker-clock"><span class="live-dot"></span><time id="utcClock">UTC</time></div>
+    </div>
+    <section class="tracker" aria-label="Satellite tracker">
+      <div class="globe-stage" id="globeStage">
+        <canvas id="globe" aria-label="Interactive Earth with satellite positions and orbits" tabindex="0"></canvas>
+        <div class="globe-top"><span id="catalogCount">Loading satellites</span><span id="visibleCount">Location not set</span></div>
+        <div id="satelliteLabels" class="satellite-labels"></div>
+        <div class="globe-tools" aria-label="Globe controls">
+          <button type="button" id="zoomIn" title="Zoom in" aria-label="Zoom in"><i data-lucide="plus"></i></button>
+          <button type="button" id="zoomOut" title="Zoom out" aria-label="Zoom out"><i data-lucide="minus"></i></button>
+          <button type="button" id="centerView" title="Center on observer" aria-label="Center on observer"><i data-lucide="locate-fixed"></i></button>
+          <button type="button" id="resetView" title="Reset view" aria-label="Reset view"><i data-lucide="rotate-ccw"></i></button>
+          <button type="button" id="fullscreen" title="Full screen" aria-label="Full screen"><i data-lucide="maximize"></i></button>
+        </div>
+        <div class="globe-bottom">
+          <div class="globe-legend"><span><b class="key selected"></b>Selected</span><span><b class="key visible"></b>In range</span><span><b class="key observer"></b>Observer</span></div>
+          <div class="globe-options"><label><input id="showOrbits" type="checkbox" checked /> Orbits</label><label><input id="showLabels" type="checkbox" checked /> Labels</label><label><input id="autoRotate" type="checkbox" /> Rotate</label></div>
+        </div>
+        <div class="globe-message" id="globeMessage" role="status">Loading orbital data...</div>
+      </div>
+
+      <aside class="tracker-sidebar" aria-label="Observer and satellites">
+        <form id="observerForm" class="observer-form">
+          <div class="sidebar-title"><h2>Observer</h2><button class="icon-button" id="useLocation" type="button" title="Use my location" aria-label="Use my location"><i data-lucide="map-pin"></i></button></div>
+          <div class="observer-fields">
+            <label>Latitude<input id="latitude" type="number" min="-90" max="90" step="any" placeholder="-90 to 90" required /></label>
+            <label>Longitude<input id="longitude" type="number" min="-180" max="180" step="any" placeholder="-180 to 180" required /></label>
+            <label>Min. elevation<select id="minElevation"><option value="0">0 degrees</option><option value="5">5 degrees</option><option value="10" selected>10 degrees</option><option value="20">20 degrees</option><option value="30">30 degrees</option></select></label>
+            <button type="submit" class="btn btn--primary btn--sm">Set observer</button>
+          </div>
+          <p id="observerStatus" role="status">No observer location set</p>
+        </form>
+        <div class="satellite-list-head"><h2>Satellites <span id="listCount"></span></h2><label><input type="checkbox" id="visibleOnly" /> In range only</label></div>
+        <label class="search-field"><i data-lucide="search"></i><input id="satelliteSearch" type="search" placeholder="Search satellites" aria-label="Search satellites" /></label>
+        <div id="satelliteList" class="satellite-list" aria-label="Satellite list"></div>
+        <section id="satelliteDetails" class="satellite-details" aria-label="Selected satellite"><h2>Select a satellite</h2></section>
+      </aside>
+    </section>
+    <div class="tracker-notes container">
+      <p id="dataStatus" role="status">Orbital data: loading</p>
+      <p>In range means above your minimum elevation, not confirmation that a repeater is active. Frequencies are nominal, without Doppler correction. Check the operator's current schedule before transmitting. An amateur radio license is required.</p>
+      <p>Catalog: <a href="https://github.com/Ylianst/HTCommander/tree/main/src/assets/satellites" target="_blank" rel="noopener">HTCommander</a> / <a href="https://db.satnogs.org/" target="_blank" rel="noopener">SatNOGS</a>. Orbital elements: <a href="https://celestrak.org/" target="_blank" rel="noopener">CelesTrak</a>. <a href="features/satellite.html">Satellite support in HTCommander</a></p>
+    </div>
+  </main>
+  <footer class="tracker-footer container"><a href="index.html">HTCommander</a><a href="privacy.html">Privacy policy</a><a href="https://github.com/Ylianst/HTCommander" target="_blank" rel="noopener">View source</a></footer>
+  <script src="assets/js/main.js?v=20261016"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script type="module" src="assets/js/satellites.js?v=20261104"></script>
+  <noscript><p class="container">JavaScript and WebGL are required for the satellite tracker.</p></noscript>
+</body>
+</html>
