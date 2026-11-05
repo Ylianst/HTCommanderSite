@@ -38,6 +38,7 @@
         <div class="globe-tools" aria-label="Globe controls">
           <button type="button" id="zoomIn" title="Zoom in" aria-label="Zoom in"><i data-lucide="plus"></i></button>
           <button type="button" id="zoomOut" title="Zoom out" aria-label="Zoom out"><i data-lucide="minus"></i></button>
+          <button type="button" id="setStation" title="Set station location" aria-label="Set station location" aria-haspopup="dialog"><i data-lucide="map-pin"></i></button>
           <button type="button" id="centerView" title="Center on observer" aria-label="Center on observer"><i data-lucide="locate-fixed"></i></button>
           <button type="button" id="resetView" title="Reset view" aria-label="Reset view"><i data-lucide="rotate-ccw"></i></button>
           <button type="button" id="fullscreen" title="Full screen" aria-label="Full screen"><i data-lucide="maximize"></i></button>
@@ -47,25 +48,22 @@
           <div class="globe-options"><label><input id="showOrbits" type="checkbox" checked /> Orbits</label><label><input id="showLabels" type="checkbox" checked /> Labels</label><label><input id="autoRotate" type="checkbox" /> Rotate</label></div>
         </div>
         <div class="globe-message" id="globeMessage" role="status">Loading orbital data...</div>
+        <dialog id="stationDialog" class="station-dialog" aria-labelledby="stationTitle">
+          <form id="observerForm" class="observer-form">
+            <div class="dialog-heading"><h2 id="stationTitle">Station location</h2><button class="icon-button" id="closeStation" type="button" title="Close" aria-label="Close station settings"><i data-lucide="x"></i></button></div>
+            <div class="observer-fields">
+              <label>Latitude<input id="latitude" type="number" min="-90" max="90" step="any" placeholder="-90 to 90" required /></label>
+              <label>Longitude<input id="longitude" type="number" min="-180" max="180" step="any" placeholder="-180 to 180" required /></label>
+              <label>Min. elevation<select id="minElevation"><option value="0">0 degrees</option><option value="5">5 degrees</option><option value="10" selected>10 degrees</option><option value="20">20 degrees</option><option value="30">30 degrees</option></select></label>
+              <button class="btn btn--ghost btn--sm" id="useLocation" type="button"><i data-lucide="locate-fixed"></i>Use my location</button>
+            </div>
+            <p id="observerStatus" role="status">No station location set</p>
+            <div class="dialog-actions"><button class="btn btn--ghost btn--sm" id="cancelStation" type="button">Cancel</button><button type="submit" class="btn btn--primary btn--sm">Save location</button></div>
+          </form>
+        </dialog>
       </div>
-
-      <aside class="tracker-sidebar" aria-label="Observer and satellites">
-        <form id="observerForm" class="observer-form">
-          <div class="sidebar-title"><h2>Observer</h2><button class="icon-button" id="useLocation" type="button" title="Use my location" aria-label="Use my location"><i data-lucide="map-pin"></i></button></div>
-          <div class="observer-fields">
-            <label>Latitude<input id="latitude" type="number" min="-90" max="90" step="any" placeholder="-90 to 90" required /></label>
-            <label>Longitude<input id="longitude" type="number" min="-180" max="180" step="any" placeholder="-180 to 180" required /></label>
-            <label>Min. elevation<select id="minElevation"><option value="0">0 degrees</option><option value="5">5 degrees</option><option value="10" selected>10 degrees</option><option value="20">20 degrees</option><option value="30">30 degrees</option></select></label>
-            <button type="submit" class="btn btn--primary btn--sm">Set observer</button>
-          </div>
-          <p id="observerStatus" role="status">No observer location set</p>
-        </form>
-        <div class="satellite-list-head"><h2>Satellites <span id="listCount"></span></h2><label><input type="checkbox" id="visibleOnly" /> In range only</label></div>
-        <label class="search-field"><i data-lucide="search"></i><input id="satelliteSearch" type="search" placeholder="Search satellites" aria-label="Search satellites" /></label>
-        <div id="satelliteList" class="satellite-list" aria-label="Satellite list"></div>
-        <section id="satelliteDetails" class="satellite-details" aria-label="Selected satellite"><h2>Select a satellite</h2></section>
-      </aside>
     </section>
+    <section id="satelliteDetails" class="satellite-details" aria-label="Selected satellite" hidden><div id="satelliteDetailsContent" class="container"></div></section>
     <div class="tracker-notes container">
       <p id="dataStatus" role="status">Orbital data: loading</p>
       <p>In range means above your minimum elevation, not confirmation that a repeater is active. Frequencies are nominal, without Doppler correction. Check the operator's current schedule before transmitting. An amateur radio license is required.</p>

@@ -92,13 +92,11 @@ async function loadCatalog() {
   }
   state.satellites = [...elements.values()].filter((item) => grouped.get(item.id)?.some(workable)).map((item) => ({ ...item, usages: grouped.get(item.id).sort((first, second) => Number(workable(second)) - Number(workable(first))) })).sort((first, second) => first.name.localeCompare(second.name));
   if (!state.satellites.length) throw new Error('No satellite orbital data available.');
-  state.selected = state.satellites.find((item) => item.id === 25544)?.id || state.satellites[0].id;
   const oldest = Math.min(...state.satellites.map((item) => (item.record.jdsatepoch - 2440587.5) * 86400000));
   const ageDays = Math.max(0, Math.floor((Date.now() - oldest) / 86400000));
   $('dataStatus').textContent = `${source}. Oldest orbital epoch: ${new Date(oldest).toISOString().slice(0, 10)} (${ageDays} days old).${ageDays > 7 ? ' Stale elements: positions and pass times may be inaccurate.' : ''}`;
   $('dataStatus').classList.toggle('stale', ageDays > 7);
   $('catalogCount').textContent = `${state.satellites.length} amateur satellites`;
-  $('listCount').textContent = state.satellites.length;
 }
 
 async function buildGlobe() {
@@ -151,13 +149,36 @@ async function buildGlobe() {
   });
   try {
     const land = JSON.parse(await getText(new URL('world_land_110m.json', DATA_ROOT)));
-    const material = new THREE.LineBasicMaterial({ color: '#9abfae', transparent: true, opacity: 0.85 });
+    const mapCanvas = document.createElement('canvas');
+    mapCanvas.width = 2048;
+    mapCanvas.height = 1024;
+    const context = mapCanvas.getContext('2d');
+    context.fillStyle = '#1e4663';
+    context.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
+    context.fillStyle = '#3f7a4a';
+    const material = new THREE.LineBasicMaterial({ color: '#8fc79a', transparent: true, opacity: 0.85 });
     for (const ring of land.rings) {
       const points = [];
-      for (let index = 0; index < ring.length; index += 2) points.push(surface(ring[index + 1], ring[index], 1.003));
+      context.beginPath();
+      for (let index = 0; index < ring.length; index += 2) {
+        const longitude = ring[index];
+        const latitude = ring[index + 1];
+        const mapX = (longitude + 180) / 360 * mapCanvas.width;
+        const mapY = (90 - latitude) / 180 * mapCanvas.height;
+        if (index === 0) context.moveTo(mapX, mapY); else context.lineTo(mapX, mapY);
+        points.push(surface(latitude, longitude, 1.003));
+      }
+      context.closePath();
+      context.fill();
       scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), material));
     }
-  } catch { $('dataStatus').textContent += ' Land outlines unavailable.'; }
+    const texture = new THREE.CanvasTexture(mapCanvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    earth.material.map = texture;
+    earth.material.color.set('#ffffff');
+    earth.material.needsUpdate = true;
+  } catch { $('dataStatus').textContent += ' Land map unavailable.'; }
 }
 function surface(latitude, longitude, radius = 1) {
   return new THREE.Vector3(Math.cos(latitude * RAD) * Math.cos(longitude * RAD), Math.sin(latitude * RAD), -Math.cos(latitude * RAD) * Math.sin(longitude * RAD)).multiplyScalar(radius);
@@ -169,9 +190,12 @@ function makeMarkers() {
     marker.userData.id = item.id;
     markers.add(marker);
     item.marker = marker;
-    const label = document.createElement('span');
+    const label = document.createElement('button');
+    label.type = 'button';
     label.className = 'satellite-label';
     label.textContent = item.name;
+    label.title = `Select ${item.name}`;
+    label.addEventListener('click', () => selectSatellite(item.id));
     $('satelliteLabels').append(label);
     item.label = label;
   }
@@ -241,13 +265,13 @@ function tick() {
     item.marker.material.color.set(color);
     item.marker.scale.setScalar(selected ? 1.65 : item.inRange ? 1.3 : 1);
     item.label.className = `satellite-label${selected ? ' is-selected' : item.inRange ? ' in-range' : ''}`;
+    item.label.setAttribute('aria-pressed', String(selected));
     if (item.orbit) {
       item.orbit.material.color.set(selected ? '#ffd166' : item.inRange ? '#39d89a' : '#58758e');
       item.orbit.material.opacity = selected ? 0.85 : item.inRange ? 0.55 : 0.25;
     }
   }
   $('visibleCount').textContent = state.observer ? `${visible} in range` : 'Location not set';
-  renderList();
   updateDetails();
 }
 function element(tag, text, className) {
@@ -255,31 +279,6 @@ function element(tag, text, className) {
   if (text != null) node.textContent = text;
   if (className) node.className = className;
   return node;
-}
-function renderList() {
-  const query = $('satelliteSearch').value.toLowerCase();
-  const items = state.satellites.filter((item) => `${item.name} ${item.id} ${item.usages.map((usage) => usage.name).join(' ')}`.toLowerCase().includes(query) && (!$('visibleOnly').checked || item.inRange));
-  const list = $('satelliteList');
-  const signature = `${!!state.observer}:${items.map((item) => item.id).join(',')}`;
-  if (list.dataset.signature !== signature) {
-    list.replaceChildren();
-    for (const item of items) {
-      const row = element('button', null, 'satellite-row');
-      row.type = 'button';
-      row.dataset.id = item.id;
-      row.append(element('strong', item.name), element('span', '', 'row-angle'), element('small', `NORAD ${item.id} / ${[...new Set(item.usages.map((usage) => usage.usage))].join(', ')}`));
-      row.addEventListener('click', () => selectSatellite(item.id));
-      list.append(row);
-    }
-    if (!items.length) list.append(element('p', state.observer ? 'No matching satellites.' : 'Set an observer location to filter by visibility.', 'list-empty'));
-    list.dataset.signature = signature;
-  }
-  for (const row of list.querySelectorAll('button')) {
-    const item = state.satellites.find((entry) => entry.id === Number(row.dataset.id));
-    row.setAttribute('aria-pressed', String(item.id === state.selected));
-    row.classList.toggle('in-range', item.inRange);
-    row.querySelector('.row-angle').textContent = !item.position ? 'No orbit' : item.position.elevation == null ? '--' : `${item.position.elevation.toFixed(1)}\u00b0`;
-  }
 }
 function selectSatellite(id) {
   state.selected = id;
@@ -290,20 +289,24 @@ function mhz(hz) { return hz == null ? '--' : `${(hz / 1e6).toFixed(5)} MHz`; }
 function updateDetails() {
   const item = state.satellites.find((entry) => entry.id === state.selected);
   if (!item) return;
-  const panel = $('satelliteDetails');
+  $('satelliteDetails').hidden = false;
+  const panel = $('satelliteDetailsContent');
   if (panel.dataset.id !== String(item.id)) {
     const epoch = new Date((item.record.jdsatepoch - 2440587.5) * 86400000);
     const stale = Date.now() - epoch.getTime() > 7 * 86400000;
-    panel.replaceChildren(element('h2', item.name), element('p', `NORAD ${item.id} / Epoch ${epoch.toISOString().slice(0, 10)}${stale ? ' / STALE ORBIT' : ''}`, `detail-meta${stale ? ' stale-orbit' : ''}`));
-    const ground = element('p', '', 'detail-meta'); ground.id = 'groundPosition'; panel.append(ground);
+    const summary = element('div', null, 'satellite-summary');
+    summary.append(element('h2', item.name), element('p', `NORAD ${item.id} / Epoch ${epoch.toISOString().slice(0, 10)}${stale ? ' / STALE ORBIT' : ''}`, `detail-meta${stale ? ' stale-orbit' : ''}`));
+    const ground = element('p', '', 'detail-meta'); ground.id = 'groundPosition'; summary.append(ground);
     const angles = element('dl', null, 'look-angles');
     for (const [label, id] of [['Azimuth', 'azimuth'], ['Elevation', 'elevation'], ['Range', 'range']]) {
       const wrap = element('div');
       const value = element('dd', '--'); value.id = id;
       wrap.append(element('dt', label), value); angles.append(wrap);
     }
-    panel.append(angles);
-    const pass = element('p', 'Set an observer for pass predictions.', 'pass-status'); pass.id = 'passStatus'; panel.append(pass);
+    summary.append(angles);
+    const pass = element('p', 'Set a station location for pass predictions.', 'pass-status'); pass.id = 'passStatus'; summary.append(pass);
+    const usages = element('div', null, 'satellite-usages');
+    panel.replaceChildren(summary, usages);
     for (const usage of item.usages) {
       const section = element('div', null, 'usage');
       const heading = element('h3');
@@ -312,7 +315,7 @@ function updateDetails() {
       } else heading.textContent = `${usage.usage} / ${usage.mode}`;
       section.append(heading, element('p', `TX ${mhz(usage.uplinkHz)}`), element('p', `RX ${mhz(usage.downlinkHz)}`));
       if (usage.ctcssHz) section.append(element('p', `CTCSS ${usage.ctcssHz.toFixed(1)} Hz`));
-      panel.append(section);
+      usages.append(section);
     }
     panel.dataset.id = item.id;
   }
@@ -392,15 +395,39 @@ function centerObserver() {
   controls.target.set(0, 0, 0); controls.update();
 }
 function wireControls() {
-  $('observerForm').addEventListener('submit', (event) => { event.preventDefault(); setObserver(Number($('latitude').value), Number($('longitude').value), Number($('minElevation').value)); });
-  $('minElevation').addEventListener('change', () => { if (state.observer) setObserver(state.observer.latitude / RAD, state.observer.longitude / RAD, Number($('minElevation').value)); });
+  const dialog = $('stationDialog');
+  $('setStation').addEventListener('click', () => {
+    if (state.observer) {
+      $('latitude').value = state.observer.latitude / RAD;
+      $('longitude').value = state.observer.longitude / RAD;
+    } else {
+      $('latitude').value = '';
+      $('longitude').value = '';
+    }
+    $('minElevation').value = state.minElevation;
+    $('observerStatus').textContent = state.observer ? `${Number($('latitude').value).toFixed(3)}, ${Number($('longitude').value).toFixed(3)}` : 'No station location set';
+    dialog.showModal();
+  });
+  $('closeStation').addEventListener('click', () => dialog.close());
+  $('cancelStation').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') { event.preventDefault(); dialog.close(); }
+  });
+  $('observerForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    setObserver(Number($('latitude').value), Number($('longitude').value), Number($('minElevation').value));
+    dialog.close();
+  });
   $('useLocation').addEventListener('click', () => {
     if (!navigator.geolocation) { $('observerStatus').textContent = 'Geolocation unavailable. Enter coordinates manually.'; return; }
     $('observerStatus').textContent = 'Requesting location...';
-    navigator.geolocation.getCurrentPosition((position) => setObserver(position.coords.latitude, position.coords.longitude, Number($('minElevation').value)), () => { $('observerStatus').textContent = 'Location unavailable. Enter coordinates manually.'; }, { timeout: 15000, maximumAge: 300000 });
+    navigator.geolocation.getCurrentPosition((position) => {
+      if (!dialog.open) return;
+      $('latitude').value = position.coords.latitude;
+      $('longitude').value = position.coords.longitude;
+      $('observerStatus').textContent = `${position.coords.latitude.toFixed(3)}, ${position.coords.longitude.toFixed(3)}`;
+    }, () => { if (dialog.open) $('observerStatus').textContent = 'Location unavailable. Enter coordinates manually.'; }, { timeout: 15000, maximumAge: 300000 });
   });
-  $('satelliteSearch').addEventListener('input', renderList);
-  $('visibleOnly').addEventListener('change', renderList);
   $('showOrbits').addEventListener('change', () => { orbits.visible = $('showOrbits').checked; });
   $('autoRotate').addEventListener('change', () => { controls.autoRotate = $('autoRotate').checked; });
   $('zoomIn').addEventListener('click', () => { camera.position.multiplyScalar(0.8); controls.update(); });
